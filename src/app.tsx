@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import "@aws-amplify/ui-react/styles.css";
 
-import awsExports from "./aws-exports";
+import awsExports from "./aws-exports.js";
 Amplify.configure(awsExports);
 
 import { createContext, useState, useEffect } from "react";
