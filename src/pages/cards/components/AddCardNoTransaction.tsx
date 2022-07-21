@@ -1,8 +1,7 @@
 import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
 import React, { useState, useEffect } from "react";
 import AddCardPopup from "./AddCardPopup";
-import FLARE_LOGO from "../../../assets/Flare_Logo_Color.png";
-import GROUP_LOGO from "../../../assets/GROUP.png";
+const GROUP_LOGO = new URL('../../../assets/GROUP.png', import.meta.url);
 import NavBar from "./navbar";
 import DepositFundsPopup from "./DepositFundsPopup";
 import WithdrawFundsPopup from "./WithdrawFundsPopup";
