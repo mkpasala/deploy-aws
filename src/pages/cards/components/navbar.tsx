@@ -1,5 +1,4 @@
-const FlareLogo = new URL('../../../assets/Flare_Logo_Color.svg', import.meta.url);
-//import FlareLogo from "../../../assets/Flare_Logo_Color.svg";
+import FlareLogo from "../../../assets/Flare_Logo_Color.svg";
 
 interface NavBarProps {
 	userStatus?: boolean;
