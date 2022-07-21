@@ -5,9 +5,8 @@
   "source": "src/index.js",
   "main": "dist/index.js",
   "scripts": {
-    "start": "npx parcel src/index.html --https --no-cache",
-    "build": "parcel build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npx parcel src/index.html --https --no-cache --open",
+    "build": "parcel build src/index.html --no-source-maps"
   },
   "repository": {
     "type": "git",
