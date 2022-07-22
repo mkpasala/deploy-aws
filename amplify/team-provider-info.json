@@ -1,0 +1,107 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-devflare-staging-201140-authRole",
+      "UnauthRoleArn": "arn:aws:iam::044193563414:role/amplify-devflare-staging-201140-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::044193563414:role/amplify-devflare-staging-201140-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-devflare-staging-201140-deployment",
+      "UnauthRoleName": "amplify-devflare-staging-201140-unauthRole",
+      "StackName": "amplify-devflare-staging-201140",
+      "StackId": "arn:aws:cloudformation:us-east-1:044193563414:stack/amplify-devflare-staging-201140/bcbd6f30-d22f-11ec-82f5-0eda4ac44dcf",
+      "AmplifyAppId": "dxb789pifky28",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-devflare-staging-201140-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
+    },
+    "categories": {
+      "auth": {
+        "devflare": {}
+      },
+      "function": {
+        "getQuickbooksCode": {
+          "deploymentBucketName": "amplify-devflare-staging-201140-deployment",
+          "s3Key": "amplify-builds/getQuickbooksCode-6a2b4c62697a31767743-build.zip",
+          "secretsPathAmplifyAppId": "dxb789pifky28",
+          "environment": "sandbox",
+          "redirectUrl": "https://localhost:1234/oauth",
+          "quickbooksClientId": "ABHLTGr3kAu6Rup3y6LHpcdlSBHvl4c36uQnMoWCwwiGXtCJRx"
+        },
+        "oauth": {
+          "deploymentBucketName": "amplify-devflare-staging-201140-deployment",
+          "s3Key": "amplify-builds/oauth-7344542f35696342777a-build.zip"
+        },
+        "getQuickbooksTokens": {
+          "deploymentBucketName": "amplify-devflare-staging-201140-deployment",
+          "s3Key": "amplify-builds/getQuickbooksTokens-78705975335233684442-build.zip"
+        },
+        "getQuickbooksCompany": {
+          "deploymentBucketName": "amplify-devflare-staging-201140-deployment",
+          "s3Key": "amplify-builds/getQuickbooksCompany-63664a4f476874304536-build.zip"
+        },
+        "createUser": {
+          "deploymentBucketName": "amplify-devflare-staging-201140-deployment",
+          "s3Key": "amplify-builds/createUser-73684a7a5a7876374d57-build.zip",
+          "databaseHostname": "flare-dev-postgresql-instance-1.cxsh3i4wq1vt.us-east-1.rds.amazonaws.com",
+          "databasePort": "5432",
+          "database": "flare",
+          "databaseUsername": "postgres",
+          "secretsPathAmplifyAppId": "dxb789pifky28"
+        },
+        "createOrganization": {
+          "deploymentBucketName": "amplify-devflare-staging-201140-deployment",
+          "s3Key": "amplify-builds/createOrganization-63736d6b6c524951556b-build.zip",
+          "secretsPathAmplifyAppId": "dxb789pifky28",
+          "databaseUsername": "postgres",
+          "database": "flare",
+          "databaseHostname": "flare-dev-postgresql-instance-1.cxsh3i4wq1vt.us-east-1.rds.amazonaws.com",
+          "databasePort": "5432"
+        },
+        "getUser": {
+          "deploymentBucketName": "amplify-devflare-staging-201140-deployment",
+          "s3Key": "amplify-builds/getUser-6c6975494c684a37304c-build.zip",
+          "secretsPathAmplifyAppId": "dxb789pifky28",
+          "database": "flare",
+          "databaseHostname": "flare-dev-postgresql-instance-1.cxsh3i4wq1vt.us-east-1.rds.amazonaws.com",
+          "databasePort": "5432",
+          "databaseUsername": "postgres"
+        },
+        "devflarepostgresClient": {
+          "deploymentBucketName": "amplify-devflare-staging-201140-deployment",
+          "s3Key": "amplify-builds/devflarepostgresClient-LambdaLayerVersion56756351-build.zip"
+        },
+        "updateOrganization": {
+          "deploymentBucketName": "amplify-devflare-staging-201140-deployment",
+          "s3Key": "amplify-builds/updateOrganization-636275526a777339654e-build.zip",
+          "secretsPathAmplifyAppId": "dxb789pifky28",
+          "databaseHostname": "flare-dev-postgresql-instance-1.cxsh3i4wq1vt.us-east-1.rds.amazonaws.com",
+          "databasePort": "5432",
+          "database": "flare",
+          "databaseUsername": "flare_backend"
+        },
+        "getOrganizationPnlReport": {
+          "deploymentBucketName": "amplify-devflare-staging-201140-deployment",
+          "s3Key": "amplify-builds/getOrganizationPnlReport-384a4232583642367047-build.zip",
+          "databaseHostname": "flare-dev-postgresql-instance-1.cxsh3i4wq1vt.us-east-1.rds.amazonaws.com",
+          "databasePort": "5432",
+          "databaseUsername": "postgres",
+          "database": "flare",
+          "secretsPathAmplifyAppId": "dxb789pifky28"
+        },
+        "getOrganization": {
+          "database": "flare",
+          "databaseHostname": "flare-dev-postgresql-instance-1.cxsh3i4wq1vt.us-east-1.rds.amazonaws.com",
+          "databasePort": "5432",
+          "databaseUsername": "postgres",
+          "secretsPathAmplifyAppId": "dxb789pifky28",
+          "deploymentBucketName": "amplify-devflare-staging-201140-deployment",
+          "s3Key": "amplify-builds/getOrganization-4f4c38336f5943563249-build.zip"
+        }
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "dxb789pifky28",
+          "type": "cicd"
+        }
+      }
+    }
+  }
+}

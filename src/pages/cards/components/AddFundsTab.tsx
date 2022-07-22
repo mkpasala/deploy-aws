@@ -116,6 +116,7 @@ const AddFundsTab = ({ nextStep, previousStep }: AddFundsTabProps) => {
 			) {
 				setMessage(response.raw.message);
 			} else {
+				sessionStorage.removeItem("source_id");
 				navigate("/card-list");
 			}
 		} catch (ex) {

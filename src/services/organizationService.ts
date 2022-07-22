@@ -1,11 +1,28 @@
 import { API } from "aws-amplify";
-import  Organization from "../models/Organization";
+import Organization from "../models/organization";
 
-export default class OrganizationService {
-	async createOrg(
+const organizationService = {
+	getOrg: async (orgId: string): Promise<Organization> => {
+		let organization: Organization;
+
+		try {
+			organization = await API.get(
+				"flareapi",
+				`/organizations/${orgId}`,
+				{}
+			);
+		} catch (error) {
+			const message = "error retreiving org from database.";
+			console.error(message, error);
+			throw `${message}: ${error}`;
+		}
+
+		return organization;
+	},
+	createOrg: async (
 		userId: string,
 		organization: Organization
-	): Promise<Organization> {
+	): Promise<Organization> => {
 		let newOrganization: Organization;
 
 		try {
@@ -19,15 +36,19 @@ export default class OrganizationService {
 		}
 
 		return newOrganization;
-	}
+	},
 
-	async updateOrg(organization: Organization): Promise<Organization> {
+	updateOrg: async (organization: Organization): Promise<Organization> => {
 		let newOrganization: Organization;
 
 		try {
-			newOrganization = await API.put("flareapi", "/organizations", {
-				body: { organization },
-			});
+			newOrganization = await API.put(
+				"flareapi",
+				`/organizations/${organization.id}`,
+				{
+					body: { organization },
+				}
+			);
 		} catch (error) {
 			const message = "error saving to the database.";
 			console.error(message, error);
@@ -35,22 +56,25 @@ export default class OrganizationService {
 		}
 
 		return newOrganization;
-	}
+	},
+	getPnlReport: async (
+		organization: Organization
+	): Promise<any> => {
+		try {
+			console.log("Service Fetching PNL Report")
+			let report = await API.get(
+				"flareapi",
+				`/organizations/${organization.id}/pnl-report`,
+				{}
+			);
 
-	/* 
-		TODO
-	*/
+			return report;
+		} catch (error) {
+			const message = "error getting pnl report.";
+			console.error(message, error);
+			throw `${message}: ${error}`;
+		}
+	},
+};
 
-	// async getOrganization(userId: string): Promise<Organization> {
-	// 	let organization: Organization;
-
-	// 	try {
-	// 		organization = await API.get("flareapi", `/organizations/${}`,{});
-	// 	} catch (error) {
-	// 		console.error("error saving to the database.", error);
-	// 		throw `There was an error signing up with Cognito: ${error}`;
-	// 	}
-
-	// 	return organization;
-	// }
-}
+export default organizationService;

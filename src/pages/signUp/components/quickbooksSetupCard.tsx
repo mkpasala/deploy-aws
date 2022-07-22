@@ -1,6 +1,6 @@
-import { useNavigate } from "react-router-dom";
 import qbLogo from "../../../assets/QuickBooks_Logo_Color.png";
-import SignUpHeader from "./signUpHeader";
+import { Button } from "../../components/Elements";
+import { SignUpHeader } from "./signUpHeader";
 
 const generateTable = (
 	col1Name: string,
@@ -45,11 +45,15 @@ const generateTable = (
 	);
 };
 
-export function QuickbooksSetupCard() {
-	const navigate = useNavigate();
+interface QuickbooksSetupCardProps {
+	next: () => void;
+	prev: () => void;
+}
+
+export function QuickbooksSetupCard({ prev }: QuickbooksSetupCardProps) {
 	return (
 		<div className="w-3/4 mx-auto">
-			<SignUpHeader />
+			<SignUpHeader currentStep={3} />
 			<div className="flex flex-col w-full pt-14 bg-white rounded-md shadow">
 				<div className="text-dark w-full text-xs mx-auto">
 					<div className="flex mx-auto justify-center items-center gap-2">
@@ -75,22 +79,17 @@ export function QuickbooksSetupCard() {
 				</div>
 				<hr className="border border-dark/5 mt-11" />
 				<div className="flex justify-between items-center p-5">
-					<a
-						className="text-dark/70 text-base cursor-pointer"
-						onClick={() => navigate("/signup/api-auth-connect")}
-					>
+					<Button variant="secondaryLink" onClick={prev}>
 						Back
-					</a>
-					<button
-						className="text-white text-base bg-dark/50 px-10 py-2 rounded"
+					</Button>
+					<Button
+						variant="secondary"
 						onClick={() => alert("End of Sign Up Flow")}
 					>
 						Finish
-					</button>
+					</Button>
 				</div>
 			</div>
 		</div>
 	);
 }
-
-export default QuickbooksSetupCard;

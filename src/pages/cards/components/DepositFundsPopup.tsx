@@ -158,6 +158,7 @@ const DepositFundsPopup = ({ isShow, onHide }: DepositFundsPopupProps) => {
 				setMessage(response.raw.message);
 			} else {
 				onHide();
+				setMessage("");
 			}
 		} catch (ex) {
 			console.log("exception", ex);
@@ -206,6 +207,7 @@ const DepositFundsPopup = ({ isShow, onHide }: DepositFundsPopupProps) => {
 														<button
 															onClick={(event) => {
 																onHide();
+																setMessage("");
 															}}
 															className="hover:bg-gray-200"
 														>
@@ -322,22 +324,30 @@ const DepositFundsPopup = ({ isShow, onHide }: DepositFundsPopupProps) => {
 															+ Add Another Bank Account
 														</div>
 													</div>
-													<div className="flex justify-end space-x-4 mb-0 mt-6 border-t-2 pt-3">
-														<button
-															type="reset"
-															onClick={(event) => {
-																onHide();
-															}}
-															className="bg-white hover:bg-gray-200 font-bold py-2 px-2 rounded w-32"
-														>
-															Cancel
-														</button>
-														<button
-															type="submit"
-															className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
-														>
-															Deposit
-														</button>
+													<div className="flex justify-between space-x-4 mb-0 mt-6 border-t-2 pt-6">
+														<div className="text-sm font-bold ml-4 h-auto w-72">
+															{message && message.length > 0 && (
+																<p>{message}</p>
+															)}
+														</div>
+														<div className="flex justify-end space-x-4">
+															<button
+																type="reset"
+																onClick={(event) => {
+																	onHide();
+																	setMessage("");
+																}}
+																className="bg-white hover:bg-gray-200 font-bold py-2 px-2 rounded w-32"
+															>
+																Cancel
+															</button>
+															<button
+																type="submit"
+																className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
+															>
+																Deposit
+															</button>
+														</div>
 													</div>
 												</div>
 											</div>

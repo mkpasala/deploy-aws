@@ -1,8 +1,8 @@
 import { API } from "aws-amplify";
-import User from "../models/User";
+import User from "../models/user";
 
-export default class UserService {
-	async createUser(user: User): Promise<User> {
+const userService = {
+	createUser: async (user: User): Promise<User> => {
 		let newUser: User;
 
 		try {
@@ -14,18 +14,19 @@ export default class UserService {
 		}
 
 		return newUser;
-	}
+	},
 
-	async getUser(userId: string): Promise<User> {
-		let user: User;
+	getUser: async (userId: string): Promise<User | null> => {
+		let user: User | null = null;
 
 		try {
 			user = await API.get("flareapi", `/users/${userId}`,{});
 		} catch (error) {
-			console.error("error saving to the database.", error);
-			throw `There was an error signing up with Cognito: ${error}`;
+			console.info("error getting from the database.", error);
 		}
 
 		return user;
 	}
 }
+
+export default userService;

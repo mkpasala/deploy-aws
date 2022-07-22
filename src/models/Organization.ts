@@ -1,15 +1,9 @@
 export default interface Organization {
 	id?: string;
 	name?: string;
-	ein?: string;
+	entityType?: string;
 	aisSystem?: string; // TODO: make aisSystem a type
 	aisOrganizationId?: string;
-	aisAccessToken?: string;
-	aisRefresshToken?: string;
+	aisToken?: Object;
 	createdWhen?: Date;
-	address1?: string;
-	address2?: string;
-	city?: string;
-	state?: string;
-	zip?: string;
 }

@@ -6,7 +6,6 @@ import AddFundsTab from "./AddFundsTab";
 import NavBar from "./navbar";
 
 const ConnectBankAccount = () => {
-	sessionStorage.setItem("account_id", "acct_1LKdCqR1aSxGwRcl");
 	const [stepCount, setStepCount] = useState(0);
 	const nextStep = (): void => {
 		setStepCount(stepCount + 1);

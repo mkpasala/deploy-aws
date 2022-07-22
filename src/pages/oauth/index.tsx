@@ -6,8 +6,9 @@ export default function OAuth() {
 
 		if (window.opener) {
 			// send them to the opening window
-			window.opener.postMessage(url);
+			window.opener.postMessage({type:"token-url", url});
 			// close the popup
+			console.log("Sent a message")
 			window.close();
 		}
 	}, []);

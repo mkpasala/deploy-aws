@@ -6,5 +6,6 @@ export default interface User {
 	phone?: string;
 	department?: string;
 	token?: string;
+	orgId?: string;
 	role?:string; //TODO: Make a role enum
 }

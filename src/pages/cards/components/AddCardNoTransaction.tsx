@@ -1,11 +1,16 @@
+import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
 import React, { useState, useEffect } from "react";
 import AddCardPopup from "./AddCardPopup";
+import FLARE_LOGO from "../../../assets/Flare_Logo_Color.png";
 import GROUP_LOGO from "../../../assets/Group.png";
+import CARD_LOGO from "../../../assets/card-logo.png";
+import CARD_BACKGROUND_LOGO from "../../../assets/card-background.png";
 import NavBar from "./navbar";
 import DepositFundsPopup from "./DepositFundsPopup";
 import WithdrawFundsPopup from "./WithdrawFundsPopup";
 import Spinner from "./Spinner";
 import cardsAPIService from "../../../services/cardsAPIService";
+import Card from "./Card";
 
 const AddCardNoTransaction = () => {
 	const cardsService = new cardsAPIService();
@@ -14,6 +19,8 @@ const AddCardNoTransaction = () => {
 	const [showWithdrawFunds, setShowWithdrawFunds] = useState<boolean>(false);
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [balance, setbBalance] = useState<any>("");
+	const [cardData, setCardData] = useState<any>(null);
+	sessionStorage.setItem("account_id", "acct_1LLOc6R80wjEJFG5");
 	const account_id = sessionStorage.getItem("account_id");
 
 	useEffect(() => {
@@ -32,14 +39,38 @@ const AddCardNoTransaction = () => {
 				setbBalance(response!.issuing!.available[0]!.amount);
 			}
 		} catch (ex) {
-			console.log("exception", ex);
 			setShowSpinner(false);
 		}
 	};
+
+	useEffect(() => {
+		getCardList();
+	}, []);
+	const getCardList = async () => {
+		setShowSpinner(true);
+		try {
+			let response: any = await cardsService.getCardList({ account_id: account_id });
+			setShowSpinner(false);
+			if (
+				response.type === "StripePermissionError" ||
+				response.type === "StripeInvalidRequestError"
+			) {
+			} else {
+				setCardData(response);
+			}
+		} catch (ex) {
+			setShowSpinner(false);
+		}
+	};
+	const [filter, setFilter] = useState<string>("");
+
+	const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const value = event.target.value;
+		setFilter(value);
+	};
 	return (
 		<>
-			{`showSpinner${showSpinner}`}
-			{modalOn && <AddCardPopup setModalOn={setModalOn} />}
+			{/* {modalOn && <AddCardPopup setModalOn={setModalOn} />} */}
 			<Spinner show={showSpinner} />
 			<DepositFundsPopup
 				isShow={showDepositFunds}
@@ -141,36 +172,109 @@ const AddCardNoTransaction = () => {
 								</div>
 							</div>
 						</div>
-						<div className=" px-2 border-gray-200"></div>
+						<div className=" px-2 border-gray-200"></div>					
 						<div className="fs-box-shadow flex flex-col border-gray-800 w-[300px] h-[400px] overflow-hidden">
-							<div className="cards-header flex flex-row justify-items-center mb-2 mx-2 mt-5">
+							{cardData && cardData.data.length != 0 ?
+								
+							<div className="overflow-y-auto">
+							
+									{/* <div className="cards-list overflow-y-auto"> */}
+									<div className="cards-header flex flex-row justify-between mb-2 mx-3 mt-5">
 								<div className="card-title font-bold">Cards</div>
+								<div className="view-cards text-sm">
+									<a href="">View All Cards</a>
+								</div>
 							</div>
-							<div className="cards-list place-items-center mb-11 mt-14 justify-center">
-								<span className="mt-5 mr-[120px] ml-[120px] flex justify-center">
-									<img src={GROUP_LOGO} width="50" height="30" />
-								</span>
-								<div className="mt-5 ml-[90px] mr-[70px] flex font-bold text-sm align-middle justify-center">
-									No card added yet!
+							<div className="cards-details flex flex-row mb-2 mx-3">
+								<div className="total-issued-cards mr-2">
+									<div className="no-of-cards font-bold">23</div>
+									<div className="cards-type text-[10px] text-gray-500">
+										Cards Issued
+									</div>
 								</div>
-								<div className="card-start-desc ml-[80px] mr-[60px] w-96 mb-6 place-items-center justify-center">
-									<p>Lorem ipsum dolor sit amet,</p>
-									<p>consectetur adipiscing elit, sed</p>
+								<div className="total-blocked-cards mr-2">
+									<div className="no-of-cards font-bold">3</div>
+									<div className="cards-type text-[10px] text-gray-500">
+										Cards Blocked
+									</div>
 								</div>
-
-								<div className="flex justify-center">
+								{/* <div className="add-new-card text-red-500  hover:text-red-600 font-xs font-bold">Add New</div> */}
+								<div className="ml-8">
 									<button
 										type="button"
-										data-modal-toggle="authentication-modal"
 										onClick={() => setModalOn(true)}
-										className="bg-transparent hover:bg-red-500 text-red-600 font-semibold hover:text-white border border-red-500 hover:border-transparent rounded  py-2 px-2 w-34"
+										className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white border border-red-500 hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
 									>
-										Add New Card
+										Add New
 									</button>
 								</div>
 							</div>
+							<div className="search-user relative border-y border-gray-200 overflow-y-auto">
+								<span className="absolute top-3 left-7">
+									<svg
+										fill="none"
+										stroke="#94a3b8"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										viewBox="0 0 24 24"
+										className="w-3 h-3"
+									>
+										<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+									</svg>
+										</span>
+										{!setModalOn &&
+											<input
+												className="search-txt text-xs bg-white w-full border-0 py-[6px] pr-3 pl-12 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
+												placeholder="Search Card Name"
+												type="text"
+												name="searchcardname"
+												onChange={handleFilterChange}
+											/>
+										}
+							</div>
+									{cardData && cardData.data
+										.filter((card: any) => card.cardholder!.name.includes(filter))
+								.map((card: any) => (
+									<Card card={card} />
+								))}
+								{/* </div> */}
+							</div>
+								:
+								<>
+								<div className="cards-header flex flex-row justify-items-center mb-2 mx-2 mt-5 ">
+										<div className="card-title font-bold ">Cards</div>
+									</div>
+								<div className="cards-list place-items-center mb-11 mt-14 justify-center">
+									<span className="mt-5 mr-[120px] ml-[120px] flex justify-center">
+										<img src={GROUP_LOGO} width="50" height="30" />
+									</span>
+									<div className="mt-5 ml-[90px] mr-[70px] flex font-bold text-sm align-middle justify-center">
+										No card added yet!
+									</div>
+									<div className="card-start-desc ml-[80px] mr-[60px] w-96 mb-6 place-items-center justify-center">
+										<p>Lorem ipsum dolor sit amet,</p>
+										<p>consectetur adipiscing elit, sed</p>
+									</div>
+
+									<div className="flex justify-center">
+										<button
+											type="button"
+											data-modal-toggle="authentication-modal"
+											onClick={() => setModalOn(true)}
+											className="bg-transparent hover:bg-red-500 text-red-600 font-semibold hover:text-white border border-red-500 hover:border-transparent rounded  py-2 px-2 w-34"
+										>
+											Add New Card
+										</button>
+									</div>
+									</div>
+									
+								</>
+								}
 						</div>
+
 					</div>
+					{modalOn && <AddCardPopup setModalOn={setModalOn} />}
 				</main>
 			</div>
 		</>

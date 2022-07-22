@@ -1,23 +1,17 @@
 import * as yup from "yup";
-import { einRegExp, phoneRegExp, zipCodeRegExp } from "./schemaConstants";
+
+export const entityTypes = [
+	"501(c)(3) - Public Charity",
+	"501(c)(3) - Private Foundation",
+	"501(c)(3) - Private Operating Foundation",
+	"501(c)(4) - Social Welfare Organization",
+	"501(c)(6) - Business Leagues, Chambers of Commerce, Real Estate Boards",
+	"501(c)(8) - Fraternal Beneficiary Societies and Associations",
+	"501(c)(10) - Domestic Fraternal Societies and Associations",
+	"527  - Political Organization ",
+];
 
 export const organizationSchema = yup.object().shape({
 	name: yup.string().required("Organization Name is required"),
-	dba: yup.string().notRequired(),
-	ein: yup
-		.string()
-		.required("Please enter your EIN")
-		.matches(einRegExp, "Invalid EIN"),
-	phone: yup
-		.string()
-		.required("Please enter your phone number")
-		.matches(phoneRegExp, "Invalid phone number"),
-	address1: yup.string().required("Invalid address"),
-	address2: yup.string().notRequired(),
-	city: yup.string().required("City is required"),
-	state: yup.string().required("State is required"),
-	zip: yup
-		.string()
-		.required("Please enter your zip code")
-		.matches(zipCodeRegExp, "Invalid zip code"),
+	entityType: yup.string().required("Entity type is required"),
 });

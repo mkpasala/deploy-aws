@@ -1,10 +1,11 @@
 import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CARD_BACKGROUND_LOGO from "../../../assets/card-background.png";
 import CARD_LOGO from "../../../assets/card-logo.png";
 import Spinner from "./Spinner";
 import { Form, Formik, FormikErrors, FormikProps } from "formik";
 import { useNavigate } from "react-router-dom";
+import cardsAPIService from "../../../services/cardsAPIService";
 
 interface AddCardsData {
 	type: string;
@@ -28,7 +29,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 	const handleCancelClick = () => {
 		setModalOn(false);
 	};
-
+	const cardsService = new cardsAPIService();
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [message, setMessage] = useState("");
 	let navigate = useNavigate();
@@ -139,46 +140,78 @@ const AddCardPopup = ({ setModalOn }: any) => {
 	const styleInputValid = "border border-green-500 focus:border-green-500 focus:ring-green-500";
 	const styleInputInvalid = "border border-red-500 focus:border-red-500 focus:ring-red-500";
 
-	const createCardholder = async () => {
-		const response = await fetch("http://localhost:4242/create-cardholder", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				name: "neti",
-				email: "jenny.rosen@example.com",
-				phone_number: "+18008675309",
-				status: "active",
-				type: "individual",
-				billing: {
-					address: {
-						line1: "123 Main Street",
-						city: "San Francisco",
-						state: "CA",
-						postal_code: "94111",
-						country: "US",
-					},
-				},
-			}),
-		});
-		if (!response.ok) {
-			return null;
+	const account_id = sessionStorage.getItem("account_id");
+
+	useEffect(() => {
+		const cardholder_id = sessionStorage.getItem("cardholder_id");
+		debugger;
+		if (!cardholder_id) {
+			createCardholder();
 		}
-		const data = await response.json();
-		return data;
+	}, []);
+
+	const createCardholder = async () => {
+		try {
+			let response: any = await cardsService.createCardholder({ account_id: account_id });
+			setShowSpinner(false);
+			if (
+				response.type === "StripePermissionError" ||
+				response.type === "StripeInvalidRequestError"
+			) {
+			} else {
+				sessionStorage.setItem("cardholder_id", response.id);	
+			}
+		} catch (ex) {
+			setShowSpinner(false);
+		}
 	};
+	// const createCardholder = async (values: any) => {
+	// 	try {
+	// 		let response: any = await cardsService.createCardholder(values)
+	// 		// const response = await fetch("http://localhost:4242/create-cardholder", {
+	// 		// 	method: "POST",
+	// 		// 	headers: { "Content-Type": "application/json" },
+	// 		// 	body: JSON.stringify({
+	// 		// 		name: "neti",
+	// 		// 		email: "jenny.rosen@example.com",
+	// 		// 		phone_number: "+18008675309",
+	// 		// 		status: "active",
+	// 		// 		type: "individual",
+	// 		// 		billing: {
+	// 		// 			address: {
+	// 		// 				line1: "123 Main Street",
+	// 		// 				city: "San Francisco",
+	// 		// 				state: "CA",
+	// 		// 				postal_code: "94111",
+	// 		// 				country: "US",
+	// 		// 			},
+	// 		// 		},
+	// 		// 	}),
+	// 		// });
+	// 		if (!response.ok) {
+	// 			return null;
+	// 		}
+	// 		const data = await response.json();
+	// 		return data;
+	// 	} catch (ex) {
+	// 		//console.log("exception", ex);
+	// 		setShowSpinner(false);
+	// 	}
+	// };
 
 	const createCard = async (values: AddCardsData) => {
 		let reqdata: any;
 		setShowSpinner(true);
+		const cardholder_id = sessionStorage.getItem("cardholder_id");
 		if (values.type === "virtual") {
 			reqdata = {
-				cardholder: "ich_1LKG1HJhE2tXq2CUHdcKIaDT",
+				cardholder: cardholder_id,
 				currency: "usd",
 				type: values.type,
 			};
 		} else {
 			reqdata = {
-				cardholder: "ich_1LKG1HJhE2tXq2CUHdcKIaDT",
+				cardholder: cardholder_id,
 				currency: "usd",
 				type: values.type,
 				shipping: {
@@ -194,19 +227,20 @@ const AddCardPopup = ({ setModalOn }: any) => {
 				},
 			};
 		}
-
-		const response = await fetch("http://localhost:4242/create-card", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(reqdata),
-		});
-		setShowSpinner(false);
-		if (!response.ok) {
-			setMessage("Error:Unable to add cards");
-			return null;
+		try {
+			let response: any = await cardsService.createCard(reqdata)
+			setShowSpinner(false);
+			if (response.type === "StripePermissionError" ||
+				response.type === "StripeInvalidRequestError")
+			{
+				setMessage(response.raw.message);
+			} else {
+				//navigate("/list-all-cards");
+			}
+			//const data = await response.json();
+		} catch (ex) {
+			setShowSpinner(false);
 		}
-		const data = await response.json();
-		setMessage(data.raw.message);
 	};
 
 	return (
@@ -219,7 +253,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 					onSubmit(values);
 					actions.setSubmitting(false);
 					setModalOn(false);
-					alert("Card Created Successfully");
+					//alert("Card Created Successfully");
 				}}
 			>
 				{(formik) => {

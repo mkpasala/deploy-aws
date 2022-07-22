@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React from "react";
+import { UseFormRegisterReturn } from "react-hook-form";
 import { FieldWrapper, FieldWrapperPassedProps } from "./FieldWrapper";
 
 export interface SelectFieldProps extends FieldWrapperPassedProps {
@@ -8,6 +9,7 @@ export interface SelectFieldProps extends FieldWrapperPassedProps {
 	icon?: React.ReactNode;
 	alignIcon?: "left" | "right";
 	placeholder?: string;
+	registration?: UseFormRegisterReturn<any>;
 }
 
 export const SelectField = React.forwardRef<
@@ -24,6 +26,7 @@ export const SelectField = React.forwardRef<
 			icon,
 			alignIcon = "left",
 			error,
+			registration,
 		},
 		ref
 	) => {
@@ -47,14 +50,20 @@ export const SelectField = React.forwardRef<
 					<select
 						ref={ref}
 						className={clsx(
-							"px-4 py-3 rounded shadow w-full placeholder-dark/30 placeholder:text-sm outline-none",
+							"px-4 py-3  rounded shadow w-full outline-none",
 							icon && alignIcon === "left" ? "pl-10" : "pr-10",
 							error && "outline outline-red-400 shadow-none",
 							className
 						)}
-						defaultValue="none"
+						defaultValue=""
+						{...registration}
 					>
-						<option value="none" disabled hidden>
+						<option
+							className="text-dark/30"
+							value=""
+							disabled
+							hidden
+						>
 							{placeholder}
 						</option>
 						{children}

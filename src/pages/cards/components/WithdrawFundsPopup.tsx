@@ -164,21 +164,22 @@ const WithdrawFundsPopup = ({ isShow, onHide }: WithdrawFundsPopupProps) => {
 	const withdrawFunds = async (values: WithdrawData) => {
 		setShowSpinner(true);
 		setMessage("");
-		const response = await fetch("http://localhost:4242/withdraw-funds", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(values),
-		});
-		setShowSpinner(false);
-		if (!response.ok) {
-			setMessage("Unable to add funds: Error happened while fetching data");
-			return null;
-		}
-		const data = await response.json();
-		if (data.type === "StripePermissionError" || data.type === "StripeInvalidRequestError") {
-			setMessage(data.raw.message);
-		} else {
-			onHide();
+		try {
+			let response: any = await cardsService.withdrawFunds(values);
+			setShowSpinner(false);
+			debugger;
+			if (
+				response.type === "StripePermissionError" ||
+				response.type === "StripeInvalidRequestError"
+			) {
+				setMessage(response.raw.message);
+			} else {
+				onHide();
+				setMessage("");
+			}
+		} catch (ex) {
+			console.log("exception", ex);
+			setShowSpinner(false);
 		}
 	};
 	return (
@@ -225,6 +226,7 @@ const WithdrawFundsPopup = ({ isShow, onHide }: WithdrawFundsPopupProps) => {
 														<button
 															onClick={(event) => {
 																onHide();
+																setMessage("");
 															}}
 															className="hover:bg-gray-200"
 														>
@@ -344,22 +346,30 @@ const WithdrawFundsPopup = ({ isShow, onHide }: WithdrawFundsPopupProps) => {
 															+ Add Another Bank Account
 														</div>
 													</div>
-													<div className="flex justify-end space-x-4 mb-0 mt-6 border-t-2 pt-3">
-														<button
-															type="reset"
-															onClick={(event) => {
-																onHide();
-															}}
-															className="bg-white hover:bg-gray-200 font-bold py-2 px-2 rounded w-32"
-														>
-															Cancel
-														</button>
-														<button
-															type="submit"
-															className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
-														>
-															Withdraw
-														</button>
+													<div className="flex justify-between space-x-4 mb-0 mt-6 border-t-2 pt-6">
+														<div className="text-sm font-bold ml-4 h-auto w-72">
+															{message && message.length > 0 && (
+																<p>{message}</p>
+															)}
+														</div>
+														<div className="flex justify-end space-x-4">
+															<button
+																type="reset"
+																onClick={(event) => {
+																	onHide();
+																	setMessage("");
+																}}
+																className="bg-white hover:bg-gray-200 font-bold py-2 px-2 rounded w-32"
+															>
+																Cancel
+															</button>
+															<button
+																type="submit"
+																className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
+															>
+																Withdraw
+															</button>
+														</div>
 													</div>
 												</div>
 											</div>

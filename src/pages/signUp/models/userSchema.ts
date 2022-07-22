@@ -9,5 +9,4 @@ export const userSchema = yup.object().shape({
 		.trim()
 		.required("Please enter your phone number")
 		.matches(phoneRegExp, "Invalid phone number"),
-	department: yup.string().required("Please enter your department"),
 });
