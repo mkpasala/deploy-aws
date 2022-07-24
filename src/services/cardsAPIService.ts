@@ -27,6 +27,9 @@ class cardsAPIService {
 	
 	getCardList = async (payload: any) =>
 		await API.post("flareapi", "/cards/getCardList", { body: payload });
+
+	getConnectAccountDetails = async (payload: any) =>
+		await API.post("flareapi", "/cards/getConnectAccountDetails", { body: payload });
 }
 
 export default cardsAPIService;

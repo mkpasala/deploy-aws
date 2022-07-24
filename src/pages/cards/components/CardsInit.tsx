@@ -11,6 +11,7 @@ const CardsInit = () => {
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [email, setEmail] = useState("");
 	const [accountId, setAccountId] = useState("");
+	const [isResume,setIsResume] = useState(false);
 	//const account_id = 'acct_1LLSk3QvXDA3Gh6f'; //'acct_1LKxZjR52LxNwH3Y'; //acct_1LLOc6R80wjEJFG5
 
 	const session = useContext(sessionContext);
@@ -22,8 +23,30 @@ const CardsInit = () => {
 		console.log("sessionUser:", sessionUser);
 		console.log("sessionOrganization:", sessionOrganization);
 		if (sessionUser && sessionUser.email) setEmail(sessionUser!.email);
+		let account:any;
+		(async () => {
+			account = await getAccountDetails();
+		})();
+		//check account state and navigate to proper page depends on its stage.
+		if(account && account.id){
+			if(account.requirements.currently_due.length || account.requirements.eventually_due.length){
+				setIsResume(true);
+			}
+			if(account.charges_enabled){ //issuing cards can be done	
+				
+			}
+			// if no external bank account id added to the stripe account payouts won't happen and 
+			// account shows error banner in dashboard which indicates account not in complete state
+			// how to add external bank account 1. On onboard 2. add a new page :: TBD
+			if(account.payouts_enabled){ // payouts can be done
+
+			}
+		}
+
+		
 	}, [session]);
 
+	
 	const getRedirectURL = async (e: any) => {
 		e.preventDefault();
 		try {
@@ -40,6 +63,49 @@ const CardsInit = () => {
 		}
 	};
 
+	const getAccountDetails = async () => {
+		let account;
+		//accountObject contains data that needs to be stored in FlareDB
+		/* let accountObject = {
+				"accountId":"",
+				"bankSourceDetails":[{
+					"tokenId":"",
+					"sourceId":"",
+					"bankName":"",
+					"swiftCode":"",
+					"last4":""
+				}],
+				"accountHolderId":""
+		} 
+		*/
+		let accountStore = localStorage.getItem("accountObject");
+		let accountObject;
+		if(accountStore){
+			accountObject = JSON.parse(accountStore);
+		}else{
+			//store data into FlareDB only the account Id here
+			let _accountObject = {
+				"accountId":"",
+				"bankSourceDetails":[{
+					"tokenId":"",
+					"sourceId":"",
+					"bankName":"",
+					"swiftCode":"",
+					"last4":""
+				}],
+				"accountHolderId":""
+			}
+			//fetch path param ['Id'] from return URL and store in DB
+			//accountObject.accountId = 
+			//localStorage.setItem('accountObject', JSON.stringify(_accountObject));	
+		}
+		if(accountObject && accountObject.accountId){
+			account =  await cardsService.getConnectAccountDetails({ id:accountObject.accountId});
+		}
+		if(account){
+			return account;
+		}	
+	}
 	return (
 		<>
 			<Spinner show={showSpinner} />
