@@ -1,17 +1,16 @@
 import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
 import Spinner from "./Spinner";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useCallback } from "react";
 import cardsAPIService from "../../../services/cardsAPIService";
 import { sessionContext } from "../../../app";
 import organizationService from "../../../services/organizationService";
-
 const cardsService = new cardsAPIService();
-const CardsInit = () => {
+const CardsInit = (props: any) => {
 	// call Create custom connect account with known information.
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [email, setEmail] = useState("");
 	const [accountId, setAccountId] = useState("");
-	const [isResume,setIsResume] = useState(false);
+	const [isResume, setIsResume] = useState(false);
 	//const account_id = 'acct_1LLSk3QvXDA3Gh6f'; //'acct_1LKxZjR52LxNwH3Y'; //acct_1LLOc6R80wjEJFG5
 
 	const session = useContext(sessionContext);
@@ -20,33 +19,79 @@ const CardsInit = () => {
 	const updateSession = session!.updateSession;
 
 	useEffect(() => {
-		console.log("sessionUser:", sessionUser);
-		console.log("sessionOrganization:", sessionOrganization);
-		if (sessionUser && sessionUser.email) setEmail(sessionUser!.email);
-		let account:any;
-		(async () => {
-			account = await getAccountDetails();
-		})();
-		//check account state and navigate to proper page depends on its stage.
-		if(account && account.id){
-			if(account.requirements.currently_due.length || account.requirements.eventually_due.length){
-				setIsResume(true);
-			}
-			if(account.charges_enabled){ //issuing cards can be done	
-				
-			}
-			// if no external bank account id added to the stripe account payouts won't happen and 
-			// account shows error banner in dashboard which indicates account not in complete state
-			// how to add external bank account 1. On onboard 2. add a new page :: TBD
-			if(account.payouts_enabled){ // payouts can be done
 
+		(async () => {
+			let account:any = await getAccountDetails(); //fetching the account details
+		if(account){
+			if (account && account.id) {
+				if (account.requirements && (account.requirements.currently_due.length>0 || account.requirements.eventually_due.length>0)) {
+					setIsResume(true);
+				}
+				if (account.charges_enabled) { //issuing cards can be done	
+	
+				}
+				// if no external bank account id added to the stripe account payouts won't happen and 
+				// account shows error banner in dashboard which indicates account not in complete state
+				// how to add external bank account 1. On onboard 2. add a new page :: TBD
+				if (account.payouts_enabled) { // payouts can be done
+	
+				}
 			}
 		}
-
+		})();
 		
 	}, [session]);
 
-	
+	const getAccountDetails = async () => {
+		//generally we will fetch data from sessionUser like below 
+		/* console.log("sessionUser:", sessionUser);
+		console.log("sessionOrganization:", sessionOrganization);
+		if (sessionUser && sessionUser.email) {
+			setEmail(sessionUser!.email);
+		} */
+
+		//currently handling the data from localStorage.
+
+		let accountStore:any = localStorage.getItem("accountObject");
+		let connectAccountId,account;
+		if(accountStore && accountStore.accountId){
+			connectAccountId = accountStore.accountId;
+			setAccountId(connectAccountId);
+		}else if(props.accountId){
+			connectAccountId = props.accountId;
+			setAccountId(connectAccountId);
+			let _accountObject = {
+				"accountId": "",
+				"email":"",
+				"bankSourceDetails": [{
+					"tokenId": "",
+					"sourceId": "",
+					"bankName": "",
+					"swiftCode": "",
+					"last4": ""
+				}],
+				"accountHolderId": ""
+			}
+			_accountObject.accountId = connectAccountId;
+			localStorage.setItem('accountObject', JSON.stringify(_accountObject));
+		}
+
+		if (connectAccountId) {
+			account = await cardsService.getConnectAccountDetails({ id: connectAccountId });
+			if(account && account.id){
+				return account;
+			}
+		}else{
+			return;
+		}
+	};
+
+	const emailHandler = (e:any)=>{
+		e.preventDefault();
+		setEmail(e.target.value);
+		setIsResume(false);
+	}
+
 	const getRedirectURL = async (e: any) => {
 		e.preventDefault();
 		try {
@@ -63,49 +108,6 @@ const CardsInit = () => {
 		}
 	};
 
-	const getAccountDetails = async () => {
-		let account;
-		//accountObject contains data that needs to be stored in FlareDB
-		/* let accountObject = {
-				"accountId":"",
-				"bankSourceDetails":[{
-					"tokenId":"",
-					"sourceId":"",
-					"bankName":"",
-					"swiftCode":"",
-					"last4":""
-				}],
-				"accountHolderId":""
-		} 
-		*/
-		let accountStore = localStorage.getItem("accountObject");
-		let accountObject;
-		if(accountStore){
-			accountObject = JSON.parse(accountStore);
-		}else{
-			//store data into FlareDB only the account Id here
-			let _accountObject = {
-				"accountId":"",
-				"bankSourceDetails":[{
-					"tokenId":"",
-					"sourceId":"",
-					"bankName":"",
-					"swiftCode":"",
-					"last4":""
-				}],
-				"accountHolderId":""
-			}
-			//fetch path param ['Id'] from return URL and store in DB
-			//accountObject.accountId = 
-			//localStorage.setItem('accountObject', JSON.stringify(_accountObject));	
-		}
-		if(accountObject && accountObject.accountId){
-			account =  await cardsService.getConnectAccountDetails({ id:accountObject.accountId});
-		}
-		if(account){
-			return account;
-		}	
-	}
 	return (
 		<>
 			<Spinner show={showSpinner} />
@@ -128,7 +130,7 @@ const CardsInit = () => {
 									placeholder="Enter Email"
 									aria-label="Email"
 									value={email}
-									onChange={(e) => setEmail(e.target.value)}
+									onChange={emailHandler}
 									disabled={!!accountId}
 								/>
 							</div>
@@ -148,14 +150,13 @@ const CardsInit = () => {
 					<button
 						onClick={getRedirectURL}
 						type="button"
-						className={`mx-auto  mb-20  text-white font-bold py-2 px-4 rounded w-36 ${
-							!(!!email || !!accountId)
+						className={`mx-auto  mb-20  text-white font-bold py-2 px-4 rounded w-36 ${!(!!email || !!accountId)
 								? "bg-gray-500 text-gray-600"
 								: "bg-red-500  hover:bg-red-700 text-white"
-						}`}
+							}`}
 						disabled={!(!!email || !!accountId)}
 					>
-						{accountId ? "Resume" : "Get Started"}
+						{isResume ? "Resume" : "Get Started"}
 					</button>
 				</div>
 			</main>
@@ -164,3 +165,7 @@ const CardsInit = () => {
 };
 
 export default CardsInit;
+function useParams() {
+	throw new Error("Function not implemented.");
+}
+

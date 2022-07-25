@@ -108,6 +108,7 @@ function App({ signOut, user: cognitoUser }: { signOut: () => any; user: any }) 
 						{/*<Route path='' element={} />
 						<Route path='' element={} /> */}
 					</Route>
+					<Route path="cards/:accountId" element={<CardsLayout />}/>
 					<Route path="connect-bank-account" element={<ConnectBankAccount />} />
 					<Route path="card-list" element={<AddCardNoTransaction />} />
 					<Route path="transactions" element={<TransactionTable />} />
