@@ -1,6 +1,7 @@
 import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
 import Spinner from "./Spinner";
-import React, { useState, useContext, useEffect, useCallback } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import cardsAPIService from "../../../services/cardsAPIService";
 import { sessionContext } from "../../../app";
 import organizationService from "../../../services/organizationService";
@@ -17,9 +18,9 @@ const CardsInit = (props: any) => {
 	const sessionUser = session?.user;
 	const sessionOrganization = session?.organization;
 	const updateSession = session!.updateSession;
-
+	let navigate = useNavigate();
 	useEffect(() => {
-
+		//callling stripe connect account details;;
 		(async () => {
 			let account:any = await getAccountDetails(); //fetching the account details
 		if(account){
@@ -28,7 +29,8 @@ const CardsInit = (props: any) => {
 					setIsResume(true);
 				}
 				if (account.charges_enabled) { //issuing cards can be done	
-	
+					sessionStorage.setItem("account_id", account.id);
+					navigate("/connect-bank-account")
 				}
 				// if no external bank account id added to the stripe account payouts won't happen and 
 				// account shows error banner in dashboard which indicates account not in complete state
@@ -43,6 +45,7 @@ const CardsInit = (props: any) => {
 	}, [session]);
 
 	const getAccountDetails = async () => {
+		//setShowSpinner(true);
 		//generally we will fetch data from sessionUser like below 
 		/* console.log("sessionUser:", sessionUser);
 		console.log("sessionOrganization:", sessionOrganization);
@@ -52,7 +55,8 @@ const CardsInit = (props: any) => {
 
 		//currently handling the data from localStorage.
 
-		let accountStore:any = localStorage.getItem("accountObject");
+		let storedObject:any = localStorage.getItem("accountObject");
+		let accountStore = JSON.parse(storedObject);
 		let connectAccountId,account;
 		if(accountStore && accountStore.accountId){
 			connectAccountId = accountStore.accountId;
@@ -79,9 +83,11 @@ const CardsInit = (props: any) => {
 		if (connectAccountId) {
 			account = await cardsService.getConnectAccountDetails({ id: connectAccountId });
 			if(account && account.id){
+				//setShowSpinner(false);
 				return account;
 			}
 		}else{
+			//setShowSpinner(false);
 			return;
 		}
 	};
@@ -165,7 +171,4 @@ const CardsInit = (props: any) => {
 };
 
 export default CardsInit;
-function useParams() {
-	throw new Error("Function not implemented.");
-}
 
