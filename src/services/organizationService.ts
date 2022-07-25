@@ -11,6 +11,8 @@ const organizationService = {
 				`/organizations/${orgId}`,
 				{}
 			);
+
+			console.log("organization service retrieved this object", organization);
 		} catch (error) {
 			const message = "error retreiving org from database.";
 			console.error(message, error);
@@ -68,7 +70,7 @@ const organizationService = {
 				{}
 			);
 
-			return report;
+			return JSON.parse(report);
 		} catch (error) {
 			const message = "error getting pnl report.";
 			console.error(message, error);

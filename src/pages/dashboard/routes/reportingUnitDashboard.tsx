@@ -8,6 +8,7 @@ import {
 	DescriptionSectionProps,
 	ReportingUnitDescription,
 } from "../components/reportingUnitDescription";
+import MOCK_DATA from "../MOCK_DATA";
 
 const fundRaisingBarProps: ProgressBarProps = {
 	total: { value: 10000, label: "Fundraising Goal" },
@@ -143,7 +144,7 @@ export const ReportingUnitDashboard = () => {
 				/>
 			</div>
 			<ReportingUnitDescription sections={sections} />
-			<PNLTable />
+			<PNLTable data={MOCK_DATA} />
 		</ReportingUnitLayout>
 	);
 };

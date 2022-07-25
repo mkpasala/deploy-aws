@@ -46,8 +46,7 @@ export const FullNavBar = () => {
 							<button
 								key={idx}
 								className="group flex gap-3 text-dark/50 items-center cursor-pointer
-									     hover:text-dark hover:border-b-2 hover:border-flare-red hover:font-bold
-									     focus:text-dark focus:border-b-2 focus:border-flare-red focus:font-bold"
+									     hover:text-dark hover:border-b-2 hover:border-flare-red hover:font-bold"
 								onClick={handleClick}
 							>
 								<span className="w-4">{img}</span>

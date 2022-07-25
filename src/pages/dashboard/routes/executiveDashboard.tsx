@@ -4,10 +4,11 @@ import { ExecutiveLayout } from "../components/execLayout";
 import { PNLTable } from "../components/pnlTable";
 import { ProgressBar, ProgressBarProps } from "../components/progressBar";
 import { RevenueExpenseBar } from "../components/revenueExpenseBar";
+import MOCK_DATA from "../MOCK_DATA";
 import { useContext, useEffect, useState } from "react";
-import organizationService from "../../../services/organizationService";
 import { sessionContext } from "../../../app";
-import { Organization } from "../../../models";
+import organizationService from "../../../services/organizationService";
+import Organization from "../../../models/organization";
 
 const fundRaisingBarProps: ProgressBarProps = {
 	total: { value: 10000, label: "Fundraising Goal" },
@@ -103,14 +104,17 @@ export const ExecutiveDashboard = () => {
 
 	const loadReport = async () => {
 		setLoading(true);
-		setReportData(
-			await organizationService.getPnlReport(
-				session?.organization as Organization
-			)
-		);
+
+		let data = 	await organizationService.getPnlReport(
+			session?.organization as Organization
+		)
+
+		console.log("This is retreived from the service", data)
+		setReportData(data);
 		console.log("Report Data", reportData);
 		setLoading(false);
 	};
+	
 	const title = "Executive Dashboard";
 	return (
 		<ExecutiveLayout>
@@ -126,7 +130,8 @@ export const ExecutiveDashboard = () => {
 					datasets: barDatasets,
 				}}
 			/>
-			{loading ? <h1>Loading...</h1> : (reportData && <PNLTable data={reportData} />)}
+			{/* <PNLTable data={MOCK_DATA} /> */}
+			{reportData && <PNLTable data={reportData} />}
 		</ExecutiveLayout>
 	);
 };

@@ -1,7 +1,6 @@
 import { Children, useCallback, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sessionContext } from "../../../app";
-import Organization from "../../../models/organization";
 import User from "../../../models/user";
 import organizationService from "../../../services/organizationService";
 import userService from "../../../services/userService";
@@ -69,7 +68,6 @@ export const SignUpPage = () => {
 			console.log("Organization data", data);
 			const newUser = await userService.createUser(user as User);
 			await organizationService.createOrg(newUser.id as string, data);
-
 			await session?.updateSession();
 			next();
 			setIsSubmitting(false);

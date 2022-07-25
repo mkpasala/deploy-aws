@@ -417,7 +417,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 				routing_number: routingNumber,
 				account_number: accountNumber,
 				account_holder_name: accountHolderName,
-				account_holder_type: "company",
+				account_holder_type: "individual",
 			};
 			const { token, error } = await stripe.createToken("bank_account", body);
 			setShowSpinner(false);
