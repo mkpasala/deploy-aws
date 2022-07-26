@@ -32,13 +32,19 @@ const AddCardPopup = ({ setModalOn }: any) => {
 	const cardsService = new cardsAPIService();
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [message, setMessage] = useState("");
+	const [cardID, setCardID] = useState("");
 	let navigate = useNavigate();
+
+	sessionStorage.setItem("userId", "7ef23af6-a3ef-48b0-a49c-8b1769bd0169");
+	const userId = sessionStorage.getItem("userId");
+	sessionStorage.setItem("orgId", "68167b70-8427-4c91-8ad1-6b8d0dfd861f");
+	const orgId = sessionStorage.getItem("orgId");
 
 	const initialValues: AddCardsData = {
 		type: "virtual",
 		cardnickname: "",
 		spending_limits: "",
-		frequency: "perday",
+		frequency: "alltime",
 		name: "",
 		line1: "",
 		line2: "",
@@ -144,7 +150,6 @@ const AddCardPopup = ({ setModalOn }: any) => {
 
 	useEffect(() => {
 		const cardholder_id = sessionStorage.getItem("cardholder_id");
-		debugger;
 		if (!cardholder_id) {
 			createCardholder();
 		}
@@ -235,6 +240,8 @@ const AddCardPopup = ({ setModalOn }: any) => {
 			{
 				setMessage(response.raw.message);
 			} else {
+				setCardID(response.id);
+				createCardNew(userId, orgId, response.id, values);
 				//navigate("/list-all-cards");
 			}
 			//const data = await response.json();
@@ -243,6 +250,29 @@ const AddCardPopup = ({ setModalOn }: any) => {
 		}
 	};
 
+	const createCardNew = async (userId: any, orgId: any, cardID: any, values: AddCardsData) => {
+		let reqdata: any;
+		reqdata = {
+			name: values.cardnickname,
+			userId: userId,
+			stripeCardId: cardID,
+		};
+		const response = await fetch(`https://h3tqg8ihpg.execute-api.us-east-1.amazonaws.com/staging/organizations/${orgId}/cards`,
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(reqdata),
+			});
+		if (!response.ok) {
+			return null;
+		}
+		setModalOn(false);
+		alert("Card Created Successfully");
+		const data = await response.json();
+		//getNewCardData(data);
+		return data;
+	};
+	
 	return (
 		<>
 			<Spinner show={showSpinner} />
@@ -252,7 +282,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 				onSubmit={(values, actions) => {
 					onSubmit(values);
 					actions.setSubmitting(false);
-					setModalOn(false);
+					//setModalOn(false);
 					//alert("Card Created Successfully");
 				}}
 			>
@@ -424,7 +454,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
 																	onBlur={handleBlur}
-																	defaultChecked
+																	//defaultChecked
 																/>
 																<label
 																	htmlFor="perday"
@@ -493,6 +523,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
 																	onBlur={handleBlur}
+																	defaultChecked
 																/>
 																<label
 																	htmlFor="alltime"
