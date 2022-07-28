@@ -1,4 +1,4 @@
-import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
+//import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
 import { useState, useEffect } from "react";
 import CARD_BACKGROUND_LOGO from "../../../assets/card-background.png";
 import CARD_LOGO from "../../../assets/card-logo.png";
@@ -20,7 +20,7 @@ interface AddCardsData {
 	postalcode: string;
 	state: string;
 }
-interface AddFundsErrorMessageProps {
+interface AddCardsErrorMessageProps {
 	name: string;
 	formik: FormikProps<AddCardsData>;
 }
@@ -53,12 +53,12 @@ const AddCardPopup = ({ setModalOn }: any) => {
 		postalcode: "",
 		state: "",
 	};
-	interface AddFundsErrorMessageProps {
+	interface AddCardsErrorMessageProps {
 		name: string;
 		formik: FormikProps<AddCardsData>;
 	}
 
-	const AddFundsErrorMessage = ({ name, formik }: AddFundsErrorMessageProps) => {
+	const AddCardsErrorMessage = ({ name, formik }: AddCardsErrorMessageProps) => {
 		const { touched, errors, values } = formik;
 		const isTouched = (touched as any)[name];
 		const error = (errors as any)[name];
@@ -134,6 +134,14 @@ const AddCardPopup = ({ setModalOn }: any) => {
 					errors.postalcode = "Postal Code required integer value";
 				}
 			}
+			if (values.postalcode.length != 5) {
+				errors.postalcode = "Postal Code should be of 5 digits";
+			}
+		}
+		if (values.type === 'virtual') {
+			if (!values.spending_limits) {
+				errors.spending_limits = "Spending Limit Amount is required";
+			}
 		}
 		return errors;
 	};
@@ -207,6 +215,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 	const createCard = async (values: AddCardsData) => {
 		let reqdata: any;
 		setShowSpinner(true);
+		setMessage("");
 		const cardholder_id = sessionStorage.getItem("cardholder_id");
 		if (values.type === "virtual") {
 			reqdata = {
@@ -267,7 +276,9 @@ const AddCardPopup = ({ setModalOn }: any) => {
 			return null;
 		}
 		setModalOn(false);
+		setShowSpinner(true);
 		alert("Card Created Successfully");
+		//window.location.reload(false)
 		const data = await response.json();
 		//getNewCardData(data);
 		return data;
@@ -412,14 +423,14 @@ const AddCardPopup = ({ setModalOn }: any) => {
 															value={values.cardnickname}
 														/>
 													</div>
-													<div className="justify-between mt-4">
+													<div className="justify-between mt-4 relative">
 														<label
 															htmlFor="spendinglimit"
 															className="mb-2 mt-4 text-xs bold text-gray-900 dark:text-gray-300 space-y-2"
 														>
 															Spending Limit
 														</label>
-														<span className="absolute top-[373px] left-10">
+														<span className="absolute top-8 left-5">
 															&#36;
 														</span>
 														<input
@@ -427,11 +438,16 @@ const AddCardPopup = ({ setModalOn }: any) => {
 															name="spending_limits"
 															id="spendinglimit"
 															placeholder="250"
-															className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
-															
+															className={`marker:bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
+																"spending_limits"
+															)}`}
 															onChange={handleChange}
 															onBlur={handleBlur}
 															value={values.spending_limits}
+														/>
+														<AddCardsErrorMessage
+															name="spending_limits"
+															formik={formik}
 														/>
 													</div>
 													<div className="justify-between mt-4">
@@ -573,14 +589,14 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																name="name"
 																id="name"
 																placeholder="Enter Name"
-																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 ${getInputStyle(
+																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 																	"name"
 																)}`}
 																onChange={handleChange}
 																onBlur={handleBlur}
 																value={values.name}
 															/>
-															<AddFundsErrorMessage
+															<AddCardsErrorMessage
 																name="name"
 																formik={formik}
 															/>
@@ -600,14 +616,14 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																name="line1"
 																id="line1"
 																placeholder="Enter Address Line1"
-																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 ${getInputStyle(
+																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full  rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 																	"line1"
 																)}`}
 																onChange={handleChange}
 																onBlur={handleBlur}
 																value={values.line1}
 															/>
-															<AddFundsErrorMessage
+															<AddCardsErrorMessage
 																name="line1"
 																formik={formik}
 															/>
@@ -642,7 +658,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																City
 															</label>
 															<input
-																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 pr-3 pl-9 mr-0 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 ${getInputStyle(
+																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full  rounded-sm py-2 pr-3 pl-9 mr-0 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 																	"city"
 																)}`}
 																type="text"
@@ -652,7 +668,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																onBlur={handleBlur}
 																value={values.city}
 															/>
-															<AddFundsErrorMessage
+															<AddCardsErrorMessage
 																name="city"
 																formik={formik}
 															/>
@@ -665,7 +681,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																Country
 															</label>
 															<input
-																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 ${getInputStyle(
+																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full  rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 																	"country"
 																)}`}
 																type="text"
@@ -675,7 +691,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																onBlur={handleBlur}
 																value={values.country}
 															/>
-															<AddFundsErrorMessage
+															<AddCardsErrorMessage
 																name="country"
 																formik={formik}
 															/>
@@ -690,7 +706,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																Postal Code
 															</label>
 															<input
-																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 pl-9 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 ${getInputStyle(
+																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 																	"postalcode"
 																)}`}
 																type="text"
@@ -700,7 +716,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																onBlur={handleBlur}
 																value={values.postalcode}
 															/>
-															<AddFundsErrorMessage
+															<AddCardsErrorMessage
 																name="postalcode"
 																formik={formik}
 															/>
