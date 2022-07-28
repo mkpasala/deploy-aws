@@ -5,8 +5,12 @@ import { useNavigate } from "react-router-dom";
 import cardsAPIService from "../../../services/cardsAPIService";
 import { sessionContext } from "../../../app";
 import organizationService from "../../../services/organizationService";
-const cardsService = new cardsAPIService();
+import flareDBService from "../../../services/flareDBService";
+
 const CardsInit = (props: any) => {
+	const cardsService = new cardsAPIService();
+	const flareService = new flareDBService();
+
 	// call Create custom connect account with known information.
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [email, setEmail] = useState("");
@@ -22,90 +26,127 @@ const CardsInit = (props: any) => {
 	useEffect(() => {
 		//callling stripe connect account details;;
 		(async () => {
-			let account:any = await getAccountDetails(); //fetching the account details
-		if(account){
-			if (account && account.id) {
-				if (account.requirements && (account.requirements.currently_due.length>0 || account.requirements.eventually_due.length>0)) {
-					setIsResume(true);
-				}
-				if (account.charges_enabled) { //issuing cards can be done	
-					sessionStorage.setItem("account_id", account.id);
-					navigate("/connect-bank-account")
-				}
-				// if no external bank account id added to the stripe account payouts won't happen and 
-				// account shows error banner in dashboard which indicates account not in complete state
-				// how to add external bank account 1. On onboard 2. add a new page :: TBD
-				if (account.payouts_enabled) { // payouts can be done
-	
+			setShowSpinner(true);
+			let account: any = await getAccountDetails(); //fetching the account details
+			if (account) {
+				if (account && account.id) {
+					let currently_due =
+						account.requirements && account.requirements.currently_due.length > 0;
+					if (account.requirements.currently_due.length === 1) {
+						currently_due = !(
+							account.requirements.currently_due[0] === "external_account"
+						);
+					}
+					let eventually_due =
+						account.requirements && account.requirements.eventually_due.length > 0;
+					if (account.requirements.eventually_due.length === 1) {
+						eventually_due = !(
+							account.requirements.eventually_due[0] === "external_account"
+						);
+					}
+					if (currently_due || eventually_due) {
+						setIsResume(true);
+					} else if (account.charges_enabled) {
+						//issuing cards can be done
+						const bankAccounts = await getAllBankccounts();
+						if (bankAccounts && bankAccounts.length > 0) {
+							const bankAccount = await verifySourceCompleted(bankAccounts);
+							if (bankAccount) {
+								navigate("/connect-bank-account", { state: bankAccount });
+							} else {
+								navigate("/connect-bank-account");
+							}
+						} else {
+							navigate("/connect-bank-account");
+						}
+					}
+					// if no external bank account id added to the stripe account payouts won't happen and
+					// account shows error banner in dashboard which indicates account not in complete state
+					// how to add external bank account 1. On onboard 2. add a new page :: TBD
+					else if (account.payouts_enabled) {
+						// payouts can be done
+					}
 				}
 			}
-		}
+			setShowSpinner(false);
 		})();
-		
 	}, [session]);
 
 	const getAccountDetails = async () => {
 		//setShowSpinner(true);
-		//generally we will fetch data from sessionUser like below 
-		/* console.log("sessionUser:", sessionUser);
-		console.log("sessionOrganization:", sessionOrganization);
+		//generally we will fetch data from sessionUser like below
+		//console.log("sessionUser:", sessionUser);
+		//console.log("sessionOrganization:", sessionOrganization);
 		if (sessionUser && sessionUser.email) {
 			setEmail(sessionUser!.email);
-		} */
+		}
 
 		//currently handling the data from localStorage.
 
-		let storedObject:any = localStorage.getItem("accountObject");
-		let accountStore = JSON.parse(storedObject);
-		let connectAccountId,account;
-		if(accountStore && accountStore.accountId){
-			connectAccountId = accountStore.accountId;
+		// let storedObject: any = localStorage.getItem("accountObject");
+		// let accountStore = JSON.parse(storedObject);
+		// let connectAccountId, account;
+		// if (accountStore && accountStore.accountId) {
+		// 	connectAccountId = accountStore.accountId;
+		// 	setAccountId(connectAccountId);
+		// }
+		let connectAccountId, account;
+		if (sessionOrganization && sessionOrganization.stripeConnectId) {
+			connectAccountId = sessionOrganization.stripeConnectId;
 			setAccountId(connectAccountId);
-		}else if(props.accountId){
+		} else if (props.accountId) {
 			connectAccountId = props.accountId;
 			setAccountId(connectAccountId);
-			let _accountObject = {
-				"accountId": "",
-				"email":"",
-				"bankSourceDetails": [{
-					"tokenId": "",
-					"sourceId": "",
-					"bankName": "",
-					"swiftCode": "",
-					"last4": ""
-				}],
-				"accountHolderId": ""
-			}
-			_accountObject.accountId = connectAccountId;
-			localStorage.setItem('accountObject', JSON.stringify(_accountObject));
+			// let _accountObject = {
+			// 	accountId: "",
+			// 	email: "",
+			// 	bankSourceDetails: [
+			// 		{
+			// 			tokenId: "",
+			// 			sourceId: "",
+			// 			bankName: "",
+			// 			swiftCode: "",
+			// 			last4: "",
+			// 		},
+			// 	],
+			// 	accountHolderId: "",
+			// };
+			// _accountObject.accountId = connectAccountId;
+			//REST call to update the StipeConnectId
+			// Put data what ever required into sessionStorage.
+			//localStorage.setItem("accountObject", JSON.stringify(_accountObject));
+			await updateOrganization(connectAccountId);
+		} else {
+			setIsResume(false);
 		}
 
 		if (connectAccountId) {
+			setShowSpinner(true);
 			account = await cardsService.getConnectAccountDetails({ id: connectAccountId });
-			if(account && account.id){
+			setShowSpinner(false);
+			if (account && account.id) {
 				//setShowSpinner(false);
 				return account;
 			}
-		}else{
+		} else {
 			//setShowSpinner(false);
 			return;
 		}
 	};
 
-	const emailHandler = (e:any)=>{
+	const emailHandler = (e: any) => {
 		e.preventDefault();
 		setEmail(e.target.value);
 		setIsResume(false);
-	}
+	};
 
 	const getRedirectURL = async (e: any) => {
 		e.preventDefault();
 		try {
 			setShowSpinner(true);
 			let res: any = await cardsService.getAccountURL({ email: email, id: accountId });
-			sessionStorage.setItem("account_id", res.account_id);
+			setShowSpinner(false);
 			if (res && res.goto_url) {
-				setShowSpinner(false);
 				window.location.href = res.goto_url;
 			}
 		} catch (ex) {
@@ -114,61 +155,135 @@ const CardsInit = (props: any) => {
 		}
 	};
 
+	const updateOrganization = async (accountId: string): Promise<void> => {
+		if (accountId) {
+			const organization = session?.organization;
+			if (organization) {
+				const organizationId = organization.id ? organization.id : "";
+				const payload = {
+					name: organization?.name,
+					entityType: organization?.entityType,
+					aisSystem: organization?.aisSystem,
+					stripeConnectId: accountId,
+				};
+
+				try {
+					setShowSpinner(true);
+					let response: any = await flareService.updateOrganization(
+						organizationId,
+						payload
+					);
+					setShowSpinner(false);
+					if (
+						response.type === "StripePermissionError" ||
+						response.type === "StripeInvalidRequestError"
+					) {
+						return;
+					} else {
+						setShowSpinner(true);
+						await session?.updateSession();
+						setShowSpinner(false);
+						return;
+					}
+				} catch (ex) {
+					console.log("exception", ex);
+					setShowSpinner(false);
+				}
+			}
+		}
+		return;
+	};
+
+	const getAllBankccounts = async (): Promise<any> => {
+		const organization = session?.organization;
+		if (organization) {
+			setShowSpinner(true);
+			const organizationId = organization.id ? organization.id : "";
+			try {
+				let response: any = await flareService.getAllBankAccounts(organizationId);
+				setShowSpinner(false);
+				if (
+					response.type === "StripePermissionError" ||
+					response.type === "StripeInvalidRequestError"
+				) {
+					return null;
+				} else {
+					return response;
+				}
+			} catch (ex) {
+				console.log("exception", ex);
+				setShowSpinner(false);
+				return null;
+			}
+		}
+		return null;
+	};
+	const verifySourceCompleted = async (sources: any): Promise<any> => {
+		const account_id = session?.organization?.stripeConnectId;
+		setShowSpinner(true);
+		for (let source of sources) {
+			try {
+				let response: any = await cardsService.getSourceDetails({
+					account_id: account_id,
+					source_id: source.id,
+				});
+				if (
+					response.type === "StripePermissionError" ||
+					response.type === "StripeInvalidRequestError"
+				) {
+					continue;
+				} else {
+					setShowSpinner(false);
+					return response;
+				}
+			} catch (ex) {
+				console.log("exception", ex);
+				setShowSpinner(false);
+				continue;
+			}
+		}
+		setShowSpinner(false);
+		return null;
+	};
 	return (
 		<>
 			<Spinner show={showSpinner} />
-			<main className="main-content flex flex-col mx-[205px]">
-				<div className="screen-title pt-[28px] pb-[32px]">Cards</div>
-				<div className="get-started flex flex-col text-center">
-					<div className="card-start-img mb-11 mt-14">
-						<img className="mx-auto" src={CARDS_LANDING_LOGO} alt="Get started" />
-					</div>
-					<div className="card-start-header mx-auto mb-3">Create Finance account</div>
-					<div className="card-start-desc mx-auto w-96 mb-6">
-						<p>
-							Enter Email ID to create an account or Account ID to resume onboarding
-						</p>
-						<form onSubmit={getRedirectURL} className="w-full max-w-sm">
-							<div className="flex items-center border-y border-teal-500 py-2 mt-2">
-								<input
-									className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
-									type="text"
-									placeholder="Enter Email"
-									aria-label="Email"
-									value={email}
-									onChange={emailHandler}
-									disabled={!!accountId}
-								/>
-							</div>
-							<div className="flex items-center border-b border-teal-500 py-2">
-								<input
-									className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
-									type="text"
-									placeholder="Enter Account ID"
-									aria-label="Account ID"
-									value={accountId}
-									onChange={(e) => setAccountId(e.target.value)}
-									disabled={!!email}
-								/>
-							</div>
-						</form>
-					</div>
-					<button
-						onClick={getRedirectURL}
-						type="button"
-						className={`mx-auto  mb-20  text-white font-bold py-2 px-4 rounded w-36 ${!(!!email || !!accountId)
-								? "bg-gray-500 text-gray-600"
-								: "bg-red-500  hover:bg-red-700 text-white"
+			{!showSpinner && (
+				<main className="main-content flex flex-col mx-[205px]">
+					<div className="screen-title pt-[28px] pb-[32px]">Cards</div>
+					<div className="get-started flex flex-col text-center">
+						<div className="card-start-img mb-11 mt-14">
+							<img className="mx-auto" src={CARDS_LANDING_LOGO} alt="Get started" />
+						</div>
+						<div className="text-sm w-auto mb-6 mx-auto">
+							<ol className="list-decimal text-left">
+								<li>
+									Account details are not fully submitted please resume onboarding
+									( resume account )
+								</li>
+								<li>
+									To create an account Get started and complete onboarding. (
+									create account )
+								</li>
+							</ol>
+						</div>
+						<button
+							onClick={getRedirectURL}
+							type="button"
+							className={`mx-auto  mb-20  text-white font-bold py-2 px-4 rounded w-36 ${
+								!(!!email || !!accountId)
+									? "bg-gray-500 text-gray-600"
+									: "bg-red-500  hover:bg-red-700 text-white"
 							}`}
-						disabled={!(!!email || !!accountId)}
-					>
-						{isResume ? "Resume" : "Get Started"}
-					</button>
-				</div>
-			</main>
+							disabled={!(!!email || !!accountId)}
+						>
+							{isResume ? "Resume" : "Get Started"}
+						</button>
+					</div>
+				</main>
+			)}
 		</>
 	);
 };
 
 export default CardsInit;
-

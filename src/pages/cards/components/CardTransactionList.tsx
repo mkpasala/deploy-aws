@@ -47,18 +47,6 @@ const TransactionTable = () => {
 		<>
 			<body className="h-screen">
 				<Spinner show={showSpinner} />
-				<DepositFundsPopup
-					isShow={showDepositFunds}
-					onHide={() => {
-						setShowDepositFunds(false);
-					}}
-				/>
-				<WithdrawFundsPopup
-					isShow={showWithdrawFunds}
-					onHide={() => {
-						setShowWithdrawFunds(false);
-					}}
-				/>
 				<div className="card-section font-sans" />
 				<nav className="bg-white shadow-lg">
 					<div className="max-w-7xl mx-auto px-[100px] py-[9px]">
@@ -749,6 +737,18 @@ const TransactionTable = () => {
 							</div>
 						</div>
 					</div>
+					<DepositFundsPopup
+						isShow={showDepositFunds}
+						onHide={() => {
+							setShowDepositFunds(false);
+						}}
+					/>
+					<WithdrawFundsPopup
+						isShow={showWithdrawFunds}
+						onHide={() => {
+							setShowWithdrawFunds(false);
+						}}
+					/>
 				</main>
 			</body>
 		</>

@@ -20,9 +20,11 @@ import userService from "./services/userService";
 import OAuth from "./pages/oauth";
 
 import CardsLayout from "./pages/cards/CardsLayout";
-import ConnectBankAccount from "./pages/cards/components/ConnectBankAccount";
+import ConnectBankAccount from "./pages/cards/components/add-bank-accounts/ConnectBankAccount";
 import AddCardNoTransaction from "./pages/cards/components/AddCardNoTransaction";
 import TransactionTable from "./pages/cards/components/CardTransactionList";
+import BankAccountList from "./pages/cards/components/bank-accounts/BankAccountList";
+
 interface SessionContext {
 	user: User | null;
 	organization: Organization | null;
@@ -108,10 +110,11 @@ function App({ signOut, user: cognitoUser }: { signOut: () => any; user: any }) 
 						{/*<Route path='' element={} />
 						<Route path='' element={} /> */}
 					</Route>
-					<Route path="cards/:accountId" element={<CardsLayout />}/>
+					<Route path="cards/:accountId" element={<CardsLayout />} />
 					<Route path="connect-bank-account" element={<ConnectBankAccount />} />
 					<Route path="card-list" element={<AddCardNoTransaction />} />
 					<Route path="transactions" element={<TransactionTable />} />
+					<Route path="bank-account-list" element={<BankAccountList />} />
 				</Routes>
 			</sessionContext.Provider>
 		</Router>

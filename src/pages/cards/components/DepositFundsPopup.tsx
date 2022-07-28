@@ -1,8 +1,11 @@
-import Rect, { useState, useEffect } from "react";
+import Rect, { useState, useEffect, useContext } from "react";
 import { Form, Formik, FormikErrors, FormikProps } from "formik";
 import Spinner from "./Spinner";
 import { useNavigate } from "react-router-dom";
 import cardsAPIService from "../../../services/cardsAPIService";
+import { sessionContext } from "../../../app";
+import flareDBService from "../../../services/flareDBService";
+import Bank from "./bank-accounts/Bank";
 
 interface DepositData {
 	account_id: string;
@@ -74,10 +77,12 @@ interface DepositFundsPopupProps {
 
 const DepositFundsPopup = ({ isShow, onHide }: DepositFundsPopupProps) => {
 	const cardsService = new cardsAPIService();
+	const flareService = new flareDBService();
 	let navigate = useNavigate();
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [message, setMessage] = useState("");
-	const account_id = sessionStorage.getItem("account_id");
+	const session = useContext(sessionContext);
+	const account_id = session?.organization?.stripeConnectId;
 	const initialValues: DepositData = {
 		account_id: account_id || "",
 		source_id: "",
@@ -91,39 +96,33 @@ const DepositFundsPopup = ({ isShow, onHide }: DepositFundsPopupProps) => {
 	const styleInputInvalid = "border border-red-500 focus:border-red-500 focus:ring-red-500";
 
 	useEffect(() => {
-		if (isShow) getAllSources();
+		if (isShow) {
+			getAllBankccounts();
+		}
 	}, [isShow]);
 
-	const getAllSources = async () => {
-		//setShowSpinner(true);
-		// try {
-		// 	let response: any = await cardsService.retrieveBalance({ account_id: account_id });
-		// 	setShowSpinner(false);
-		// 	if (
-		// 		response.type === "StripePermissionError" ||
-		// 		response.type === "StripeInvalidRequestError"
-		// 	) {
-		// 		//setMessage(data.raw.message);
-		// 	} else {
-		// 		setSources(response);
-		// 	}
-		// } catch (ex) {
-		// 	console.log("exception", ex);
-		// 	setShowSpinner(false);
-		// }
-		setSources([
-			{
-				id: "src_1LNBMbR1aSxGwRclfo8FZZdU",
-				object: "source",
-				ach_debit: {
-					last4: "9991",
-					bank_name: "STRIPE TEST BANK",
-				},
-				owner: {
-					name: "Jenny Rosen",
-				},
-			},
-		]);
+	const getAllBankccounts = async (): Promise<void> => {
+		const organization = session?.organization;
+		if (organization) {
+			setShowSpinner(true);
+			const organizationId = organization.id ? organization.id : "";
+			try {
+				let response: any = await flareService.getAllBankAccounts(organizationId);
+				setShowSpinner(false);
+				if (
+					response.type === "StripePermissionError" ||
+					response.type === "StripeInvalidRequestError"
+				) {
+					setMessage(response.raw.message);
+				} else {
+					setMessage("");
+					setSources(response);
+				}
+			} catch (ex) {
+				console.log("exception", ex);
+				setShowSpinner(false);
+			}
+		}
 	};
 
 	const onSubmit = (values: DepositData) => {
@@ -171,12 +170,12 @@ const DepositFundsPopup = ({ isShow, onHide }: DepositFundsPopupProps) => {
 				<Formik
 					initialValues={initialValues}
 					validate={validate}
-					onSubmit={(values, actions) => {
+					onSubmit={(values: DepositData, actions: any) => {
 						onSubmit(values);
 						actions.setSubmitting(false);
 					}}
 				>
-					{(formik) => {
+					{(formik: FormikProps<DepositData>) => {
 						const { handleSubmit, handleChange, touched, errors, handleBlur, values } =
 							formik;
 						const isTouched = (touched as any)["source_id"];
@@ -196,9 +195,9 @@ const DepositFundsPopup = ({ isShow, onHide }: DepositFundsPopupProps) => {
 							<>
 								<Spinner show={showSpinner} />
 								<Form className="connect-bk-form" onSubmit={handleSubmit}>
-									<div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+									<div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-30">
 										<div className="flex justify-center overflow-x-hidden overflow-y-auto px-6 py-6">
-											<div className="flex bg-white w-[817px] h-[500px] border-gray-300 rounded-md shadow-lg">
+											<div className="flex bg-white w-[817px] h-[520px] border-gray-300 rounded-md shadow-lg">
 												<div className="relative w-full h-full max-w-auto p-5">
 													<div className="flex justify-between items-center">
 														<p className="text-2xl text-gray-900 font-bold">
@@ -285,44 +284,33 @@ const DepositFundsPopup = ({ isShow, onHide }: DepositFundsPopupProps) => {
 															</div>
 														</div>
 													</div>
-													<div className="mt-10">
+													<div className="mt-5">
 														<div className="text-black-600 text-xs">
 															Adding Funds From
 														</div>
-														{sources.map((source: any) => (
-															<>
-																<div className=" text-black-500 text-sm">
-																	<input
-																		type="radio"
-																		name="source_id"
-																		className="mr-2 accent-red-600"
-																		onChange={handleChange}
-																		onBlur={handleBlur}
-																		value={source.id}
-																	/>
-																	{`${source.owner!.name} | ${
-																		source.ach_debit!.bank_name
-																	}`}
-																</div>
-																<div className=" text-gray-600 text-sm">
-																	************
-																	{source.ach_debit!.last4}
-																</div>
-															</>
-														))}
-														{isTouched && error && (
-															<p className="mt-2 text-sm text-red-600 dark:text-red-500">
-																Select source from source list
-															</p>
-														)}
-														<div
+														<div className="overflow-y-auto h-20">
+															{sources.map((source: any) => (
+																<Bank
+																	bank={source}
+																	handleChange={handleChange}
+																	handleBlur={handleBlur}
+																	key={source.id}
+																/>
+															))}
+															{isTouched && error && (
+																<p className="mt-2 text-sm text-red-600 dark:text-red-500">
+																	Select source from source list
+																</p>
+															)}
+														</div>
+														<a
 															className="text-sm text-red-500 mt-3 cursor-pointer hover:font-bold"
 															onClick={() => {
 																navigate("/connect-bank-account");
 															}}
 														>
 															+ Add Another Bank Account
-														</div>
+														</a>
 													</div>
 													<div className="flex justify-between space-x-4 mb-0 mt-6 border-t-2 pt-6">
 														<div className="text-sm font-bold ml-4 h-auto w-72">
