@@ -39,6 +39,9 @@ class cardsAPIService {
 
 	getSourceDetails = async (payload: any) =>
 		await API.post("flareapi", "/cards/getSourceDetails", { body: payload });
+	
+	retrieveCard = async (payload: any) =>
+		await API.post("flareapi", "/cards/retrieveCard", { body: payload });
 }
 
 export default cardsAPIService;

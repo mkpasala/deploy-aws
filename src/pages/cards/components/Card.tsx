@@ -1,5 +1,6 @@
 import CARD_BACKGROUND_LOGO from "../../../assets/card-background.png";
 import CARD_LOGO from "../../../assets/card-logo.png";
+import { createSearchParams, useNavigate } from "react-router-dom";
 
 const Card = ({ card }: any) => {
 	const name = card.cardholder!.name;
@@ -10,10 +11,19 @@ const Card = ({ card }: any) => {
 		}`;
 	
 	const active: boolean = true; // card.status === "active";
+	let navigate = useNavigate();
 
 	return (
 
 		<div
+			onClick={() => {
+				navigate({
+					pathname: "/view-card",
+					search: createSearchParams({
+						id: card.id
+					}).toString()
+				});
+			}}
 			className="h-[143px] w-[255px] mx-3 my-2"
 			style={{ backgroundImage: `url(${CARD_BACKGROUND_LOGO})` }}
 		>

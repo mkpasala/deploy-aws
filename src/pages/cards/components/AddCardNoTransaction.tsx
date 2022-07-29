@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import AddCardPopup from "./AddCardPopup";
 import FLARE_LOGO from "../../../assets/Flare_Logo_Color.png";
 import GROUP_LOGO from "../../../assets/Group.png";
-import CARD_LOGO from "../../../assets/card-logo.png";
-import CARD_BACKGROUND_LOGO from "../../../assets/card-background.png";
+//import CARD_LOGO from "../../../assets/card-logo.png";
+//import CARD_BACKGROUND_LOGO from "../../../assets/card-background.png";
 import NavBar from "./navbar";
 import DepositFundsPopup from "./DepositFundsPopup";
 import WithdrawFundsPopup from "./WithdrawFundsPopup";
@@ -280,13 +280,13 @@ const AddCardNoTransaction = () => {
 									</div>
 									<div className="cards-details flex flex-row mb-2 mx-3">
 										<div className="total-issued-cards mr-2">
-											<div className="no-of-cards font-bold">23</div>
+											<div className="no-of-cards font-semi-bold">23</div>
 											<div className="cards-type text-[10px] text-gray-500">
 												Cards Issued
 											</div>
 										</div>
 										<div className="total-blocked-cards mr-2">
-											<div className="no-of-cards font-bold">3</div>
+											<div className="no-of-cards font-semi-bold">3</div>
 											<div className="cards-type text-[10px] text-gray-500">
 												Cards Blocked
 											</div>
@@ -296,14 +296,14 @@ const AddCardNoTransaction = () => {
 											<button
 												type="button"
 												onClick={() => setModalOn(true)}
-												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white border border-red-500 hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
+												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
 											>
 												Add New
 											</button>
 										</div>
 									</div>
 									<div className="search-user relative border-y border-gray-200 overflow-y-auto">
-										<span className="absolute top-3 left-7">
+										<span className="absolute top-3 left-5">
 											<svg
 												fill="none"
 												stroke="#94a3b8"
@@ -311,15 +311,15 @@ const AddCardNoTransaction = () => {
 												stroke-linejoin="round"
 												stroke-width="2"
 												viewBox="0 0 24 24"
-												className="w-3 h-3"
+												className="w-4 h-4"
 											>
 												<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
 											</svg>
 										</span>
 										{/* {!setModalOn && */}
 										<input
-											className="search-txt text-xs bg-white w-full border-0 py-[6px] pr-3 pl-12 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
-											placeholder="Search Card Name"
+											className="search-txt text-xs bg-white w-full border-0 py-[12px] pr-3 pl-12 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
+											placeholder="Search card name"
 											type="text"
 											name="searchcardname"
 											onChange={handleFilterChange}
