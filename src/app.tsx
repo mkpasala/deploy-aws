@@ -123,4 +123,4 @@ function App({ signOut, user: cognitoUser }: { signOut: () => any; user: any }) 
 	);
 }
 
-export default App; //withAuthenticator(App as any);
+export default withAuthenticator(App as any);
