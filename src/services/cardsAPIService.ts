@@ -18,21 +18,27 @@ class cardsAPIService {
 
 	withdrawFunds = async (payload: any) =>
 		await API.post("flareapi", "/cards/withdrawFunds", { body: payload });
-	
+
 	createCardholder = async (payload: any) =>
 		await API.post("flareapi", "/cards/createCardholder", { body: payload });
-	
+
 	createCard = async (payload: any) =>
 		await API.post("flareapi", "/cards/createCard", { body: payload });
-	
+
 	getCardList = async (payload: any) =>
 		await API.post("flareapi", "/cards/getCardList", { body: payload });
 
 	getConnectAccountDetails = async (payload: any) =>
 		await API.post("flareapi", "/cards/getConnectAccountDetails", { body: payload });
-	
+
 	getTransactionList = async (payload: any) =>
 		await API.post("flareapi", "/cards/getTransactionList", { body: payload });
+
+	getAllBankTransactions = async (payload: any) =>
+		await API.post("flareapi", "/cards/getAllBankTransactions", { body: payload });
+
+	getSourceDetails = async (payload: any) =>
+		await API.post("flareapi", "/cards/getSourceDetails", { body: payload });
 }
 
 export default cardsAPIService;

@@ -6,4 +6,5 @@ export default interface Organization {
 	aisOrganizationId?: string;
 	aisToken?: Object;
 	createdWhen?: Date;
+	stripeConnectId?: string;
 }
