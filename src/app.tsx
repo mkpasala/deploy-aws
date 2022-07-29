@@ -24,6 +24,7 @@ import ConnectBankAccount from "./pages/cards/components/add-bank-accounts/Conne
 import AddCardNoTransaction from "./pages/cards/components/AddCardNoTransaction";
 import TransactionTable from "./pages/cards/components/CardTransactionList";
 import BankAccountList from "./pages/cards/components/bank-accounts/BankAccountList";
+import ViewCardDetail from "./pages/cards/components/ViewCardDetail";
 
 interface SessionContext {
 	user: User | null;
@@ -114,11 +115,12 @@ function App({ signOut, user: cognitoUser }: { signOut: () => any; user: any }) 
 					<Route path="connect-bank-account" element={<ConnectBankAccount />} />
 					<Route path="card-list" element={<AddCardNoTransaction />} />
 					<Route path="transactions" element={<TransactionTable />} />
-					<Route path="bank-account-list" element={<BankAccountList />} />
+						<Route path="bank-account-list" element={<BankAccountList />} />
+						<Route path="view-card" element={<ViewCardDetail />} />
 				</Routes>
 			</sessionContext.Provider>
 		</Router>
 	);
 }
 
-export default withAuthenticator(App as any);
+export default App; //withAuthenticator(App as any);
