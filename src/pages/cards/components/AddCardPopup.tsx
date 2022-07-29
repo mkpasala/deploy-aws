@@ -319,7 +319,12 @@ const AddCardPopup = ({ setModalOn }: any) => {
 										<div className="relative w-full h-full max-w-auto p-4 md:h-auto overflow-y-auto">
 											<div className="flex justify-between items-center text-lg text-gray-900 dark:text-white font-bold">
 												<h3>Add New Card</h3>
-												<button onClick={handleCancelClick}>X</button>
+												<div onClick={handleCancelClick}>
+													<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+														<path d="M16 1.4L14.6 0L8 6.6L1.4 0L0 1.4L6.6 8L0 14.6L1.4 16L8 9.4L14.6 16L16 14.6L9.4 8L16 1.4Z" fill="#060F14" fill-opacity="0.8" />
+													</svg>
+												</div>
+												{/* <button onClick={handleCancelClick}>X</button> */}
 											</div>
 											<div
 												className="h-[143px] w-[255px] mx-auto my-auto "
@@ -510,7 +515,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																	htmlFor="monthly"
 																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
 																>
-																	Monthly
+																	Month
 																</label>
 															</div>
 															<div className="flex items-center ml-[60px]">
@@ -527,7 +532,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																	htmlFor="yearly"
 																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
 																>
-																	Yearly
+																	Year
 																</label>
 															</div>
 															<div className="flex items-center ml-[60px]">
@@ -745,13 +750,14 @@ const AddCardPopup = ({ setModalOn }: any) => {
 												<button
 													type="reset"
 													onClick={handleCancelClick}
-													className="text-white bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+													className="bg-white hover:bg-gray-200 font-semi-bold py-2 px-2 rounded w-32"
 												>
 													Cancel
 												</button>
 												<button
 													type="submit"
-													className="text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+													//className="text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+													className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
 												>
 													Add
 												</button>
