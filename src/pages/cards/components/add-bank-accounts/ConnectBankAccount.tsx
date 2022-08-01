@@ -20,7 +20,7 @@ const ConnectBankAccount = () => {
 		stripeAccount: account_id,
 	});
 	const [stepCount, setStepCount] = useState(0);
-	const { state } = useLocation();
+	const { state, pathname } = useLocation();
 	const [tabTitles, setTabTitles] = useState<string[]>([]);
 	let navigate = useNavigate();
 
@@ -29,11 +29,21 @@ const ConnectBankAccount = () => {
 			setTabTitles([]);
 			if (!state) {
 				sessionStorage.removeItem("source_id");
-				setTabTitles((prev) => {
-					return [...prev, "Connect your Bank Account"];
-				});
-			}
-			if (state) {
+				if (pathname && pathname.includes("/add-new-bank-account")) {
+					setTabTitles((prev) => {
+						return [...prev, "Connect your Bank Account", "Verify Deposit Amounts"];
+					});
+				} else {
+					setTabTitles((prev) => {
+						return [
+							...prev,
+							"Connect your Bank Account",
+							"Verify Deposit Amounts",
+							"Add Funds",
+						];
+					});
+				}
+			} else if (state) {
 				const pending = state.status === "pending";
 				const source_id = state.id;
 				sessionStorage.setItem("source_id", source_id);
@@ -57,7 +67,7 @@ const ConnectBankAccount = () => {
 				}
 			}
 		})();
-	}, []);
+	}, [state]);
 
 	const retrieveBalance = async (): Promise<any> => {
 		setShowSpinner(true);

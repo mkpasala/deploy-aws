@@ -115,8 +115,9 @@ function App({ signOut, user: cognitoUser }: { signOut: () => any; user: any }) 
 					<Route path="connect-bank-account" element={<ConnectBankAccount />} />
 					<Route path="card-list" element={<AddCardNoTransaction />} />
 					<Route path="transactions" element={<TransactionTable />} />
-						<Route path="bank-account-list" element={<BankAccountList />} />
-						<Route path="view-card" element={<ViewCardDetail />} />
+					<Route path="bank-account-list" element={<BankAccountList />} />
+					<Route path="add-new-bank-account" element={<ConnectBankAccount />} />
+					<Route path="view-card" element={<ViewCardDetail />} />
 				</Routes>
 			</sessionContext.Provider>
 		</Router>

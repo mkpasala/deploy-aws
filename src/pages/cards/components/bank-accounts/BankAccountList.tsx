@@ -6,6 +6,7 @@ import { sessionContext } from "../../../../app";
 import BankAccountListItem from "./BankAccountListItem";
 import NavBar from "../navbar";
 import BankAccountsTransactionList from "./BankAccountsTransactionList";
+import { useNavigate } from "react-router-dom";
 
 const BankAccountList = () => {
 	const cardsService = new cardsAPIService();
@@ -16,6 +17,7 @@ const BankAccountList = () => {
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [message, setMessage] = useState("");
 	const [transactions, setTransactions] = useState<any>([]);
+	let navigate = useNavigate();
 
 	useEffect(() => {
 		getAllBankccounts();
@@ -65,6 +67,9 @@ const BankAccountList = () => {
 							<button
 								type="button"
 								className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white border border-red-500 hover:border-transparent rounded text-xs font-bold h-8 mt-1 p-1"
+								onClick={() => {
+									navigate("/add-new-bank-account");
+								}}
 							>
 								Add New Bank Account
 							</button>
