@@ -1,11 +1,16 @@
+import { useContext } from "react";
 import FlareLogo from "../../../assets/Flare_Logo_Color.svg";
 import { useLocation, useNavigate } from "react-router-dom";
+import { UserAccountSetting } from "../../components/Navbar/components/userAccountSetting";
+import { sessionContext } from "../../../app";
 
 interface NavBarProps {
 	userStatus?: boolean;
 }
 
 const NavBar: React.FC<NavBarProps> = ({ userStatus = false }) => {
+	const session = useContext(sessionContext);
+	const sessionUser = session?.user;
 	const location = useLocation();
 	const pathname = location.pathname;
 	console.log(pathname);
@@ -118,28 +123,33 @@ const NavBar: React.FC<NavBarProps> = ({ userStatus = false }) => {
 										Cards
 									</a>
 								</li>
-								<li className="flex items-center px-14">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										className="h-4 w-4"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke="currentColor"
-										stroke-width="2"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-										/>
-									</svg>
-									<a className="ml-1" href="#">
-										Login
-									</a>
-								</li>
+								{!sessionUser ? (
+									<li className="flex items-center px-14">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											className="h-4 w-4"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke="currentColor"
+											stroke-width="2"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+											/>
+										</svg>
+										<a className="ml-1" href="#">
+											Login
+										</a>
+									</li>
+								) : (
+									<></>
+								)}
 							</ul>
 						</div>
 					</div>
+					{sessionUser ? <UserAccountSetting /> : <></>}
 				</div>
 			</div>
 		</nav>
