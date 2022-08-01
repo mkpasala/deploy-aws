@@ -22,7 +22,8 @@ const ConnectBankAccount = () => {
 	const [stepCount, setStepCount] = useState(0);
 	const { state, pathname } = useLocation();
 	const [tabTitles, setTabTitles] = useState<string[]>([]);
-	let navigate = useNavigate();
+	const navigate = useNavigate();
+	const [newBankAccount, setNewBankAccount] = useState(false);
 
 	useEffect(() => {
 		(async () => {
@@ -30,10 +31,12 @@ const ConnectBankAccount = () => {
 			if (!state) {
 				sessionStorage.removeItem("source_id");
 				if (pathname && pathname.includes("/add-new-bank-account")) {
+					setNewBankAccount(true);
 					setTabTitles((prev) => {
 						return [...prev, "Connect your Bank Account", "Verify Deposit Amounts"];
 					});
 				} else {
+					setNewBankAccount(false);
 					setTabTitles((prev) => {
 						return [
 							...prev,
@@ -128,7 +131,26 @@ const ConnectBankAccount = () => {
 				<NavBar />
 				<main className="main-content flex flex-col mx-[205px]">
 					{tabTitles.length && (
-						<div className="screen-title pt-[28px] pb-[32px]">Cards</div>
+						<div className="screen-title pt-[28px] pb-[32px] flex items-center">
+							{newBankAccount && (
+								<a href="/bank-account-list">
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 16 16"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											d="M16 1.4L14.6 0L8 6.6L1.4 0L0 1.4L6.6 8L0 14.6L1.4 16L8 9.4L14.6 16L16 14.6L9.4 8L16 1.4Z"
+											fill="#060F14"
+											fill-opacity="0.8"
+										/>
+									</svg>
+								</a>
+							)}
+							Cards
+						</div>
 					)}
 					<div className="flex flex-row breadscrumb mb-3">
 						<ul className="list-none flex flex-row flex-nowrap justify-start">

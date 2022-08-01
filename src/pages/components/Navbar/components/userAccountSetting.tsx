@@ -2,20 +2,26 @@ import { ChevronDownIcon, LogoutIcon } from "@heroicons/react/outline";
 import { useEffect } from "react";
 import { useContext, useRef, useState } from "react";
 import { sessionContext } from "../../../../app";
+import { useNavigate } from "react-router-dom";
 
 export const UserAccountSetting = () => {
+	const navigate = useNavigate();
 	const settingsRef = useRef<HTMLDivElement>(null);
 	const toggle = () => setOpen(!open);
 	const session = useContext(sessionContext);
 	const sessionUser = session?.user;
 	const user = {
-		fullName: `${sessionUser?.firstName || "First"} ${
-			sessionUser?.lastName || "Last"
-		}`,
+		fullName: `${sessionUser?.firstName || "First"} ${sessionUser?.lastName || "Last"}`,
 		role: `${sessionUser?.role?.toUpperCase() || "ROLE"}`,
 	};
 	const [open, setOpen] = useState(false);
 	const settings = [
+		{
+			name: "Bank Accounts",
+			onClick: () => {
+				navigate("/bank-account-list");
+			},
+		},
 		{
 			icon: <LogoutIcon className="w-4" />,
 			name: "Logout",
@@ -37,9 +43,7 @@ export const UserAccountSetting = () => {
 
 	return (
 		<div
-			className={
-				"relative flex gap-3 items-center cursor-pointer select-none"
-			}
+			className={"relative flex gap-3 items-center cursor-pointer select-none"}
 			ref={settingsRef}
 			onClick={toggle}
 		>
@@ -50,9 +54,7 @@ export const UserAccountSetting = () => {
 					.join(".")}
 			</div>
 			<div className="flex flex-col gap-1">
-				<p className="text-sm text-dark font-semibold">
-					{user.fullName}
-				</p>
+				<p className="text-sm text-dark font-semibold">{user.fullName}</p>
 				<p className="text-xs text-dark/70">{user.role}</p>
 			</div>
 			<button className="ml-7">

@@ -8,20 +8,19 @@ const Card = ({ card }: any) => {
 	const last4 = card.last4;
 	const balance = `$${card.spending_controls!.spending_limits[0]!.amount}/$${
 		card.spending_controls!.spending_limits[0]!.amount
-		}`;
-	
-	const active: boolean = true; // card.status === "active";
+	}`;
+
+	const active: boolean = card.status === "active";
 	let navigate = useNavigate();
 
 	return (
-
 		<div
 			onClick={() => {
 				navigate({
 					pathname: "/view-card",
 					search: createSearchParams({
-						id: card.id
-					}).toString()
+						id: card.id,
+					}).toString(),
 				});
 			}}
 			className="h-[143px] w-[255px] mx-3 my-2"
@@ -41,12 +40,22 @@ const Card = ({ card }: any) => {
 			<div className="flex justify-between items-center">
 				<div className="text-white ml-5 text-xs">{exp_date}</div>
 				{!active && (
-					<div className="bg-gray-400 w-8 h-4 mr-5 rounded-full">
+					<div
+						className="bg-gray-400 w-8 h-4 mr-5 rounded-full"
+						onClick={(event) => {
+							event.stopPropagation();
+						}}
+					>
 						<div className="bg-white w-3 h-3 rounded-full mt-[2px] mr-[3px]"></div>
 					</div>
 				)}
 				{active && (
-					<div className="bg-orange-600 w-8 h-4 mr-5 rounded-full flex justify-end">
+					<div
+						className="bg-orange-600 w-8 h-4 mr-5 rounded-full flex justify-end"
+						onClick={(event) => {
+							event.stopPropagation();
+						}}
+					>
 						<div className="bg-white w-3 h-3 rounded-full mt-[2px] mr-[3px]"></div>
 					</div>
 				)}
