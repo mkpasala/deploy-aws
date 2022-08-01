@@ -157,12 +157,12 @@ const ViewCardDetail = () => {
     // }]
     // console.log("CardData", cardData1)
 
-    console.log("transactionData==>",transactionData)
+    // console.log("transactionData==>",transactionData)
     
-    console.log("cardData===>",cardData)
-    console.log("cardData===>",cardData[0]?.spending_controls?.spending_limits_currency)
+    // console.log("cardData===>",cardData)
+    // console.log("cardData===>",cardData[0]?.spending_controls?.spending_limits_currency)
     const getTransactionData = transactionData?.filter((item:any)=>item.card === card_id)
-    console.log("getTransactionData===>",getTransactionData);
+    // console.log("getTransactionData===>",getTransactionData);
     
     return (
         <div className="card-section font-sans">
