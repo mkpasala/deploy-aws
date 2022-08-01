@@ -1,5 +1,5 @@
 import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import AddCardPopup from "./AddCardPopup";
 import FLARE_LOGO from "../../../assets/Flare_Logo_Color.png";
 import GROUP_LOGO from "../../../assets/Group.png";
@@ -12,6 +12,8 @@ import Spinner from "./Spinner";
 import cardsAPIService from "../../../services/cardsAPIService";
 import Card from "./Card";
 import Transaction from "./Transaction";
+import { sessionContext } from "../../../app";
+import SuccessPopupMessage from "./SuccessPopupMessage";
 
 const AddCardNoTransaction = () => {
 	const cardsService = new cardsAPIService();
@@ -23,12 +25,11 @@ const AddCardNoTransaction = () => {
 	const [cardData, setCardData] = useState<any>(null);
 	const [transactionData, setTransactionData] = useState([] as any);
 	const [newCardInfo, setNewCardInfo] = useState<any>({});
+	const [showSuccess, setShowSuccess] = useState<any>(false);
 
-	sessionStorage.setItem("account_id", "acct_1LLOc6R80wjEJFG5");
-	const account_id = sessionStorage.getItem("account_id");
-
-	sessionStorage.setItem("orgId", "68167b70-8427-4c91-8ad1-6b8d0dfd861f");
-	const orgId = sessionStorage.getItem("orgId");
+	const session = useContext(sessionContext);
+	const account_id = session?.organization?.stripeConnectId;
+	const orgId = session?.organization?.id;
 
 	useEffect(() => {
 		retrieveBalance();
@@ -37,7 +38,7 @@ const AddCardNoTransaction = () => {
 		setShowSpinner(true);
 		try {
 			let response: any = await cardsService.retrieveBalance({
-				account_id: "acct_1LQSMOQq4D27fJs4",
+				account_id: account_id,
 			});
 			setShowSpinner(false);
 			if (
@@ -75,7 +76,6 @@ const AddCardNoTransaction = () => {
 	useEffect(() => {
 		getCardListNew(orgId);
 	}, []);
-
 	const getCardListNew = async (orgId: any) => {
 		const response = await fetch(
 			`https://h3tqg8ihpg.execute-api.us-east-1.amazonaws.com/staging/organizations/${orgId}/cards`,
@@ -280,13 +280,13 @@ const AddCardNoTransaction = () => {
 									</div>
 									<div className="cards-details flex flex-row mb-2 mx-3">
 										<div className="total-issued-cards mr-2">
-											<div className="no-of-cards font-semi-bold">23</div>
+											<div className="no-of-cards font-bold">23</div>
 											<div className="cards-type text-[10px] text-gray-500">
 												Cards Issued
 											</div>
 										</div>
 										<div className="total-blocked-cards mr-2">
-											<div className="no-of-cards font-semi-bold">3</div>
+											<div className="no-of-cards font-bold">3</div>
 											<div className="cards-type text-[10px] text-gray-500">
 												Cards Blocked
 											</div>
@@ -296,14 +296,14 @@ const AddCardNoTransaction = () => {
 											<button
 												type="button"
 												onClick={() => setModalOn(true)}
-												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
+												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white border border-red-500 hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
 											>
 												Add New
 											</button>
 										</div>
 									</div>
 									<div className="search-user relative border-y border-gray-200 overflow-y-auto">
-										<span className="absolute top-3 left-5">
+										<span className="absolute top-3 left-7">
 											<svg
 												fill="none"
 												stroke="#94a3b8"
@@ -318,7 +318,7 @@ const AddCardNoTransaction = () => {
 										</span>
 										{/* {!setModalOn && */}
 										<input
-											className="search-txt text-xs bg-white w-full border-0 py-[12px] pr-3 pl-12 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
+											className="search-txt text-xs bg-white w-full border-0 py-[6px] pr-3 pl-12 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
 											placeholder="Search card name"
 											type="text"
 											name="searchcardname"
@@ -366,18 +366,36 @@ const AddCardNoTransaction = () => {
 							)}
 						</div>
 					</div>
-					{modalOn && <AddCardPopup setModalOn={setModalOn} />}
+					{modalOn && (
+						<AddCardPopup
+							setModalOn={setModalOn}
+							onSuccess={async () => {
+								//await updateCardList();
+								setShowSuccess(true);
+							}}
+						/>
+					)}
 					<DepositFundsPopup
 						isShow={showDepositFunds}
-						onHide={() => {
+						onHide={async () => {
+							await retrieveBalance();
 							setShowDepositFunds(false);
 						}}
 					/>
 					<WithdrawFundsPopup
 						isShow={showWithdrawFunds}
-						onHide={() => {
+						onHide={async () => {
+							await retrieveBalance();
 							setShowWithdrawFunds(false);
 						}}
+					/>
+					<SuccessPopupMessage
+						isShow={showSuccess}
+						onHide={() => {
+							setShowSuccess(false);
+						}}
+						header="New Card Added Successfully!"
+						message="Lorem Ipsum dolar imit Lorem Ipsum dolar imit,"
 					/>
 				</main>
 			</div>
