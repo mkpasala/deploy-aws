@@ -35,6 +35,244 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 	const [message, setMessage] = useState("");
 	const [cardID, setCardID] = useState("");
 	let navigate = useNavigate();
+	const states = [
+		{
+			name: "Alabama",
+			abbreviation: "AL",
+		},
+		{
+			name: "Alaska",
+			abbreviation: "AK",
+		},
+		{
+			name: "American Samoa",
+			abbreviation: "AS",
+		},
+		{
+			name: "Arizona",
+			abbreviation: "AZ",
+		},
+		{
+			name: "Arkansas",
+			abbreviation: "AR",
+		},
+		{
+			name: "California",
+			abbreviation: "CA",
+		},
+		{
+			name: "Colorado",
+			abbreviation: "CO",
+		},
+		{
+			name: "Connecticut",
+			abbreviation: "CT",
+		},
+		{
+			name: "Delaware",
+			abbreviation: "DE",
+		},
+		{
+			name: "District Of Columbia",
+			abbreviation: "DC",
+		},
+		{
+			name: "Federated States Of Micronesia",
+			abbreviation: "FM",
+		},
+		{
+			name: "Florida",
+			abbreviation: "FL",
+		},
+		{
+			name: "Georgia",
+			abbreviation: "GA",
+		},
+		{
+			name: "Guam",
+			abbreviation: "GU",
+		},
+		{
+			name: "Hawaii",
+			abbreviation: "HI",
+		},
+		{
+			name: "Idaho",
+			abbreviation: "ID",
+		},
+		{
+			name: "Illinois",
+			abbreviation: "IL",
+		},
+		{
+			name: "Indiana",
+			abbreviation: "IN",
+		},
+		{
+			name: "Iowa",
+			abbreviation: "IA",
+		},
+		{
+			name: "Kansas",
+			abbreviation: "KS",
+		},
+		{
+			name: "Kentucky",
+			abbreviation: "KY",
+		},
+		{
+			name: "Louisiana",
+			abbreviation: "LA",
+		},
+		{
+			name: "Maine",
+			abbreviation: "ME",
+		},
+		{
+			name: "Marshall Islands",
+			abbreviation: "MH",
+		},
+		{
+			name: "Maryland",
+			abbreviation: "MD",
+		},
+		{
+			name: "Massachusetts",
+			abbreviation: "MA",
+		},
+		{
+			name: "Michigan",
+			abbreviation: "MI",
+		},
+		{
+			name: "Minnesota",
+			abbreviation: "MN",
+		},
+		{
+			name: "Mississippi",
+			abbreviation: "MS",
+		},
+		{
+			name: "Missouri",
+			abbreviation: "MO",
+		},
+		{
+			name: "Montana",
+			abbreviation: "MT",
+		},
+		{
+			name: "Nebraska",
+			abbreviation: "NE",
+		},
+		{
+			name: "Nevada",
+			abbreviation: "NV",
+		},
+		{
+			name: "New Hampshire",
+			abbreviation: "NH",
+		},
+		{
+			name: "New Jersey",
+			abbreviation: "NJ",
+		},
+		{
+			name: "New Mexico",
+			abbreviation: "NM",
+		},
+		{
+			name: "New York",
+			abbreviation: "NY",
+		},
+		{
+			name: "North Carolina",
+			abbreviation: "NC",
+		},
+		{
+			name: "North Dakota",
+			abbreviation: "ND",
+		},
+		{
+			name: "Northern Mariana Islands",
+			abbreviation: "MP",
+		},
+		{
+			name: "Ohio",
+			abbreviation: "OH",
+		},
+		{
+			name: "Oklahoma",
+			abbreviation: "OK",
+		},
+		{
+			name: "Oregon",
+			abbreviation: "OR",
+		},
+		{
+			name: "Palau",
+			abbreviation: "PW",
+		},
+		{
+			name: "Pennsylvania",
+			abbreviation: "PA",
+		},
+		{
+			name: "Puerto Rico",
+			abbreviation: "PR",
+		},
+		{
+			name: "Rhode Island",
+			abbreviation: "RI",
+		},
+		{
+			name: "South Carolina",
+			abbreviation: "SC",
+		},
+		{
+			name: "South Dakota",
+			abbreviation: "SD",
+		},
+		{
+			name: "Tennessee",
+			abbreviation: "TN",
+		},
+		{
+			name: "Texas",
+			abbreviation: "TX",
+		},
+		{
+			name: "Utah",
+			abbreviation: "UT",
+		},
+		{
+			name: "Vermont",
+			abbreviation: "VT",
+		},
+		{
+			name: "Virgin Islands",
+			abbreviation: "VI",
+		},
+		{
+			name: "Virginia",
+			abbreviation: "VA",
+		},
+		{
+			name: "Washington",
+			abbreviation: "WA",
+		},
+		{
+			name: "West Virginia",
+			abbreviation: "WV",
+		},
+		{
+			name: "Wisconsin",
+			abbreviation: "WI",
+		},
+		{
+			name: "Wyoming",
+			abbreviation: "WY",
+		},
+	];
 
 	const session = useContext(sessionContext);
 	const userId = session?.user?.id;
@@ -130,16 +368,16 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 				if (!reg.test(values.postalcode)) {
 					errors.postalcode = "Zip Code required integer value";
 				}
+				
+				if (values.postalcode.length != 5) {
+					errors.postalcode = "Zip Code should be of 5 digits";
+				}
 			}
-			if (values.postalcode.length != 5) {
-				errors.postalcode = "Zip Code should be of 5 digits";
-			}
+			
 		}
-		if (values.type === "virtual") {
 			if (!values.spending_limits) {
 				errors.spending_limits = "Spending Limit Amount is required";
 			}
-		}
 		return errors;
 	};
 
@@ -441,7 +679,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															name="cardnickname"
 															id="cardnickname"
 															placeholder="Enter Card Nickname"
-															className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
+															className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
 															onChange={handleChange}
 															onBlur={handleBlur}
 															value={values.cardnickname}
@@ -520,16 +758,16 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															</div>
 															<div className="flex items-center ml-[60px]">
 																<input
-																	id="monthly"
+																	id="month"
 																	type="radio"
-																	value="monthly"
+																	value="month"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
 																	onBlur={handleBlur}
 																/>
 																<label
-																	htmlFor="monthly"
+																	htmlFor="month"
 																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
 																>
 																	Month
@@ -537,16 +775,16 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															</div>
 															<div className="flex items-center ml-[60px]">
 																<input
-																	id="yearly"
+																	id="year"
 																	type="radio"
-																	value="yearly"
+																	value="year"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300  dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
 																	onBlur={handleBlur}
 																/>
 																<label
-																	htmlFor="yearly"
+																	htmlFor="year"
 																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
 																>
 																	Year
@@ -583,11 +821,11 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															<select
 																id="expensetype"
 																name="expensetype"
-																placeholder="Software Subscription"
-																className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
+																placeholder="Choose"
+																className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
 															>
 																<option defaultValue="">
-																	Software Subscription
+																	Choose
 																</option>
 															</select>
 														</div>
@@ -608,7 +846,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																type="text"
 																name="name"
 																id="name"
-																placeholder="Enter Card Nickname here"
+																placeholder="Enter card nickname here"
 																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 																	"name"
 																)}`}
@@ -636,7 +874,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															type="number"
 															name="spending_limits"
 															id="spendinglimit"
-															placeholder="250"
+															placeholder="Enter amount here"
 															className={`marker:bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 																"spending_limits"
 															)}`}
@@ -694,36 +932,36 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															</div>
 															<div className="flex items-center ml-[60px]">
 																<input
-																	id="monthly"
+																	id="month"
 																	type="radio"
-																	value="monthly"
+																	value="month"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
 																	onBlur={handleBlur}
 																/>
 																<label
-																	htmlFor="monthly"
+																	htmlFor="month"
 																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
 																>
-																	Monthly
+																	Month
 																</label>
 															</div>
 															<div className="flex items-center ml-[60px]">
 																<input
-																	id="yearly"
+																	id="year"
 																	type="radio"
-																	value="yearly"
+																	value="year"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300  dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
 																	onBlur={handleBlur}
 																/>
 																<label
-																	htmlFor="yearly"
+																	htmlFor="year"
 																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
 																>
-																	Yearly
+																	Year
 																</label>
 															</div>
 															<div className="flex items-center ml-[60px]">
@@ -757,11 +995,11 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															<select
 																id="expensetype"
 																name="expensetype"
-																placeholder="Software Subscription"
-																className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
+																placeholder="Choose"
+																className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
 															>
 																<option defaultValue="">
-																	Software Subscription
+																	Choose
 																</option>
 															</select>
 														</div>
@@ -779,7 +1017,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																type="text"
 																name="line1"
 																id="line1"
-																placeholder="Enter Address Line1"
+																placeholder="Enter your address line 1 here"
 																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full  rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 																	"line1"
 																)}`}
@@ -805,7 +1043,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																type="text"
 																name="line2"
 																id="line2"
-																placeholder="Enter Address Line 2"
+																placeholder="Enter your address line 2 here"
 																className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
 																onChange={handleChange}
 																onBlur={handleBlur}
@@ -844,7 +1082,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															>
 																State
 															</label>
-															<input
+															{/* <input
 																className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 pl-9 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
 																type="text"
 																name="state"
@@ -852,7 +1090,26 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																onChange={handleChange}
 																onBlur={handleBlur}
 																value={values.state}
-															/>
+															/> */}
+															<select
+																className={`bk-form-input block bk-input-placeholder placeholder:text-slate-400 bg-white w-full border rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
+																	"state"
+																)}`}
+																name="state"
+																onChange={handleChange}
+																onBlur={handleBlur}
+																value={values.state}
+															>
+																<option value="">Enter or choose</option>
+																{states.map((state) => (
+																	<option
+																		value={state.abbreviation}
+																		key={state.abbreviation}
+																	>
+																		{state.name}
+																	</option>
+																))}
+															</select>
 														</div>
 														<div className="relative w-1/2 ml-6">
 															<label
@@ -867,7 +1124,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																)}`}
 																type="text"
 																name="postalcode"
-																placeholder="Enter Postal Code"
+																placeholder="Enter Zip Code Code"
 																onChange={handleChange}
 																onBlur={handleBlur}
 																value={values.postalcode}
