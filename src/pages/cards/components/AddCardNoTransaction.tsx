@@ -318,7 +318,7 @@ const AddCardNoTransaction = () => {
 										</div>
 									</div>
 									<div className="search-user relative border-y border-gray-200 overflow-y-auto">
-										<span className="absolute top-4 left-7">
+										<span className="absolute top-3 left-3">
 											<svg
 												fill="none"
 												stroke="#94a3b8"
@@ -333,7 +333,7 @@ const AddCardNoTransaction = () => {
 										</span>
 										{/* {!setModalOn && */}
 										<input
-											className="search-txt text-xs bg-white border-0 py-2 pl-12 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 m-2 w-64"
+											className="search-txt text-xs bg-white w-full border-0 py-3 pl-8 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
 											placeholder="Search card name"
 											type="text"
 											name="searchcardname"
