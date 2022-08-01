@@ -288,21 +288,24 @@ const DepositFundsPopup = ({ isShow, onHide }: DepositFundsPopupProps) => {
 														<div className="text-black-600 text-xs">
 															Adding Funds From
 														</div>
-														<div className="overflow-y-auto h-20">
-															{sources.map((source: any) => (
-																<Bank
-																	bank={source}
-																	handleChange={handleChange}
-																	handleBlur={handleBlur}
-																	key={source.id}
-																/>
-															))}
-															{isTouched && error && (
-																<p className="mt-2 text-sm text-red-600 dark:text-red-500">
-																	Select source from source list
-																</p>
-															)}
-														</div>
+														{sources.length > 0 && (
+															<div className="overflow-y-auto h-20">
+																{sources.map((source: any) => (
+																	<Bank
+																		bank={source}
+																		handleChange={handleChange}
+																		handleBlur={handleBlur}
+																		key={source.id}
+																	/>
+																))}
+																{isTouched && error && (
+																	<p className="mt-2 text-sm text-red-600 dark:text-red-500">
+																		Select source from source
+																		list
+																	</p>
+																)}
+															</div>
+														)}
 														<a
 															className="text-sm text-red-500 mt-3 cursor-pointer hover:font-bold"
 															onClick={() => {
