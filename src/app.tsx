@@ -25,6 +25,7 @@ import AddCardNoTransaction from "./pages/cards/components/AddCardNoTransaction"
 import TransactionTable from "./pages/cards/components/CardTransactionList";
 import BankAccountList from "./pages/cards/components/bank-accounts/BankAccountList";
 import ViewCardDetail from "./pages/cards/components/ViewCardDetail";
+import ViewAllCards from "./pages/cards/components/ViewAllCards";
 
 interface SessionContext {
 	user: User | null;
@@ -115,8 +116,10 @@ function App({ signOut, user: cognitoUser }: { signOut: () => any; user: any }) 
 					<Route path="connect-bank-account" element={<ConnectBankAccount />} />
 					<Route path="card-list" element={<AddCardNoTransaction />} />
 					<Route path="transactions" element={<TransactionTable />} />
-						<Route path="bank-account-list" element={<BankAccountList />} />
-						<Route path="view-card" element={<ViewCardDetail />} />
+					<Route path="bank-account-list" element={<BankAccountList />} />
+					<Route path="add-new-bank-account" element={<ConnectBankAccount />} />
+					<Route path="view-card" element={<ViewCardDetail />} />
+					<Route path="view-all-card" element={<ViewAllCards />} />
 				</Routes>
 			</sessionContext.Provider>
 		</Router>

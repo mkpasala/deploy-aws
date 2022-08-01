@@ -1,5 +1,5 @@
 import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import AddCardPopup from "./AddCardPopup";
 import FLARE_LOGO from "../../../assets/Flare_Logo_Color.png";
 import GROUP_LOGO from "../../../assets/Group.png";
@@ -12,6 +12,8 @@ import Spinner from "./Spinner";
 import cardsAPIService from "../../../services/cardsAPIService";
 import Card from "./Card";
 import Transaction from "./Transaction";
+import { sessionContext } from "../../../app";
+import SuccessPopupMessage from "./SuccessPopupMessage";
 
 const AddCardNoTransaction = () => {
 	const cardsService = new cardsAPIService();
@@ -23,13 +25,19 @@ const AddCardNoTransaction = () => {
 	const [cardData, setCardData] = useState<any>(null);
 	const [transactionData, setTransactionData] = useState([] as any);
 	const [newCardInfo, setNewCardInfo] = useState<any>({});
+	const [showSuccess, setShowSuccess] = useState<any>(false);
 
-	sessionStorage.setItem("account_id", "acct_1LLOc6R80wjEJFG5");
-	const account_id = sessionStorage.getItem("account_id");
+	const session = useContext(sessionContext);
+	const account_id = session?.organization?.stripeConnectId;
+	const orgId = session?.organization?.id;
 
-	sessionStorage.setItem("orgId", "68167b70-8427-4c91-8ad1-6b8d0dfd861f");
-	const orgId = sessionStorage.getItem("orgId");
-
+	const getBlockedCardCount = () => {
+		if (cardData) {
+			const filterData = cardData.data.filter((card: any) => card.status !== "active");
+			if (filterData) return filterData.length;
+		}
+		return 0;
+	};
 	useEffect(() => {
 		retrieveBalance();
 	}, []);
@@ -37,7 +45,7 @@ const AddCardNoTransaction = () => {
 		setShowSpinner(true);
 		try {
 			let response: any = await cardsService.retrieveBalance({
-				account_id: "acct_1LQSMOQq4D27fJs4",
+				account_id: account_id,
 			});
 			setShowSpinner(false);
 			if (
@@ -75,7 +83,6 @@ const AddCardNoTransaction = () => {
 	useEffect(() => {
 		getCardListNew(orgId);
 	}, []);
-
 	const getCardListNew = async (orgId: any) => {
 		const response = await fetch(
 			`https://h3tqg8ihpg.execute-api.us-east-1.amazonaws.com/staging/organizations/${orgId}/cards`,
@@ -182,19 +189,21 @@ const AddCardNoTransaction = () => {
 										<div className="ts-header px-6 py-3 border-b border-gray-200">
 											<span className="flex justify-between font-bold ">
 												Transactions
-												<svg
-													width="18"
-													height="18"
-													viewBox="0 0 18 18"
-													fill="none"
-													xmlns="http://www.w3.org/2000/svg"
-												>
-													<path
-														d="M10.5 18H7.5C7.10218 18 6.72064 17.842 6.43934 17.5607C6.15804 17.2794 6 16.8978 6 16.5V10.8075L0.4425 5.25C0.160809 4.96999 0.00167459 4.58968 0 4.1925V1.5C0 1.10218 0.158035 0.720644 0.43934 0.43934C0.720644 0.158035 1.10218 0 1.5 0H16.5C16.8978 0 17.2794 0.158035 17.5607 0.43934C17.842 0.720644 18 1.10218 18 1.5V4.1925C17.9983 4.58968 17.8392 4.96999 17.5575 5.25L12 10.8075V16.5C12 16.8978 11.842 17.2794 11.5607 17.5607C11.2794 17.842 10.8978 18 10.5 18ZM1.5 1.5V4.1925L7.5 10.1925V16.5H10.5V10.1925L16.5 4.1925V1.5H1.5Z"
-														fill="#191918"
-														fill-opacity="0.5"
-													/>
-												</svg>
+												<button className="bg-white hover:bg-gray-200 font-bold p-4 rounded text-sm">
+													<svg
+														width="18"
+														height="18"
+														viewBox="0 0 18 18"
+														fill="none"
+														xmlns="http://www.w3.org/2000/svg"
+													>
+														<path
+															d="M10.5 18H7.5C7.10218 18 6.72064 17.842 6.43934 17.5607C6.15804 17.2794 6 16.8978 6 16.5V10.8075L0.4425 5.25C0.160809 4.96999 0.00167459 4.58968 0 4.1925V1.5C0 1.10218 0.158035 0.720644 0.43934 0.43934C0.720644 0.158035 1.10218 0 1.5 0H16.5C16.8978 0 17.2794 0.158035 17.5607 0.43934C17.842 0.720644 18 1.10218 18 1.5V4.1925C17.9983 4.58968 17.8392 4.96999 17.5575 5.25L12 10.8075V16.5C12 16.8978 11.842 17.2794 11.5607 17.5607C11.2794 17.842 10.8978 18 10.5 18ZM1.5 1.5V4.1925L7.5 10.1925V16.5H10.5V10.1925L16.5 4.1925V1.5H1.5Z"
+															fill="#191918"
+															fill-opacity="0.5"
+														/>
+													</svg>
+												</button>
 											</span>
 										</div>
 										<div className="ts-search relative ">
@@ -212,7 +221,7 @@ const AddCardNoTransaction = () => {
 												</svg>
 											</span>
 											<input
-												className="bk-form-input bk-input-placeholder placeholder:text-slate-400 text-sm bg-white w-full border-0 py-2 pr-3 pl-12 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
+												className="bk-form-input bk-input-placeholder placeholder:text-slate-400 text-sm bg-white border-0 py-2 pr-3 pl-12 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 ml-4 w-96"
 												placeholder="Search user or program"
 												type="text"
 												name="searchTransaction text-xs"
@@ -275,18 +284,24 @@ const AddCardNoTransaction = () => {
 									<div className="cards-header flex flex-row justify-between mb-2 mx-3 mt-5">
 										<div className="card-title font-bold">Cards</div>
 										<div className="view-cards text-sm">
-											<a href="">View All Cards</a>
+											<a href="/view-all-card">View All Cards</a>
 										</div>
 									</div>
 									<div className="cards-details flex flex-row mb-2 mx-3">
 										<div className="total-issued-cards mr-2">
-											<div className="no-of-cards font-semi-bold">23</div>
+											<div className="no-of-cards font-bold">
+												{cardData && cardData.data!.length > 0
+													? cardData && cardData.data.length
+													: 0}
+											</div>
 											<div className="cards-type text-[10px] text-gray-500">
 												Cards Issued
 											</div>
 										</div>
 										<div className="total-blocked-cards mr-2">
-											<div className="no-of-cards font-semi-bold">3</div>
+											<div className="no-of-cards font-bold">
+												{getBlockedCardCount()}
+											</div>
 											<div className="cards-type text-[10px] text-gray-500">
 												Cards Blocked
 											</div>
@@ -296,14 +311,14 @@ const AddCardNoTransaction = () => {
 											<button
 												type="button"
 												onClick={() => setModalOn(true)}
-												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
+												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white border border-red-500 hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
 											>
 												Add New
 											</button>
 										</div>
 									</div>
 									<div className="search-user relative border-y border-gray-200 overflow-y-auto">
-										<span className="absolute top-3 left-5">
+										<span className="absolute top-3 left-3">
 											<svg
 												fill="none"
 												stroke="#94a3b8"
@@ -318,7 +333,7 @@ const AddCardNoTransaction = () => {
 										</span>
 										{/* {!setModalOn && */}
 										<input
-											className="search-txt text-xs bg-white w-full border-0 py-[12px] pr-3 pl-12 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
+											className="search-txt text-xs bg-white w-full border-0 py-3 pl-8 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
 											placeholder="Search card name"
 											type="text"
 											name="searchcardname"
@@ -331,7 +346,7 @@ const AddCardNoTransaction = () => {
 											.filter((card: any) =>
 												card.cardholder!.name.includes(filter)
 											)
-											.map((card: any) => <Card card={card} />)}
+											.map((card: any) => <Card card={card} key={card.id} />)}
 									{/* </div> */}
 								</div>
 							) : (
@@ -366,18 +381,36 @@ const AddCardNoTransaction = () => {
 							)}
 						</div>
 					</div>
-					{modalOn && <AddCardPopup setModalOn={setModalOn} />}
+					{modalOn && (
+						<AddCardPopup
+							setModalOn={setModalOn}
+							onSuccess={async () => {
+								//await updateCardList();
+								setShowSuccess(true);
+							}}
+						/>
+					)}
 					<DepositFundsPopup
 						isShow={showDepositFunds}
-						onHide={() => {
+						onHide={async () => {
+							await retrieveBalance();
 							setShowDepositFunds(false);
 						}}
 					/>
 					<WithdrawFundsPopup
 						isShow={showWithdrawFunds}
-						onHide={() => {
+						onHide={async () => {
+							await retrieveBalance();
 							setShowWithdrawFunds(false);
 						}}
+					/>
+					<SuccessPopupMessage
+						isShow={showSuccess}
+						onHide={() => {
+							setShowSuccess(false);
+						}}
+						header="New Card Added Successfully!"
+						message="Lorem Ipsum dolar imit Lorem Ipsum dolar imit,"
 					/>
 				</main>
 			</div>

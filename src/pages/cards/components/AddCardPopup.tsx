@@ -1,11 +1,12 @@
 //import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import CARD_BACKGROUND_LOGO from "../../../assets/card-background.png";
 import CARD_LOGO from "../../../assets/card-logo.png";
 import Spinner from "./Spinner";
 import { Form, Formik, FormikErrors, FormikProps } from "formik";
 import { useNavigate } from "react-router-dom";
 import cardsAPIService from "../../../services/cardsAPIService";
+import { sessionContext } from "../../../app";
 
 interface AddCardsData {
 	type: string;
@@ -25,7 +26,7 @@ interface AddCardsErrorMessageProps {
 	formik: FormikProps<AddCardsData>;
 }
 
-const AddCardPopup = ({ setModalOn }: any) => {
+const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 	const handleCancelClick = () => {
 		setModalOn(false);
 	};
@@ -34,11 +35,248 @@ const AddCardPopup = ({ setModalOn }: any) => {
 	const [message, setMessage] = useState("");
 	const [cardID, setCardID] = useState("");
 	let navigate = useNavigate();
+	const states = [
+		{
+			name: "Alabama",
+			abbreviation: "AL",
+		},
+		{
+			name: "Alaska",
+			abbreviation: "AK",
+		},
+		{
+			name: "American Samoa",
+			abbreviation: "AS",
+		},
+		{
+			name: "Arizona",
+			abbreviation: "AZ",
+		},
+		{
+			name: "Arkansas",
+			abbreviation: "AR",
+		},
+		{
+			name: "California",
+			abbreviation: "CA",
+		},
+		{
+			name: "Colorado",
+			abbreviation: "CO",
+		},
+		{
+			name: "Connecticut",
+			abbreviation: "CT",
+		},
+		{
+			name: "Delaware",
+			abbreviation: "DE",
+		},
+		{
+			name: "District Of Columbia",
+			abbreviation: "DC",
+		},
+		{
+			name: "Federated States Of Micronesia",
+			abbreviation: "FM",
+		},
+		{
+			name: "Florida",
+			abbreviation: "FL",
+		},
+		{
+			name: "Georgia",
+			abbreviation: "GA",
+		},
+		{
+			name: "Guam",
+			abbreviation: "GU",
+		},
+		{
+			name: "Hawaii",
+			abbreviation: "HI",
+		},
+		{
+			name: "Idaho",
+			abbreviation: "ID",
+		},
+		{
+			name: "Illinois",
+			abbreviation: "IL",
+		},
+		{
+			name: "Indiana",
+			abbreviation: "IN",
+		},
+		{
+			name: "Iowa",
+			abbreviation: "IA",
+		},
+		{
+			name: "Kansas",
+			abbreviation: "KS",
+		},
+		{
+			name: "Kentucky",
+			abbreviation: "KY",
+		},
+		{
+			name: "Louisiana",
+			abbreviation: "LA",
+		},
+		{
+			name: "Maine",
+			abbreviation: "ME",
+		},
+		{
+			name: "Marshall Islands",
+			abbreviation: "MH",
+		},
+		{
+			name: "Maryland",
+			abbreviation: "MD",
+		},
+		{
+			name: "Massachusetts",
+			abbreviation: "MA",
+		},
+		{
+			name: "Michigan",
+			abbreviation: "MI",
+		},
+		{
+			name: "Minnesota",
+			abbreviation: "MN",
+		},
+		{
+			name: "Mississippi",
+			abbreviation: "MS",
+		},
+		{
+			name: "Missouri",
+			abbreviation: "MO",
+		},
+		{
+			name: "Montana",
+			abbreviation: "MT",
+		},
+		{
+			name: "Nebraska",
+			abbreviation: "NE",
+		},
+		{
+			name: "Nevada",
+			abbreviation: "NV",
+		},
+		{
+			name: "New Hampshire",
+			abbreviation: "NH",
+		},
+		{
+			name: "New Jersey",
+			abbreviation: "NJ",
+		},
+		{
+			name: "New Mexico",
+			abbreviation: "NM",
+		},
+		{
+			name: "New York",
+			abbreviation: "NY",
+		},
+		{
+			name: "North Carolina",
+			abbreviation: "NC",
+		},
+		{
+			name: "North Dakota",
+			abbreviation: "ND",
+		},
+		{
+			name: "Northern Mariana Islands",
+			abbreviation: "MP",
+		},
+		{
+			name: "Ohio",
+			abbreviation: "OH",
+		},
+		{
+			name: "Oklahoma",
+			abbreviation: "OK",
+		},
+		{
+			name: "Oregon",
+			abbreviation: "OR",
+		},
+		{
+			name: "Palau",
+			abbreviation: "PW",
+		},
+		{
+			name: "Pennsylvania",
+			abbreviation: "PA",
+		},
+		{
+			name: "Puerto Rico",
+			abbreviation: "PR",
+		},
+		{
+			name: "Rhode Island",
+			abbreviation: "RI",
+		},
+		{
+			name: "South Carolina",
+			abbreviation: "SC",
+		},
+		{
+			name: "South Dakota",
+			abbreviation: "SD",
+		},
+		{
+			name: "Tennessee",
+			abbreviation: "TN",
+		},
+		{
+			name: "Texas",
+			abbreviation: "TX",
+		},
+		{
+			name: "Utah",
+			abbreviation: "UT",
+		},
+		{
+			name: "Vermont",
+			abbreviation: "VT",
+		},
+		{
+			name: "Virgin Islands",
+			abbreviation: "VI",
+		},
+		{
+			name: "Virginia",
+			abbreviation: "VA",
+		},
+		{
+			name: "Washington",
+			abbreviation: "WA",
+		},
+		{
+			name: "West Virginia",
+			abbreviation: "WV",
+		},
+		{
+			name: "Wisconsin",
+			abbreviation: "WI",
+		},
+		{
+			name: "Wyoming",
+			abbreviation: "WY",
+		},
+	];
 
-	sessionStorage.setItem("userId", "7ef23af6-a3ef-48b0-a49c-8b1769bd0169");
-	const userId = sessionStorage.getItem("userId");
-	sessionStorage.setItem("orgId", "68167b70-8427-4c91-8ad1-6b8d0dfd861f");
-	const orgId = sessionStorage.getItem("orgId");
+	const session = useContext(sessionContext);
+	const userId = session?.user?.id;
+	const orgId = session?.organization?.id;
 
 	const initialValues: AddCardsData = {
 		type: "virtual",
@@ -123,26 +361,23 @@ const AddCardPopup = ({ setModalOn }: any) => {
 			if (!values.city) {
 				errors.city = "City is required";
 			}
-			if (!values.country) {
-				errors.country = "Country is required";
-			}
 			if (!values.postalcode) {
-				errors.postalcode = "Postal Code is required";
+				errors.postalcode = "Zip Code is required";
 			} else {
 				let reg = new RegExp("^[0-9]*$");
 				if (!reg.test(values.postalcode)) {
-					errors.postalcode = "Postal Code required integer value";
+					errors.postalcode = "Zip Code required integer value";
+				}
+				
+				if (values.postalcode.length != 5) {
+					errors.postalcode = "Zip Code should be of 5 digits";
 				}
 			}
-			if (values.postalcode.length != 5) {
-				errors.postalcode = "Postal Code should be of 5 digits";
-			}
+			
 		}
-		if (values.type === 'virtual') {
 			if (!values.spending_limits) {
 				errors.spending_limits = "Spending Limit Amount is required";
 			}
-		}
 		return errors;
 	};
 
@@ -172,7 +407,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 				response.type === "StripeInvalidRequestError"
 			) {
 			} else {
-				sessionStorage.setItem("cardholder_id", response.id);	
+				sessionStorage.setItem("cardholder_id", response.id);
 			}
 		} catch (ex) {
 			setShowSpinner(false);
@@ -222,6 +457,17 @@ const AddCardPopup = ({ setModalOn }: any) => {
 				cardholder: cardholder_id,
 				currency: "usd",
 				type: values.type,
+				shipping: {
+					name: values.name,
+					address: {
+						line1: values.line1,
+						line2: values.line2,
+						city: values.city,
+						state: values.state,
+						postal_code: values.postalcode,
+						country: values.country,
+					},
+				},
 			};
 		} else {
 			reqdata = {
@@ -242,11 +488,12 @@ const AddCardPopup = ({ setModalOn }: any) => {
 			};
 		}
 		try {
-			let response: any = await cardsService.createCard(reqdata)
+			let response: any = await cardsService.createCard(reqdata);
 			setShowSpinner(false);
-			if (response.type === "StripePermissionError" ||
-				response.type === "StripeInvalidRequestError")
-			{
+			if (
+				response.type === "StripePermissionError" ||
+				response.type === "StripeInvalidRequestError"
+			) {
 				setMessage(response.raw.message);
 			} else {
 				setCardID(response.id);
@@ -266,24 +513,27 @@ const AddCardPopup = ({ setModalOn }: any) => {
 			userId: userId,
 			stripeCardId: cardID,
 		};
-		const response = await fetch(`https://h3tqg8ihpg.execute-api.us-east-1.amazonaws.com/staging/organizations/${orgId}/cards`,
+		setShowSpinner(true);
+		const response = await fetch(
+			`https://h3tqg8ihpg.execute-api.us-east-1.amazonaws.com/staging/organizations/${orgId}/cards`,
 			{
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(reqdata),
-			});
+			}
+		);
 		if (!response.ok) {
 			return null;
 		}
 		setModalOn(false);
-		setShowSpinner(true);
-		alert("Card Created Successfully");
+		setShowSpinner(false);
+		onSuccess();
 		//window.location.reload(false)
 		const data = await response.json();
 		//getNewCardData(data);
 		return data;
 	};
-	
+
 	return (
 		<>
 			<Spinner show={showSpinner} />
@@ -319,12 +569,22 @@ const AddCardPopup = ({ setModalOn }: any) => {
 										<div className="relative w-full h-full max-w-auto p-4 md:h-auto overflow-y-auto">
 											<div className="flex justify-between items-center text-lg text-gray-900 dark:text-white font-bold">
 												<h3>Add New Card</h3>
-												<div onClick={handleCancelClick}>
-													<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M16 1.4L14.6 0L8 6.6L1.4 0L0 1.4L6.6 8L0 14.6L1.4 16L8 9.4L14.6 16L16 14.6L9.4 8L16 1.4Z" fill="#060F14" fill-opacity="0.8" />
+												<button onClick={handleCancelClick}>
+													<svg
+														width="16"
+														height="16"
+														viewBox="0 0 16 16"
+														fill="none"
+														xmlns="http://www.w3.org/2000/svg"
+													>
+														<path
+															d="M16 1.4L14.6 0L8 6.6L1.4 0L0 1.4L6.6 8L0 14.6L1.4 16L8 9.4L14.6 16L16 14.6L9.4 8L16 1.4Z"
+															fill="#060F14"
+															fill-opacity="0.8"
+															className=" hover:fill-gray-400"
+														/>
 													</svg>
-												</div>
-												{/* <button onClick={handleCancelClick}>X</button> */}
+												</button>
 											</div>
 											<div
 												className="h-[143px] w-[255px] mx-auto my-auto "
@@ -374,7 +634,6 @@ const AddCardPopup = ({ setModalOn }: any) => {
 															value="physical"
 															name="type"
 															className="w-3 h-3 text-black-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
-															
 															onChange={handleChange}
 															onBlur={handleBlur}
 														/>
@@ -392,7 +651,6 @@ const AddCardPopup = ({ setModalOn }: any) => {
 															value="virtual"
 															name="type"
 															className="w-3 h-3 text-black-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
-						
 															onChange={handleChange}
 															onBlur={handleBlur}
 															defaultChecked
@@ -417,17 +675,17 @@ const AddCardPopup = ({ setModalOn }: any) => {
 														</label>
 
 														<input
-															type="cardnickname"
+															type="text"
 															name="cardnickname"
 															id="cardnickname"
 															placeholder="Enter Card Nickname"
-															className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
-														
+															className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
 															onChange={handleChange}
 															onBlur={handleBlur}
 															value={values.cardnickname}
 														/>
 													</div>
+
 													<div className="justify-between mt-4 relative">
 														<label
 															htmlFor="spendinglimit"
@@ -439,7 +697,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 															&#36;
 														</span>
 														<input
-															type="spendinglimit"
+															type="number"
 															name="spending_limits"
 															id="spendinglimit"
 															placeholder="250"
@@ -462,10 +720,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 														>
 															Frequency
 														</label>
-														<div
-															className="flex"
-															
-														>
+														<div className="flex">
 															<div className="flex items-center mr-4">
 																<input
 																	id="perday"
@@ -503,16 +758,16 @@ const AddCardPopup = ({ setModalOn }: any) => {
 															</div>
 															<div className="flex items-center ml-[60px]">
 																<input
-																	id="monthly"
+																	id="month"
 																	type="radio"
-																	value="monthly"
+																	value="month"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
 																	onBlur={handleBlur}
 																/>
 																<label
-																	htmlFor="monthly"
+																	htmlFor="month"
 																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
 																>
 																	Month
@@ -520,16 +775,16 @@ const AddCardPopup = ({ setModalOn }: any) => {
 															</div>
 															<div className="flex items-center ml-[60px]">
 																<input
-																	id="yearly"
+																	id="year"
 																	type="radio"
-																	value="yearly"
+																	value="year"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300  dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
 																	onBlur={handleBlur}
 																/>
 																<label
-																	htmlFor="yearly"
+																	htmlFor="year"
 																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
 																>
 																	Year
@@ -555,9 +810,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 															</div>
 														</div>
 													</div>
-													<div
-														className="justify-between mt-4"
-													>
+													<div className="justify-between mt-4">
 														<div className="mb-3 xl:w-full">
 															<label
 																htmlFor="expensetype"
@@ -568,11 +821,11 @@ const AddCardPopup = ({ setModalOn }: any) => {
 															<select
 																id="expensetype"
 																name="expensetype"
-																placeholder="Software Subscription"
-																className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
+																placeholder="Choose"
+																className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
 															>
 																<option defaultValue="">
-																	Software Subscription
+																	Choose
 																</option>
 															</select>
 														</div>
@@ -587,13 +840,13 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																htmlFor="name"
 																className="mb-2 mt-2 text-xs bold text-gray-900 dark:text-gray-300 "
 															>
-																Name
+																Card Nickname
 															</label>
 															<input
-																type="name"
+																type="text"
 																name="name"
 																id="name"
-																placeholder="Enter Name"
+																placeholder="Enter card nickname here"
 																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 																	"name"
 																)}`}
@@ -607,20 +860,164 @@ const AddCardPopup = ({ setModalOn }: any) => {
 															/>
 														</div>
 													</div>
-
+													<div className="justify-between mt-4 relative">
+														<label
+															htmlFor="spendinglimit"
+															className="mb-2 mt-4 text-xs bold text-gray-900 dark:text-gray-300 space-y-2"
+														>
+															Spending Limit
+														</label>
+														<span className="absolute top-8 left-5">
+															&#36;
+														</span>
+														<input
+															type="number"
+															name="spending_limits"
+															id="spendinglimit"
+															placeholder="Enter amount here"
+															className={`marker:bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
+																"spending_limits"
+															)}`}
+															onChange={handleChange}
+															onBlur={handleBlur}
+															value={values.spending_limits}
+														/>
+														<AddCardsErrorMessage
+															name="spending_limits"
+															formik={formik}
+														/>
+													</div>
+													<div className="justify-between mt-4">
+														<label
+															htmlFor="frequency"
+															className="mb-2 mt-4 text-xs bold text-gray-900 dark:text-gray-300 space-y-2"
+														>
+															Frequency
+														</label>
+														<div className="flex">
+															<div className="flex items-center mr-4">
+																<input
+																	id="perday"
+																	type="radio"
+																	value="daily"
+																	name="frequency"
+																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+																	onChange={handleChange}
+																	onBlur={handleBlur}
+																	//defaultChecked
+																/>
+																<label
+																	htmlFor="perday"
+																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
+																>
+																	Per Day
+																</label>
+															</div>
+															<div className="flex  items-center ml-[40px]">
+																<input
+																	id="weekly"
+																	type="radio"
+																	value="weekly"
+																	name="frequency"
+																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+																	onChange={handleChange}
+																	onBlur={handleBlur}
+																/>
+																<label
+																	htmlFor="perweek"
+																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
+																>
+																	Per Week
+																</label>
+															</div>
+															<div className="flex items-center ml-[60px]">
+																<input
+																	id="month"
+																	type="radio"
+																	value="month"
+																	name="frequency"
+																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+																	onChange={handleChange}
+																	onBlur={handleBlur}
+																/>
+																<label
+																	htmlFor="month"
+																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
+																>
+																	Month
+																</label>
+															</div>
+															<div className="flex items-center ml-[60px]">
+																<input
+																	id="year"
+																	type="radio"
+																	value="year"
+																	name="frequency"
+																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300  dark:bg-gray-700 dark:border-gray-600"
+																	onChange={handleChange}
+																	onBlur={handleBlur}
+																/>
+																<label
+																	htmlFor="year"
+																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
+																>
+																	Year
+																</label>
+															</div>
+															<div className="flex items-center ml-[60px]">
+																<input
+																	id="alltime"
+																	type="radio"
+																	value="alltime"
+																	name="frequency"
+																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
+																	onChange={handleChange}
+																	onBlur={handleBlur}
+																	defaultChecked
+																/>
+																<label
+																	htmlFor="alltime"
+																	className="ml-2 text-xs text-gray-900 dark:text-gray-300"
+																>
+																	All Time
+																</label>
+															</div>
+														</div>
+													</div>
+													<div className="justify-between mt-4">
+														<div className="mb-3 xl:w-full">
+															<label
+																htmlFor="expensetype"
+																className="mb-2 mt-4 text-xs text-gray-900 dark:text-gray-300 space-y-2"
+															>
+																Expense Type
+															</label>
+															<select
+																id="expensetype"
+																name="expensetype"
+																placeholder="Choose"
+																className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
+															>
+																<option defaultValue="">
+																	Choose
+																</option>
+															</select>
+														</div>
+													</div>
+													<div className="text-sm">Shipping Address</div>
 													<div className="bank-info flex flex-row justify-between mt-4">
 														<div className="relative w-full">
 															<label
 																htmlFor="line1"
-																className="mb-2 mt-2 text-xs bold text-gray-900 dark:text-gray-300 "
+																className="mb-2 mt-0 text-xs bold text-gray-900 dark:text-gray-300 "
 															>
 																Address Line 1
 															</label>
 															<input
-																type="line1"
+																type="text"
 																name="line1"
 																id="line1"
-																placeholder="Enter Address Line1"
+																placeholder="Enter your address line 1 here"
 																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full  rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 																	"line1"
 																)}`}
@@ -643,10 +1040,10 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																Address Line 2
 															</label>
 															<input
-																type="line2"
+																type="text"
 																name="line2"
 																id="line2"
-																placeholder="Enter Address Line 2"
+																placeholder="Enter your address line 2 here"
 																className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
 																onChange={handleChange}
 																onBlur={handleBlur}
@@ -681,34 +1078,45 @@ const AddCardPopup = ({ setModalOn }: any) => {
 														<div className="relative w-1/2 ml-6">
 															<label
 																className="text-xs bold text-gray-900 dark:text-gray-300"
-																htmlFor="country"
+																htmlFor="state"
 															>
-																Country
+																State
 															</label>
-															<input
-																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full  rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-																	"country"
-																)}`}
+															{/* <input
+																className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 pl-9 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
 																type="text"
-																name="country"
-																placeholder="Enter Country"
+																name="state"
+																placeholder="Enter State"
 																onChange={handleChange}
 																onBlur={handleBlur}
-																value={values.country}
-															/>
-															<AddCardsErrorMessage
-																name="country"
-																formik={formik}
-															/>
+																value={values.state}
+															/> */}
+															<select
+																className={`bk-form-input block bk-input-placeholder placeholder:text-slate-400 bg-white w-full border rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
+																	"state"
+																)}`}
+																name="state"
+																onChange={handleChange}
+																onBlur={handleBlur}
+																value={values.state}
+															>
+																<option value="">Enter or choose</option>
+																{states.map((state) => (
+																	<option
+																		value={state.abbreviation}
+																		key={state.abbreviation}
+																	>
+																		{state.name}
+																	</option>
+																))}
+															</select>
 														</div>
-													</div>
-													<div className="bank-info flex flex-row justify-between mt-4">
-														<div className="relative w-1/2">
+														<div className="relative w-1/2 ml-6">
 															<label
 																className="text-xs bold text-gray-900 dark:text-gray-300"
 																htmlFor="postalcode"
 															>
-																Postal Code
+																Zip Code
 															</label>
 															<input
 																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
@@ -716,7 +1124,7 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																)}`}
 																type="text"
 																name="postalcode"
-																placeholder="Enter Postal Code"
+																placeholder="Enter Zip Code Code"
 																onChange={handleChange}
 																onBlur={handleBlur}
 																value={values.postalcode}
@@ -726,38 +1134,21 @@ const AddCardPopup = ({ setModalOn }: any) => {
 																formik={formik}
 															/>
 														</div>
-														<div className="relative w-1/2 ml-6">
-															<label
-																className="text-xs bold text-gray-900 dark:text-gray-300"
-																htmlFor="state"
-															>
-																State
-															</label>
-															<input
-																className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 pl-9 shadow-md focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
-																type="text"
-																name="state"
-																placeholder="Enter State"
-																onChange={handleChange}
-																onBlur={handleBlur}
-																value={values.state}
-															/>
-														</div>
 													</div>
+													<div className="bank-info flex flex-row justify-between mt-4"></div>
 												</div>
 											) : null}
 											<div className="flex justify-end space-x-4 mb-0 mt-6">
 												<button
 													type="reset"
 													onClick={handleCancelClick}
-													className="bg-white hover:bg-gray-200 font-semi-bold py-2 px-2 rounded w-32"
+													className="text-white bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
 												>
 													Cancel
 												</button>
 												<button
 													type="submit"
-													//className="text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-													className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
+													className="text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
 												>
 													Add
 												</button>

@@ -139,12 +139,12 @@ const AddFundsTab = ({ nextStep, previousStep }: AddFundsTabProps) => {
 				<Formik
 					initialValues={initialValues}
 					validate={validate}
-					onSubmit={(values, actions) => {
+					onSubmit={(values: AddFundsData, actions: any) => {
 						onSubmit(values);
 						actions.setSubmitting(false);
 					}}
 				>
-					{(formik) => {
+					{(formik: FormikProps<AddFundsData>) => {
 						const { handleSubmit, handleChange, touched, errors, handleBlur, values } =
 							formik;
 						const getInputStyle = (name: string): string => {

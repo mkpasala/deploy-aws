@@ -256,16 +256,13 @@ const CardsInit = (props: any) => {
 							<img className="mx-auto" src={CARDS_LANDING_LOGO} alt="Get started" />
 						</div>
 						<div className="text-sm w-auto mb-6 mx-auto">
-							<ol className="list-decimal text-left">
-								<li>
+							{isResume ? (
+								<p>
 									Account details are not fully submitted please resume onboarding
-									( resume account )
-								</li>
-								<li>
-									To create an account Get started and complete onboarding. (
-									create account )
-								</li>
-							</ol>
+								</p>
+							) : (
+								<p>To create an account Get started and complete onboarding.</p>
+							)}
 						</div>
 						<button
 							onClick={getRedirectURL}
