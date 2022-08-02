@@ -133,7 +133,7 @@ const ConnectBankAccount = () => {
 					{tabTitles.length && (
 						<div className="screen-title pt-[28px] pb-[32px] flex items-center">
 							{newBankAccount && (
-								<a href="/bank-account-list">
+								<a href="/bank-account-list" className="mr-5">
 									<svg
 										width="16"
 										height="16"
@@ -149,7 +149,7 @@ const ConnectBankAccount = () => {
 									</svg>
 								</a>
 							)}
-							Cards
+							Add New Bank Account
 						</div>
 					)}
 					<div className="flex flex-row breadscrumb mb-3">
