@@ -42,16 +42,14 @@ const Transaction = ({ transaction }: any) => {
 						<tbody>
 							{transactionData &&
 								transactionData.map((transaction: any) => {
-									const date = new Date(
-										transaction!.created
-									).toLocaleDateString();
+									const date = new Date(transaction!.created * 1000).toLocaleDateString();
 									const created_by = transaction!.merchant_data!.name;
 									const cardname = transaction!.merchant_data!.name;
 									const type = transaction!.type;
 									const amount =
 										transaction!.amount < 0
-											? `-$${transaction!.amount * -1}`
-											: `$${transaction!.amount}`;
+											? `-$${(transaction!.amount * -1)/100}`
+											: `$${(transaction!.amount/100)}`;
 									return (
 										<tr key={transaction!.id}>
 											<td className="px-6 py-2 border-b border-gray-200 bg-white text-xs">
