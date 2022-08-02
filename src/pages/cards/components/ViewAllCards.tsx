@@ -11,6 +11,9 @@ const ViewAllCards = () => {
 	const [filter, setFilter] = useState<string>("");
 	const session = useContext(sessionContext);
 	const account_id = session?.organization?.stripeConnectId;
+	const orgId = session?.organization?.id;
+	const cardholder_id =
+		session?.organization?.stripeCardholderId || sessionStorage.getItem("cardHolder_id");
 
 	useEffect(() => {
 		getCardList();
@@ -24,7 +27,10 @@ const ViewAllCards = () => {
 	const getCardList = async () => {
 		setShowSpinner(true);
 		try {
-			let response: any = await cardsService.getCardList({ id: account_id });
+			let response: any = await cardsService.getCardList({
+				account_id: account_id,
+				cardholder: cardholder_id,
+			});
 			setShowSpinner(false);
 			if (
 				response.type === "StripePermissionError" ||

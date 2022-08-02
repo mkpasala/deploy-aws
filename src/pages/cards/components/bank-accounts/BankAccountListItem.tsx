@@ -44,15 +44,15 @@ const BankAccountListItem = ({ bank, handleChange, handleBlur }: any) => {
 					</div>
 				</div>
 				<div className="flex">
-					<div className="rounded-lg bg-gray-200 p-2">
+					{/* <div className="rounded-lg bg-gray-200 p-2">
 						<span className="text-green-500 text-sm">Primary</span>
-					</div>
-					<button
+					</div> */}
+					{/* <button
 						type="button"
 						className="bg-white hover:bg-gray-200 font-bold py-2 px-2 rounded text-sm"
 					>
 						Make Primary
-					</button>
+					</button> */}
 					<button
 						type="button"
 						className="bg-white hover:bg-gray-200 font-bold py-2 px-2 rounded text-sm"

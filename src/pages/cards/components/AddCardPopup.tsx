@@ -277,12 +277,15 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 	const session = useContext(sessionContext);
 	const userId = session?.user?.id;
 	const orgId = session?.organization?.id;
+	const account_id = session?.organization?.stripeConnectId;
+	const cardholder_id =
+		session?.organization?.stripeCardholderId || sessionStorage.getItem("cardHolder_id");
 
 	const initialValues: AddCardsData = {
 		type: "virtual",
 		cardnickname: "",
 		spending_limits: "",
-		frequency: "alltime",
+		frequency: "all_time",
 		name: "",
 		line1: "",
 		line2: "",
@@ -368,16 +371,15 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 				if (!reg.test(values.postalcode)) {
 					errors.postalcode = "Zip Code required integer value";
 				}
-				
+
 				if (values.postalcode.length != 5) {
 					errors.postalcode = "Zip Code should be of 5 digits";
 				}
 			}
-			
 		}
-			if (!values.spending_limits) {
-				errors.spending_limits = "Spending Limit Amount is required";
-			}
+		if (!values.spending_limits) {
+			errors.spending_limits = "Spending Limit Amount is required";
+		}
 		return errors;
 	};
 
@@ -389,30 +391,6 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 	const styleInputValid = "border border-green-500 focus:border-green-500 focus:ring-green-500";
 	const styleInputInvalid = "border border-red-500 focus:border-red-500 focus:ring-red-500";
 
-	const account_id = sessionStorage.getItem("account_id");
-
-	useEffect(() => {
-		const cardholder_id = sessionStorage.getItem("cardholder_id");
-		if (!cardholder_id) {
-			createCardholder();
-		}
-	}, []);
-
-	const createCardholder = async () => {
-		try {
-			let response: any = await cardsService.createCardholder({ account_id: account_id });
-			setShowSpinner(false);
-			if (
-				response.type === "StripePermissionError" ||
-				response.type === "StripeInvalidRequestError"
-			) {
-			} else {
-				sessionStorage.setItem("cardholder_id", response.id);
-			}
-		} catch (ex) {
-			setShowSpinner(false);
-		}
-	};
 	// const createCardholder = async (values: any) => {
 	// 	try {
 	// 		let response: any = await cardsService.createCardholder(values)
@@ -451,29 +429,34 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 		let reqdata: any;
 		setShowSpinner(true);
 		setMessage("");
-		const cardholder_id = sessionStorage.getItem("cardholder_id");
+		const spending_limits = String(Number(values.spending_limits) * 100);
 		if (values.type === "virtual") {
 			reqdata = {
+				account_id: account_id,
 				cardholder: cardholder_id,
-				currency: "usd",
 				type: values.type,
-				shipping: {
-					name: values.name,
-					address: {
-						line1: values.line1,
-						line2: values.line2,
-						city: values.city,
-						state: values.state,
-						postal_code: values.postalcode,
-						country: values.country,
-					},
+				spending_controls: {
+					spending_limits: [
+						{
+							amount: spending_limits,
+							interval: values.frequency,
+						},
+					],
 				},
 			};
 		} else {
 			reqdata = {
+				account_id: account_id,
 				cardholder: cardholder_id,
-				currency: "usd",
 				type: values.type,
+				spending_controls: {
+					spending_limits: [
+						{
+							amount: spending_limits,
+							interval: values.frequency,
+						},
+					],
+				},
 				shipping: {
 					name: values.name,
 					address: {
@@ -482,11 +465,14 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 						city: values.city,
 						state: values.state,
 						postal_code: values.postalcode,
-						country: values.country,
+						country: "US",
 					},
 				},
 			};
 		}
+		if (reqdata.shipping && !reqdata.shipping!.address!.line2)
+			delete reqdata.shipping!.address!.line2;
+
 		try {
 			let response: any = await cardsService.createCard(reqdata);
 			setShowSpinner(false);
@@ -678,7 +664,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															type="text"
 															name="cardnickname"
 															id="cardnickname"
-															placeholder="Enter Card Nickname"
+															placeholder="Enter card nickname here"
 															className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
 															onChange={handleChange}
 															onBlur={handleBlur}
@@ -700,7 +686,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															type="number"
 															name="spending_limits"
 															id="spendinglimit"
-															placeholder="250"
+															placeholder="Enter amount here"
 															className={`marker:bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 																"spending_limits"
 															)}`}
@@ -730,7 +716,6 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
 																	onBlur={handleBlur}
-																	//defaultChecked
 																/>
 																<label
 																	htmlFor="perday"
@@ -760,7 +745,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																<input
 																	id="month"
 																	type="radio"
-																	value="month"
+																	value="monthly"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
@@ -777,7 +762,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																<input
 																	id="year"
 																	type="radio"
-																	value="year"
+																	value="yearly"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300  dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
@@ -794,7 +779,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																<input
 																	id="alltime"
 																	type="radio"
-																	value="alltime"
+																	value="all_time"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
@@ -934,7 +919,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																<input
 																	id="month"
 																	type="radio"
-																	value="month"
+																	value="monthly"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
@@ -951,7 +936,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																<input
 																	id="year"
 																	type="radio"
-																	value="year"
+																	value="yearly"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300  dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
@@ -968,7 +953,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																<input
 																	id="alltime"
 																	type="radio"
-																	value="alltime"
+																	value="all_time"
 																	name="frequency"
 																	className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
 																	onChange={handleChange}
@@ -1100,7 +1085,9 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																onBlur={handleBlur}
 																value={values.state}
 															>
-																<option value="">Enter or choose</option>
+																<option value="">
+																	Enter or choose
+																</option>
 																{states.map((state) => (
 																	<option
 																		value={state.abbreviation}
@@ -1142,13 +1129,14 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 												<button
 													type="reset"
 													onClick={handleCancelClick}
-													className="text-white bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+													className="bg-white hover:bg-gray-200 font-bold py-2 px-2 rounded w-32"
 												>
 													Cancel
 												</button>
 												<button
 													type="submit"
-													className="text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+													className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
+													disabled={!(formik.dirty && formik.isValid)}
 												>
 													Add
 												</button>

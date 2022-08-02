@@ -164,8 +164,10 @@ const WithdrawFundsPopup = ({ isShow, onHide }: WithdrawFundsPopupProps) => {
 	const withdrawFunds = async (values: WithdrawData) => {
 		setShowSpinner(true);
 		setMessage("");
+		const request: WithdrawData = { ...values };
+		request.amount = String(Number(request.amount) * 100);
 		try {
-			let response: any = await cardsService.withdrawFunds(values);
+			let response: any = await cardsService.withdrawFunds(request);
 			setShowSpinner(false);
 			if (
 				response.type === "StripePermissionError" ||
