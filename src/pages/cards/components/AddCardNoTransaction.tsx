@@ -289,7 +289,7 @@ const AddCardNoTransaction = () => {
 									</div>
 									<div className="cards-details flex flex-row mb-2 mx-3">
 										<div className="total-issued-cards mr-2">
-											<div className="no-of-cards font-bold">
+											<div className="no-of-cards font-semi-bold">
 												{cardData && cardData.data!.length > 0
 													? cardData && cardData.data.length
 													: 0}
@@ -299,7 +299,7 @@ const AddCardNoTransaction = () => {
 											</div>
 										</div>
 										<div className="total-blocked-cards mr-2">
-											<div className="no-of-cards font-bold">
+											<div className="no-of-cards font-semi-bold">
 												{getBlockedCardCount()}
 											</div>
 											<div className="cards-type text-[10px] text-gray-500">
@@ -311,7 +311,7 @@ const AddCardNoTransaction = () => {
 											<button
 												type="button"
 												onClick={() => setModalOn(true)}
-												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white border border-red-500 hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
+												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white border-l-2 hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
 											>
 												Add New
 											</button>
