@@ -30,7 +30,7 @@ const TransactionTable = () => {
 				response.type === "StripeInvalidRequestError"
 			) {
 			} else {
-				setbBalance(response!.issuing!.available[0]!.amount);
+				setbBalance(response!.issuing!.available[0]!.amount / 100);
 			}
 		} catch (ex) {
 			console.log("exception", ex);

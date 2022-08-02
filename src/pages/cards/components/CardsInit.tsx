@@ -94,6 +94,13 @@ const CardsInit = (props: any) => {
 		if (sessionOrganization && sessionOrganization.stripeConnectId) {
 			connectAccountId = sessionOrganization.stripeConnectId;
 			setAccountId(connectAccountId);
+			if (!sessionOrganization.stripeCardholderId) {
+				const cardHolder = await createCardholder(connectAccountId);
+				if (cardHolder) {
+					sessionStorage.setItem("cardHolder_id", cardHolder.id);
+					await updateOrganization(connectAccountId, cardHolder.id);
+				}
+			}
 		} else if (props.accountId) {
 			connectAccountId = props.accountId;
 			setAccountId(connectAccountId);
@@ -115,7 +122,11 @@ const CardsInit = (props: any) => {
 			//REST call to update the StipeConnectId
 			// Put data what ever required into sessionStorage.
 			//localStorage.setItem("accountObject", JSON.stringify(_accountObject));
-			await updateOrganization(connectAccountId);
+			const cardHolder = await createCardholder(connectAccountId);
+			if (cardHolder) {
+				sessionStorage.setItem("cardHolder_id", cardHolder.id);
+				await updateOrganization(connectAccountId, cardHolder.id);
+			}
 		} else {
 			setIsResume(false);
 		}
@@ -126,6 +137,7 @@ const CardsInit = (props: any) => {
 			setShowSpinner(false);
 			if (account && account.id) {
 				//setShowSpinner(false);
+
 				return account;
 			}
 		} else {
@@ -155,16 +167,19 @@ const CardsInit = (props: any) => {
 		}
 	};
 
-	const updateOrganization = async (accountId: string): Promise<void> => {
+	const updateOrganization = async (accountId: string, cardholderId: string): Promise<void> => {
 		if (accountId) {
 			const organization = session?.organization;
 			if (organization) {
 				const organizationId = organization.id ? organization.id : "";
 				const payload = {
+					id: organization.id,
 					name: organization?.name,
 					entityType: organization?.entityType,
 					aisSystem: organization?.aisSystem,
+					aisOrganizationId: organization?.aisOrganizationId,
 					stripeConnectId: accountId,
+					stripeCardholderId: cardholderId,
 				};
 
 				try {
@@ -243,6 +258,45 @@ const CardsInit = (props: any) => {
 			}
 		}
 		setShowSpinner(false);
+		return null;
+	};
+	const createCardholder = async (accountId: string): Promise<any> => {
+		try {
+			setShowSpinner(true);
+			let account: any = await cardsService.getConnectAccountDetails({ id: accountId });
+			setShowSpinner(false);
+			if (
+				account.type === "StripePermissionError" ||
+				account.type === "StripeInvalidRequestError"
+			) {
+				return null;
+			} else {
+				const requestData = {
+					account_id: accountId,
+					name: account.company.name,
+					email: account.email || sessionUser?.email,
+					phone_number: account.company.phone,
+					type: account.business_type,
+					billing: { address: account.company.address },
+				};
+				if (!requestData.billing.address.line2) delete requestData.billing.address.line2;
+
+				setShowSpinner(true);
+				let response: any = await cardsService.createCardholder(requestData);
+				setShowSpinner(false);
+				if (
+					response.type === "StripePermissionError" ||
+					response.type === "StripeInvalidRequestError"
+				) {
+					return null;
+				} else {
+					return response;
+				}
+			}
+		} catch (ex) {
+			setShowSpinner(false);
+			return null;
+		}
 		return null;
 	};
 	return (

@@ -1,8 +1,9 @@
-import Rect, { useState, useContext } from "react";
+import Rect, { useState, useContext, useEffect } from "react";
 import Spinner from "../Spinner";
 import { Form, Formik, FormikErrors, FormikProps } from "formik";
 import cardsAPIService from "../../../../services/cardsAPIService";
 import { sessionContext } from "../../../../app";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface VerifyDepositAmountsTabProps {
 	nextStep: () => void;
@@ -90,7 +91,17 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 	const styleInputNormal = "border border-slate-200 focus:border-sky-500 focus:ring-sky-500";
 	const styleInputValid = "border border-green-500 focus:border-green-500 focus:ring-green-500";
 	const styleInputInvalid = "border border-red-500 focus:border-red-500 focus:ring-red-500";
+	const { pathname } = useLocation();
+	const [newBankAccount, setNewBankAccount] = useState(false);
+	const navigate = useNavigate();
 
+	useEffect(() => {
+		if (pathname && pathname.includes("/add-new-bank-account")) {
+			setNewBankAccount(true);
+		} else {
+			setNewBankAccount(false);
+		}
+	}, [pathname]);
 	const onSubmit = (values: VerifyDepositData) => {
 		verifyDeposit(values);
 	};
@@ -129,8 +140,12 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 				setResponse(response.raw.message);
 				setMessage(response.raw.message);
 			} else {
-				sessionStorage.setItem("source_id", response.source_id);
-				nextStep();
+				if (newBankAccount) {
+					navigate("/bank-account-list");
+				} else {
+					sessionStorage.setItem("source_id", response.source_id);
+					nextStep();
+				}
 			}
 		} catch (ex) {
 			console.log("exception", ex);
@@ -153,12 +168,12 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 				<Formik
 					initialValues={initialValues}
 					validate={validate}
-					onSubmit={(values, actions) => {
+					onSubmit={(values: VerifyDepositData, actions: any) => {
 						onSubmit(values);
 						actions.setSubmitting(false);
 					}}
 				>
-					{(formik) => {
+					{(formik: FormikProps<VerifyDepositData>) => {
 						const { handleSubmit, handleChange, touched, errors, handleBlur, values } =
 							formik;
 						const getInputStyle = (name: string): string => {

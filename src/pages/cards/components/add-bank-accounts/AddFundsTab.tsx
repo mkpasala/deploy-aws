@@ -109,8 +109,11 @@ const AddFundsTab = ({ nextStep, previousStep }: AddFundsTabProps) => {
 	const addFunds = async (values: AddFundsData) => {
 		setShowSpinner(true);
 		setMessage("");
+		const request: AddFundsData = { ...values };
+		request.amount = String(Number(request.amount) * 100);
+
 		try {
-			let response: any = await cardsService.addFunds(values);
+			let response: any = await cardsService.addFunds(request);
 			setShowSpinner(false);
 			if (
 				response.type === "StripePermissionError" ||

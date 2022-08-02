@@ -30,6 +30,8 @@ const AddCardNoTransaction = () => {
 	const session = useContext(sessionContext);
 	const account_id = session?.organization?.stripeConnectId;
 	const orgId = session?.organization?.id;
+	const cardholder_id =
+		session?.organization?.stripeCardholderId || sessionStorage.getItem("cardHolder_id");
 
 	const getBlockedCardCount = () => {
 		if (cardData) {
@@ -53,7 +55,7 @@ const AddCardNoTransaction = () => {
 				response.type === "StripeInvalidRequestError"
 			) {
 			} else {
-				setbBalance(response!.issuing!.available[0]!.amount);
+				setbBalance(response!.issuing!.available[0]!.amount / 100);
 			}
 		} catch (ex) {
 			setShowSpinner(false);
@@ -66,7 +68,11 @@ const AddCardNoTransaction = () => {
 	const getCardList = async () => {
 		setShowSpinner(true);
 		try {
-			let response: any = await cardsService.getCardList({ id: account_id });
+			let response: any = await cardsService.getCardList({
+				account_id: account_id,
+				limit: 3,
+				cardholder: cardholder_id,
+			});
 			setShowSpinner(false);
 			if (
 				response.type === "StripePermissionError" ||
@@ -79,7 +85,6 @@ const AddCardNoTransaction = () => {
 			setShowSpinner(false);
 		}
 	};
-
 	useEffect(() => {
 		getCardListNew(orgId);
 	}, []);
@@ -289,7 +294,7 @@ const AddCardNoTransaction = () => {
 									</div>
 									<div className="cards-details flex flex-row mb-2 mx-3">
 										<div className="total-issued-cards mr-2">
-											<div className="no-of-cards font-semi-bold">
+											<div className="no-of-cards font-bold">
 												{cardData && cardData.data!.length > 0
 													? cardData && cardData.data.length
 													: 0}
@@ -299,7 +304,7 @@ const AddCardNoTransaction = () => {
 											</div>
 										</div>
 										<div className="total-blocked-cards mr-2">
-											<div className="no-of-cards font-semi-bold">
+											<div className="no-of-cards font-bold">
 												{getBlockedCardCount()}
 											</div>
 											<div className="cards-type text-[10px] text-gray-500">
@@ -311,14 +316,14 @@ const AddCardNoTransaction = () => {
 											<button
 												type="button"
 												onClick={() => setModalOn(true)}
-												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white border-l-2 hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
+												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white border border-red-500 hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
 											>
 												Add New
 											</button>
 										</div>
 									</div>
 									<div className="search-user relative border-y border-gray-200 overflow-y-auto">
-										<span className="absolute top-3 left-3">
+										<span className="absolute top-5 left-3">
 											<svg
 												fill="none"
 												stroke="#94a3b8"
@@ -333,7 +338,7 @@ const AddCardNoTransaction = () => {
 										</span>
 										{/* {!setModalOn && */}
 										<input
-											className="search-txt text-xs bg-white w-full border-0 py-3 pl-8 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
+											className="search-txt text-xs bg-white border-0 py-3 pl-8 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 m-2 w-64"
 											placeholder="Search card name"
 											type="text"
 											name="searchcardname"
@@ -385,7 +390,8 @@ const AddCardNoTransaction = () => {
 						<AddCardPopup
 							setModalOn={setModalOn}
 							onSuccess={async () => {
-								//await updateCardList();
+								await getCardList();
+								await getCardListNew(orgId);
 								setShowSuccess(true);
 							}}
 						/>

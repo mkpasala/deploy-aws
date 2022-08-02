@@ -58,7 +58,7 @@ const ConnectBankAccount = () => {
 					const chargeable = state.status === "chargeable";
 					if (chargeable) {
 						const balance = await retrieveBalance();
-						const amount = balance!.issuing!.available[0]!.amount;
+						const amount = balance!.issuing!.available[0]!.amount / 100;
 						if (amount > 0) {
 							navigate("/card-list");
 						} else {
@@ -133,7 +133,7 @@ const ConnectBankAccount = () => {
 					{tabTitles.length && (
 						<div className="screen-title pt-[28px] pb-[32px] flex items-center">
 							{newBankAccount && (
-								<a href="/bank-account-list" className="mr-5">
+								<a href="/bank-account-list" className="mr-2">
 									<svg
 										width="16"
 										height="16"
@@ -149,7 +149,7 @@ const ConnectBankAccount = () => {
 									</svg>
 								</a>
 							)}
-							Add New Bank Account
+							{newBankAccount ? "Add New Bank Account" : "Cards"}
 						</div>
 					)}
 					<div className="flex flex-row breadscrumb mb-3">
@@ -162,7 +162,7 @@ const ConnectBankAccount = () => {
 												index
 											)}`}
 										>
-											1
+											{index + 1}
 										</span>
 
 										<a
