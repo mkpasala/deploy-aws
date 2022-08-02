@@ -5,6 +5,8 @@ import Spinner from "./Spinner";
 import cardsAPIService from "../../../services/cardsAPIService";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { getCurrencySymbol } from "../../../data/data";
+
 
 const ViewCardDetail = () => {
     //const location = useLocation();
@@ -32,6 +34,7 @@ const ViewCardDetail = () => {
 
     useEffect(() => {
         retrieveCard();
+        getTransactionList();
     }, []);
 
     const retrieveCard = async () => {
@@ -54,9 +57,9 @@ const ViewCardDetail = () => {
         }
     };
 
-    useEffect(() => {
-        getTransactionList();
-    }, []);
+    // useEffect(() => {
+    //     getTransactionList();
+    // }, []);
     const getTransactionList = async () => {
         setShowSpinner(true);
         try {
@@ -154,6 +157,13 @@ const ViewCardDetail = () => {
     // }]
     // console.log("CardData", cardData1)
 
+    // console.log("transactionData==>",transactionData)
+    
+    // console.log("cardData===>",cardData)
+    // console.log("cardData===>",cardData[0]?.spending_controls?.spending_limits_currency)
+    const getTransactionData = transactionData?.filter((item:any)=>item.card === card_id)
+    // console.log("getTransactionData===>",getTransactionData);
+    
     return (
         <div className="card-section font-sans">
             <NavBar />
@@ -226,6 +236,7 @@ const ViewCardDetail = () => {
                         const last4 = card.last4;
                         const balance = `$${card.spending_controls!.spending_limits[0]!.amount}/$${card.spending_controls!.spending_limits[0]!.amount
                             }`;
+                        const  balanceLimit = getCurrencySymbol(card.spending_controls!.spending_limits_currency,card.spending_controls!.spending_limits[0]!.amount)  
                         const billingaddress = `  ${card.cardholder!.billing!.address.line1}, ${card.cardholder!.billing!.address.city}, 
                                                 ${card.cardholder!.billing!.address.state} (${card.cardholder!.billing!.address.country}), ${card.cardholder!.billing!.address.postal_code}`;
 
@@ -244,13 +255,13 @@ const ViewCardDetail = () => {
                                                 </span>
                                                 <img src={CARD_LOGO} className="h-3 -ml-8 mt-1" />
                                             </span>
-                                            <span className="text-white mt-5 mr-5 text-xs font-bold">
+                                            <span className="text-white mt-5 mr-5 text-xs font-semibold">
                                                 {name}
                                             </span>
                                         </div>
                                         <div className="flex justify-end">
-                                            <div className="text-white text-xs mt-0 mr-5">
-                                                {balance}
+                                            <div className="text-white text-xs mt-0 mr-5 font-thin">
+                                                {balanceLimit}
                                             </div>
                                         </div>
                                         <div className="flex justify-between">
@@ -262,12 +273,12 @@ const ViewCardDetail = () => {
                                             </div>
                                         </div>
                                         <div className=" flex justify-between items-center">
-                                            <div className="text-white ml-5 text-xs">{exp_date}</div>
-                                            <div className="text-white ml-5 mx-5 text-xs">CVV</div>
+                                            <div className="text-white ml-5 text-xs tracking-widest font-thin">{exp_date}</div>
+                                            <div className="text-white ml-5 mx-5 text-xs tracking-widest font-thin">CVV</div>
                                         </div>
                                     </div>
-                                    <div className="reveal-info relative border-y border-gray-200 flex justify-center">
-                                        <span className="absolute top-2 left-12">
+                                    <div className="reveal-info relative border-y border-gray-200 flex justify-center overflow-hidden ">
+                                        <span className="absolute top-2 left-12 pl-10">
                                             <a href="">
                                                 <svg
                                                     width="15"
@@ -302,10 +313,11 @@ const ViewCardDetail = () => {
                                             </a>
                                         </span>
                                         <input
-                                            className="search-txt placeholder:text-slate-300 block text-sm bg-white border-0 py-[6px] pr-3 pl-12 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
+                                            className="search-txt placeholder:text-slate-300 block text-sm bg-white border-0 py-[6px] pl-[48%] focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
                                             placeholder="Reveal Info"
                                             type="text"
                                             name="revealInfo"
+                                            disabled={true}
                                         />
                                     </div>
                                     <div className="card-nickname border-b border-gray-200 py-2 px-2">
@@ -425,9 +437,10 @@ const ViewCardDetail = () => {
                             </div>
 
                             <div className=" flex flex-row justify-between mb-2 mt-8">
-                                <div className="total-issued-cards ml-[-687px] mt-2">
+                               {
+                                cardData && <><div className="total-issued-cards ml-[-687px] mt-2">
                                     <div className="no-of-cards text-xs font-semibold">
-                                        $2,500 per month
+                                           {getCurrencySymbol(cardData[0]?.spending_controls?.spending_limits_currency,cardData[0]?.spending_controls?.spending_limits[0]?.amount)}  per month
                                     </div>
                                     <div className="cards-type text-gray-500 text-[10px]">
                                         Spending Limit
@@ -446,9 +459,10 @@ const ViewCardDetail = () => {
                                     <div className="cards-type text-gray-500 text-[10px]">
                                         Remaining
                                     </div>
-                                </div>
+                                </div></>
+                                }
                             </div>
-
+                               
                             <div className=" flex flex-row justify-between mt-[80px] mb-4">
                                 <div className="total-issued-cards ml-[-687px]">
                                     <span>

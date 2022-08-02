@@ -1130,13 +1130,15 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 												<button
 													type="reset"
 													onClick={handleCancelClick}
-													className="text-white bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+													//className="text-white bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+													className="bg-white hover:bg-gray-200 font-bold py-2 px-2 rounded w-32"
 												>
 													Cancel
 												</button>
 												<button
 													type="submit"
-													className="text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+													//className="text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+													className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
 												>
 													Add
 												</button>
