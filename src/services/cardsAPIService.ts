@@ -7,6 +7,9 @@ class cardsAPIService {
 	createBankAccount = async (payload: any) =>
 		await API.post("flareapi", "/cards/createBankAccount", { body: payload });
 
+	deleteBankAccount = async (payload: any) =>
+		await API.post("flareapi", "/cards/deleteBankAccount", { body: payload });
+
 	verifyDepositAmounts = async (payload: any) =>
 		await API.post("flareapi", "/cards/verifyDepositAmounts", { body: payload });
 
@@ -39,7 +42,7 @@ class cardsAPIService {
 
 	getSourceDetails = async (payload: any) =>
 		await API.post("flareapi", "/cards/getSourceDetails", { body: payload });
-	
+
 	retrieveCard = async (payload: any) =>
 		await API.post("flareapi", "/cards/retrieveCard", { body: payload });
 	

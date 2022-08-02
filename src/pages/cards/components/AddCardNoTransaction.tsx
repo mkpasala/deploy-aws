@@ -53,7 +53,7 @@ const AddCardNoTransaction = () => {
 				response.type === "StripeInvalidRequestError"
 			) {
 			} else {
-				setbBalance(response!.issuing!.available[0]!.amount);
+				setbBalance(response!.issuing!.available[0]!.amount / 100);
 			}
 		} catch (ex) {
 			setShowSpinner(false);
@@ -66,7 +66,7 @@ const AddCardNoTransaction = () => {
 	const getCardList = async () => {
 		setShowSpinner(true);
 		try {
-			let response: any = await cardsService.getCardList({ id: account_id });
+			let response: any = await cardsService.getCardList({ id: account_id, limit: 3 });
 			setShowSpinner(false);
 			if (
 				response.type === "StripePermissionError" ||
@@ -79,7 +79,6 @@ const AddCardNoTransaction = () => {
 			setShowSpinner(false);
 		}
 	};
-
 	useEffect(() => {
 		getCardListNew(orgId);
 	}, []);
@@ -318,7 +317,7 @@ const AddCardNoTransaction = () => {
 										</div>
 									</div>
 									<div className="search-user relative border-y border-gray-200 overflow-y-auto">
-										<span className="absolute top-3 left-3">
+										<span className="absolute top-5 left-3">
 											<svg
 												fill="none"
 												stroke="#94a3b8"
@@ -333,7 +332,7 @@ const AddCardNoTransaction = () => {
 										</span>
 										{/* {!setModalOn && */}
 										<input
-											className="search-txt text-xs bg-white w-full border-0 py-3 pl-8 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
+											className="search-txt text-xs bg-white border-0 py-3 pl-8 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 m-2 w-64"
 											placeholder="Search card name"
 											type="text"
 											name="searchcardname"
@@ -385,7 +384,8 @@ const AddCardNoTransaction = () => {
 						<AddCardPopup
 							setModalOn={setModalOn}
 							onSuccess={async () => {
-								//await updateCardList();
+								await getCardList();
+								await getCardListNew(orgId);
 								setShowSuccess(true);
 							}}
 						/>
