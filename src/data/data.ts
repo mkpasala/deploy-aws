@@ -57,7 +57,7 @@ export function getCurrencySymbol(symbol:any,number:any):any {
 		if(symbol && number){
 			return new Intl.NumberFormat('en', {style: 'currency', currency:symbol}).format(number)
 		}else{
-			return 'Not found Limit'
+			return 'Not Found'
 		}
 
 }  
