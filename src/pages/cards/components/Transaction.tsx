@@ -43,7 +43,7 @@ const Transaction = ({ transaction }: any) => {
 							{transactionData &&
 								transactionData.map((transaction: any) => {
 									const date = new Date(
-										transaction!.created
+										transaction!.created * 1000
 									).toLocaleDateString();
 									const created_by = transaction!.merchant_data!.name;
 									const cardname = transaction!.merchant_data!.name;
