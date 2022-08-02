@@ -72,10 +72,11 @@ const DepositFundsErrorMessage = ({ name, formik }: DepositFundsErrorMessageProp
 
 interface DepositFundsPopupProps {
 	isShow: boolean;
+	onSuccess: () => void;
 	onHide: () => void;
 }
 
-const DepositFundsPopup = ({ isShow, onHide }: DepositFundsPopupProps) => {
+const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps) => {
 	const cardsService = new cardsAPIService();
 	const flareService = new flareDBService();
 	let navigate = useNavigate();
@@ -159,7 +160,7 @@ const DepositFundsPopup = ({ isShow, onHide }: DepositFundsPopupProps) => {
 			) {
 				setMessage(response.raw.message);
 			} else {
-				onHide();
+				onSuccess();
 				setMessage("");
 			}
 		} catch (ex) {

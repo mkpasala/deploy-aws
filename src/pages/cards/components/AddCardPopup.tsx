@@ -494,11 +494,19 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 
 	const createCardNew = async (userId: any, orgId: any, cardID: any, values: AddCardsData) => {
 		let reqdata: any;
-		reqdata = {
-			name: values.cardnickname,
-			userId: userId,
-			stripeCardId: cardID,
-		};
+		if (values.type === "virtual") {
+			reqdata = {
+				name: values.cardnickname,
+				userId: userId,
+				stripeCardId: cardID,
+			};
+		} else {
+			reqdata = {
+				name: values.name,
+				userId: userId,
+				stripeCardId: cardID,
+			};
+		}
 		setShowSpinner(true);
 		const response = await fetch(
 			`https://h3tqg8ihpg.execute-api.us-east-1.amazonaws.com/staging/organizations/${orgId}/cards`,
