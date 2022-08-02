@@ -1,4 +1,3 @@
-
 interface Invoice {
 	name: string;
 	number: number;

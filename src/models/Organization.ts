@@ -7,5 +7,5 @@ export default interface Organization {
 	aisToken?: Object;
 	createdWhen?: Date;
 	stripeConnectId?: string;
-	stripeCardholderId: string;
+	stripeCardholderId?: string;
 }

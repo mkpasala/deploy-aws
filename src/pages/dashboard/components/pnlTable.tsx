@@ -1,138 +1,169 @@
 import clsx from "clsx";
-import { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import MOCK_DATA from "../MOCK_DATA";
+import {
+	Branch,
+	restructurePNLData,
+	Tree
+} from "../utilities/restructurePNLData";
 
-type MockData = typeof MOCK_DATA;
-type MockRow = typeof MOCK_DATA.Rows.Row[0] & {
+export type PNLData = typeof MOCK_DATA;
+export type Row = typeof MOCK_DATA.Rows.Row[0] & {
 	ColData?: { value: string; id?: string }[];
 };
 
+import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/solid";
+
 interface PNLTableProps {
-	data: any,
+	data: PNLData;
 	styles?: {
 		container?: string;
 	};
 }
 
-export const PNLTable = ({data, styles }: PNLTableProps) => {
-	// MockData
+interface TreeItemProps {
+	row: { colData: string[]; type: string; total?: string | null };
+	children: JSX.Element[];
+	status: boolean | null;
+	setStatus: React.Dispatch<boolean | null>;
+}
 
-	data = MOCK_DATA; // TODO: Remove when retrieving real data.
-	const topColumns = data.Columns.Column;
-	const rows = data.Rows.Row;
-
-	const defaultStyles = {
-		header: "text-right bg-dark/5 text-sm p-3",
-		bodyRow: "border-b-[1px] border-dark/5 hover:bg-dark/5",
-		cell: "text-sm text-dark/70 py-3 px-7 first:w-[5%] first:text-center last:w-[5%]",
+const TreeItem = ({ row, children, status, setStatus }: TreeItemProps) => {
+	const [open, setOpen] = useState(status || false);
+	const toggle = () => {
+		setOpen(!open);
+		setStatus(null);
 	};
 
-	const cascadeRows = (row: MockRow, level: number = 0): JSX.Element => {
-		let headerRow;
-		let summaryRow;
-		let dataRow;
-		const [open, setOpen] = useState(true);
+	useEffect(() => {
+		if (status === null) return;
+		setOpen(status);
+	}, [status]);
 
-		if (row.Header)
-			headerRow = (
-				<tr className="hover:text-dark hover:bg-dark/5">
-					{row.Header.ColData.map((header, index) => {
-						return (
-							<td
-								style={{
-									paddingLeft:
-										index === 0 ? level * 10 + 10 : 10,
-									paddingRight: 10,
-								}}
-								className={clsx("last:text-right")}
-								key={index}
-							>
-								{index === 0 && (
-									<span
-										className="hover:cursor-pointer text-xs select-none mx-1"
-										onClick={() => setOpen(!open)}
-									>
-										{open ? "\u25BC" : "\u25B6"}
-									</span>
-								)}
-								{header.value}
-							</td>
-						);
-					})}
-				</tr>
+	const returnCol = (col: string, numChildren: number, curIndex: number) => {
+		const isFirstCol = curIndex === 0;
+		const isLastCol = curIndex === row.colData.length - 1;
+		const isParentRow = numChildren > 0;
+		if (isParentRow && isFirstCol) {
+			return (
+				<div className="flex gap-1 select-none">
+					{open ? (
+						<ChevronDownIcon width={16} />
+					) : (
+						<ChevronRightIcon width={16} />
+					)}
+					{col}
+				</div>
 			);
-
-		if (row.type !== "Data") {
-			dataRow = row?.Rows?.Row.map((rowItem) => {
-				return cascadeRows(rowItem as any, level + 1); //TODO: Change type to actual type
-			});
-		} else {
-			dataRow = (
-				<tr className="hover:text-dark hover:bg-dark/5">
-					{row?.ColData?.map((column, index) => {
-						return (
-							<td
-								className="last:text-right"
-								style={{
-									paddingLeft:
-										index === 0 ? level * 10 + 10 : 10,
-									paddingRight: 10,
-								}}
-								key={index}
-							>
-								{column.value}
-							</td>
-						);
-					})}
-				</tr>
-			);
-		}
-
-		if (row.Summary)
-			summaryRow = (
-				<tr className="hover:text-dark hover:bg-dark/5">
-					{row.Summary.ColData.map((summary, index) => {
-						return (
-							<td
-								style={{
-									paddingLeft:
-										index === 0 ? level * 10 + 10 : 10,
-									paddingRight: 10,
-								}}
-								className="font-bold border-t border-b last:text-right"
-								key={index}
-							>
-								{summary.value}
-							</td>
-						);
-					})}
-				</tr>
-			);
-
-		return (
-			<>
-				{headerRow}
-				{open && dataRow}
-				{summaryRow}
-			</>
-		);
+		} else if (isParentRow && isLastCol && !open && row.total) {
+			return <b>{row.total}</b>;
+		} else return col;
 	};
 
 	return (
+		<>
+			<div
+				onClick={toggle}
+				role="row"
+				className={clsx(
+					"grid grid-cols-2 px-3 py-1 hover:bg-gray-50",
+					children.length > 0 && "cursor-pointer select-none"
+				)}
+			>
+				{row.colData.map((col, idx) => (
+					<div
+						key={idx}
+						role="column"
+						className={clsx(
+							"last:text-right",
+							row.type === "Summary" && "font-semibold border-t"
+						)}
+					>
+						{returnCol(col, children.length, idx)}
+					</div>
+				))}
+			</div>
+			{open && <div className="pl-3">{children}</div>}
+		</>
+	);
+};
+
+const RecursiveTree = ({
+	data,
+	status,
+	setStatus,
+}: {
+	data: Tree;
+	status: boolean | null;
+	setStatus: React.Dispatch<boolean | null>;
+}) => {
+	const createTree = (branch: Branch) => {
+		return (
+			branch.branches && (
+				<TreeItem
+					setStatus={setStatus}
+					status={status}
+					row={{
+						colData: branch.colData,
+						type: branch.type,
+						total: branch.branches.at(-1)?.colData.at(-1),
+					}}
+				>
+					{branch.branches.map((branch: Branch, idx) => {
+						return (
+							<React.Fragment key={idx}>
+								{createTree(branch)}
+							</React.Fragment>
+						);
+					})}
+				</TreeItem>
+			)
+		);
+	};
+	return (
+		<>
+			{data.map((branch, idx) => (
+				<div key={idx}>{createTree(branch)}</div>
+			))}
+		</>
+	);
+};
+
+export const PNLTable = ({ data, styles }: PNLTableProps) => {
+	const [status, setStatus] = useState<boolean | null>(false);
+	const expandAll = () => setStatus(true);
+	const collapseAll = () => setStatus(false);
+	const topColumns = data?.Columns?.Column;
+	const flattenedData = useMemo(() => restructurePNLData(data), [data]);
+
+	return (
 		<div className={clsx("w-full shadow rounded", styles?.container)}>
-			<h2 className="text-sm font-semibold p-5">Statement of Activity</h2>
-			<table className="w-full ">
-				<thead>
-					<tr className={defaultStyles.bodyRow}>
-						{topColumns.map((column: any, idx: any) => (
-							<th key={idx} className={defaultStyles.header}>
-								{column.ColTitle}
-							</th>
-						))}
-					</tr>
-				</thead>
-				<tbody>{rows.map((row: any) => cascadeRows(row))}</tbody>
-			</table>
+			<h2 className="text-sm font-semibold p-5 flex justify-between">
+				Statement of Activity
+				<span className="text-right flex gap-2 text-xs text-blue-400">
+					<button className="hover:underline" onClick={expandAll}>
+						Expand All
+					</button>
+					<button className="hover:underline" onClick={collapseAll}>
+						Collapse All
+					</button>
+				</span>
+			</h2>
+			<div
+				role="row"
+				className="grid grid-flow-col text-sm bg-gray-100 p-3 font-bold"
+			>
+				{topColumns.map((col, idx) => (
+					<div role="column" key={idx} className="text-right">
+						{col.ColTitle}
+					</div>
+				))}
+			</div>
+			<RecursiveTree
+				setStatus={setStatus}
+				status={status}
+				data={flattenedData}
+			/>
 		</div>
 	);
 };
