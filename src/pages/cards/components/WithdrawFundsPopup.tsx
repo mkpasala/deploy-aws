@@ -72,10 +72,11 @@ const WithdrawFundsErrorMessage = ({ name, formik }: WithdrawFundsErrorMessagePr
 
 interface WithdrawFundsPopupProps {
 	isShow: boolean;
+	onSuccess: () => void;
 	onHide: () => void;
 }
 
-const WithdrawFundsPopup = ({ isShow, onHide }: WithdrawFundsPopupProps) => {
+const WithdrawFundsPopup = ({ isShow, onSuccess, onHide }: WithdrawFundsPopupProps) => {
 	const cardsService = new cardsAPIService();
 	const flareService = new flareDBService();
 	let navigate = useNavigate();
@@ -175,7 +176,7 @@ const WithdrawFundsPopup = ({ isShow, onHide }: WithdrawFundsPopupProps) => {
 			) {
 				setMessage(response.raw.message);
 			} else {
-				onHide();
+				onSuccess();
 				setMessage("");
 			}
 		} catch (ex) {

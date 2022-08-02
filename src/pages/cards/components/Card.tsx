@@ -3,7 +3,7 @@ import CARD_LOGO from "../../../assets/card-logo.png";
 import { createSearchParams, useNavigate } from "react-router-dom";
 
 const Card = ({ card }: any) => {
-	const name = card.cardholder!.name;
+	const name = card!.name || card.cardholder!.name;
 	const exp_date = `${card.exp_month}/${card.exp_year}`;
 	const last4 = card.last4;
 	const balance = `$${card.spending_controls!.spending_limits[0]!.amount / 100}/$${
