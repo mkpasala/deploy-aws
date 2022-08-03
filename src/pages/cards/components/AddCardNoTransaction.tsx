@@ -21,6 +21,8 @@ const AddCardNoTransaction = () => {
 	const [showDepositFunds, setShowDepositFunds] = useState<boolean>(false);
 	const [showWithdrawFunds, setShowWithdrawFunds] = useState<boolean>(false);
 	const [showSpinner, setShowSpinner] = useState(false);
+	const [showSpinnerGetCard, setShowSpinnerGetCard] = useState(false);
+	const [showSpinnerTransaction, setShowSpinnerTransaction] = useState(false);
 	const [balance, setbBalance] = useState<any>("");
 	const [cardData, setCardData] = useState<any>(null);
 	const [transactionData, setTransactionData] = useState([] as any);
@@ -62,32 +64,57 @@ const AddCardNoTransaction = () => {
 		}
 	};
 
+	const updateCardList = async () => {
+		setShowSpinnerGetCard(true);
+		const cardList = await getCardList();
+		const cardListWithName = await getCardListNew(orgId);
+		if (cardList && cardListWithName) {
+			const cardDataWithName = cardList.data.map((card: any) => {
+				const cardWithName = cardListWithName.filter(
+					(cardWithName: any) => cardWithName.stripeCardId === card.id
+				);
+				let mergedCard = [];
+				if (cardWithName && cardWithName.length > 0) {
+					const obj = cardWithName[0];
+					mergedCard = { ...card, ...obj };
+				} else {
+					mergedCard = { ...card };
+				}
+				return mergedCard;
+			});
+			setCardData({ data: cardDataWithName });
+		} else {
+			setCardData(null);
+		}
+		setShowSpinnerGetCard(false);
+	};
+
 	useEffect(() => {
-		getCardList();
+		updateCardList();
 	}, []);
 	const getCardList = async () => {
-		setShowSpinner(true);
 		try {
 			let response: any = await cardsService.getCardList({
 				account_id: account_id,
 				limit: 3,
 				cardholder: cardholder_id,
 			});
-			setShowSpinner(false);
+
 			if (
 				response.type === "StripePermissionError" ||
 				response.type === "StripeInvalidRequestError"
 			) {
+				return null;
 			} else {
-				setCardData(response);
+				return response;
 			}
 		} catch (ex) {
-			setShowSpinner(false);
+			console.log(ex);
+			return null;
 		}
+		return null;
 	};
-	useEffect(() => {
-		getCardListNew(orgId);
-	}, []);
+
 	const getCardListNew = async (orgId: any) => {
 		const response = await fetch(
 			`https://h3tqg8ihpg.execute-api.us-east-1.amazonaws.com/staging/organizations/${orgId}/cards`,
@@ -112,10 +139,10 @@ const AddCardNoTransaction = () => {
 		getTransactionList();
 	}, []);
 	const getTransactionList = async () => {
-		setShowSpinner(true);
+		setShowSpinnerTransaction(true);
 		try {
 			let response: any = await cardsService.getTransactionList({ id: account_id });
-			setShowSpinner(false);
+			setShowSpinnerTransaction(false);
 			if (
 				response.type === "StripePermissionError" ||
 				response.type === "StripeInvalidRequestError"
@@ -125,7 +152,7 @@ const AddCardNoTransaction = () => {
 			}
 			//console.log("Response", response["data"]);
 		} catch (ex) {
-			setShowSpinner(false);
+			setShowSpinnerTransaction(false);
 		}
 	};
 
@@ -139,7 +166,7 @@ const AddCardNoTransaction = () => {
 	return (
 		<>
 			{/* {modalOn && <AddCardPopup setModalOn={setModalOn} />} */}
-			<Spinner show={showSpinner} />
+			<Spinner show={showSpinner || showSpinnerGetCard || showSpinnerTransaction} />
 			<div className="card-section font-sans">
 				<NavBar />
 				<main className="main-content flex flex-col mx-[75px] my-[25px] min-w-fit min-h-fit">
@@ -390,23 +417,28 @@ const AddCardNoTransaction = () => {
 						<AddCardPopup
 							setModalOn={setModalOn}
 							onSuccess={async () => {
-								await getCardList();
-								await getCardListNew(orgId);
+								await updateCardList();
 								setShowSuccess(true);
 							}}
 						/>
 					)}
 					<DepositFundsPopup
 						isShow={showDepositFunds}
-						onHide={async () => {
+						onSuccess={async () => {
 							await retrieveBalance();
+							setShowDepositFunds(false);
+						}}
+						onHide={async () => {
 							setShowDepositFunds(false);
 						}}
 					/>
 					<WithdrawFundsPopup
 						isShow={showWithdrawFunds}
-						onHide={async () => {
+						onSuccess={async () => {
 							await retrieveBalance();
+							setShowWithdrawFunds(false);
+						}}
+						onHide={async () => {
 							setShowWithdrawFunds(false);
 						}}
 					/>

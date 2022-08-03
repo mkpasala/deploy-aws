@@ -17,7 +17,9 @@ const BankAccountTransactionListItem = ({ transaction }: any) => {
 		// accountNumber = `****${transaction!.source!.ach_debit!.last4}`;
 		type = transaction!.statement_descriptor || "Withdraw";
 		amount =
-			transaction!.amount < 0 ? `-$${transaction!.amount * -1}` : `$${transaction!.amount}`;
+			transaction!.amount < 0
+				? `-$${(transaction!.amount / 100) * -1}`
+				: `$${transaction!.amount / 100}`;
 	}
 	return (
 		<>
