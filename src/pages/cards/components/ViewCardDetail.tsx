@@ -4,11 +4,11 @@ import NavBar from "./navbar";
 import Spinner from "./Spinner";
 import cardsAPIService from "../../../services/cardsAPIService";
 import React, { useContext, useEffect, useState } from "react";
-import { useParams, Link,useLocation } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { getCurrencySymbol } from "../../../data/data";
 import { sessionContext } from "../../../app";
 import eyeOff from "../../../assets/visibility-off.png";
-const ViewCardDetail = (props:any) => {
+const ViewCardDetail = (props: any) => {
 	//const location = useLocation();
 	const param = useParams();
 	console.log(param);
@@ -18,7 +18,7 @@ const ViewCardDetail = (props:any) => {
 	const [reveal, setReveal] = useState<boolean>(false);
 	const [cardData, setCardData] = useState<any>([]);
 	const [transactionData, setTransactionData] = useState([] as any);
-	const transactionDetails:any = {
+	const transactionDetails: any = {
 		spendingLimit: null,
 		currency: null,
 		spendAmount: null,
@@ -32,11 +32,8 @@ const ViewCardDetail = (props:any) => {
 	const cardholder_id =
 		session?.organization?.stripeCardholderId || sessionStorage.getItem("cardHolder_id");
 
-       
-
-	
-    const {state} = useLocation()
-    console.log("state===>",state)
+	const { state } = useLocation();
+	console.log("state===>", state);
 	const card_id = state?.id.toString();
 	//console.log("cardID", card_id);
 
@@ -185,7 +182,8 @@ const ViewCardDetail = (props:any) => {
 	const total = cardData
 		? getTransactionData.reduce((total: any, item: any) => item.amount + total, 0) / 100
 		: "";
-	transactionDetails.spendingLimit = cardData[0]?.spending_controls?.spending_limits[0]?.amount /100;
+	transactionDetails.spendingLimit =
+		cardData[0]?.spending_controls?.spending_limits[0]?.amount / 100;
 	transactionDetails.currency = cardData[0]?.spending_controls?.spending_limits_currency;
 	transactionDetails.spendAmount =
 		getTransactionData.length > 0
@@ -201,26 +199,21 @@ const ViewCardDetail = (props:any) => {
 			: getCurrencySymbol(transactionDetails.currency, transactionDetails.spendingLimit);
 	const { spendingLimit, currency, balance, spendAmount, remaining } = transactionDetails;
 
+	// function copyToClipboard(elementId:any) {
 
-    
-   
+	//   // Create a "hidden" input
+	//   var document:any = document;
+	//   var window:any = window;
+	//   var r:any = document.createRange();
+	//   r.selectNode(document.getElementById(elementId));
+	//   window.getSelection().removeAllRanges();
+	//   window.getSelection().addRange(r);
+	//   document.execCommand('copy');
+	//   window.getSelection().removeAllRanges();
 
-    // function copyToClipboard(elementId:any) {
-    
-    //   // Create a "hidden" input
-    //   var document:any = document;
-    //   var window:any = window;
-    //   var r:any = document.createRange();
-    //   r.selectNode(document.getElementById(elementId));
-    //   window.getSelection().removeAllRanges();
-    //   window.getSelection().addRange(r);
-    //   document.execCommand('copy');
-    //   window.getSelection().removeAllRanges();
-    
-    //   // Assign it the value of the specified element
-     
-    
-    // }
+	//   // Assign it the value of the specified element
+
+	// }
 	return (
 		<div className="card-section font-sans">
 			<NavBar />
@@ -248,8 +241,11 @@ const ViewCardDetail = (props:any) => {
 								</Link>
 							</span>
 						</div>
-						<div className="screen-title ml-5 text-sm w-1/2.8 self-center justify-center">{state?.name}</div>
-						{cardData &&							cardData.map((card: any) => {
+						<div className="screen-title ml-5 text-sm w-1/2.8 self-center justify-center">
+							{state?.name}
+						</div>
+						{cardData &&
+							cardData.map((card: any) => {
 								const status = card.status;
 								const type = card.type;
 								return (
@@ -296,7 +292,7 @@ const ViewCardDetail = (props:any) => {
 							}/$${card.spending_controls!.spending_limits[0]!.amount}`;
 							const balanceLimit = getCurrencySymbol(
 								card.spending_controls!.spending_limits_currency,
-								card.spending_controls!.spending_limits[0]!.amount/100
+								card.spending_controls!.spending_limits[0]!.amount / 100
 							);
 
 							const billingaddress = `  ${card.cardholder!.billing!.address.line1}, ${
@@ -305,6 +301,14 @@ const ViewCardDetail = (props:any) => {
                                                 ${card.cardholder!.billing!.address.state} (${
 								card.cardholder!.billing!.address.country
 							}), ${card.cardholder!.billing!.address.postal_code}`;
+
+							const copyFunction = (event: any, text: any) => {
+								var cardDigit = reveal ? text : `**** **** **** ${last4}`;
+								var cvv = reveal ? card?.cvc : "***";
+								var copyData = text?.length < 4 ? cvv : cardDigit;
+
+								navigator.clipboard.writeText(copyData);
+							};
 
 							return (
 								<div className="cards-section fs-box-shadow flex flex-col">
@@ -420,34 +424,40 @@ const ViewCardDetail = (props:any) => {
 												Card Number
 											</div>
 
-											<div className="absolute ml-[210px] mt-[-4px]" >
-												
-													<svg
-														width="16"
-														height="16"
-														viewBox="0 0 16 16"
-														fill="none"
-														xmlns="http://www.w3.org/2000/svg"
-													>
-														<path
-															d="M14 5V14H5V5H14ZM14 4H5C4.73478 4 4.48043 4.10536 4.29289 4.29289C4.10536 4.48043 4 4.73478 4 5V14C4 14.2652 4.10536 14.5196 4.29289 14.7071C4.48043 14.8946 4.73478 15 5 15H14C14.2652 15 14.5196 14.8946 14.7071 14.7071C14.8946 14.5196 15 14.2652 15 14V5C15 4.73478 14.8946 4.48043 14.7071 4.29289C14.5196 4.10536 14.2652 4 14 4Z"
-															fill="#191918"
-															fill-opacity="0.7"
-														/>
-														<path
-															d="M2 9H1V2C1 1.73478 1.10536 1.48043 1.29289 1.29289C1.48043 1.10536 1.73478 1 2 1H9V2H2V9Z"
-															fill="#191918"
-															fill-opacity="0.7"
-														/>
-													</svg>
-												
+											<div
+												className="absolute ml-[210px] mt-[-4px]"
+												onClick={(event) =>
+													copyFunction(event, card?.number)
+												}
+											>
+												<svg
+													width="16"
+													height="16"
+													viewBox="0 0 16 16"
+													fill="none"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<path
+														d="M14 5V14H5V5H14ZM14 4H5C4.73478 4 4.48043 4.10536 4.29289 4.29289C4.10536 4.48043 4 4.73478 4 5V14C4 14.2652 4.10536 14.5196 4.29289 14.7071C4.48043 14.8946 4.73478 15 5 15H14C14.2652 15 14.5196 14.8946 14.7071 14.7071C14.8946 14.5196 15 14.2652 15 14V5C15 4.73478 14.8946 4.48043 14.7071 4.29289C14.5196 4.10536 14.2652 4 14 4Z"
+														fill="#191918"
+														fill-opacity="0.7"
+													/>
+													<path
+														d="M2 9H1V2C1 1.73478 1.10536 1.48043 1.29289 1.29289C1.48043 1.10536 1.73478 1 2 1H9V2H2V9Z"
+														fill="#191918"
+														fill-opacity="0.7"
+													/>
+												</svg>
 											</div>
-											<div className="cards-type font-semibold text-xs py-1 cardnumber" id="cardNumber">
-                                            {reveal
-														? card?.number
-																.toString()
-																.replace(/\d{4}?(?=...)/g, "$& ")
-														: `**** **** **** ${last4}`}
+											<div
+												className="cards-type font-semibold text-xs py-1 cardnumber"
+												id="cardNumber"
+											>
+												{reveal
+													? card?.number
+															.toString()
+															.replace(/\d{4}?(?=...)/g, "$& ")
+													: `**** **** **** ${last4}`}
 											</div>
 										</div>
 										<div className="cvv border-b border-gray-200 py-2 px-2">
@@ -462,30 +472,31 @@ const ViewCardDetail = (props:any) => {
 											<div className="no-of-cards text-gray-500 text-xs">
 												CVV
 											</div>
-											<div className="absolute ml-[210px] mt-[-4px]">
-												<a href="">
-													<svg
-														width="16"
-														height="16"
-														viewBox="0 0 16 16"
-														fill="none"
-														xmlns="http://www.w3.org/2000/svg"
-													>
-														<path
-															d="M14 5V14H5V5H14ZM14 4H5C4.73478 4 4.48043 4.10536 4.29289 4.29289C4.10536 4.48043 4 4.73478 4 5V14C4 14.2652 4.10536 14.5196 4.29289 14.7071C4.48043 14.8946 4.73478 15 5 15H14C14.2652 15 14.5196 14.8946 14.7071 14.7071C14.8946 14.5196 15 14.2652 15 14V5C15 4.73478 14.8946 4.48043 14.7071 4.29289C14.5196 4.10536 14.2652 4 14 4Z"
-															fill="#191918"
-															fill-opacity="0.7"
-														/>
-														<path
-															d="M2 9H1V2C1 1.73478 1.10536 1.48043 1.29289 1.29289C1.48043 1.10536 1.73478 1 2 1H9V2H2V9Z"
-															fill="#191918"
-															fill-opacity="0.7"
-														/>
-													</svg>
-												</a>
+											<div
+												className="absolute ml-[210px] mt-[-4px]"
+												onClick={(event) => copyFunction(event, card?.cvc)}
+											>
+												<svg
+													width="16"
+													height="16"
+													viewBox="0 0 16 16"
+													fill="none"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<path
+														d="M14 5V14H5V5H14ZM14 4H5C4.73478 4 4.48043 4.10536 4.29289 4.29289C4.10536 4.48043 4 4.73478 4 5V14C4 14.2652 4.10536 14.5196 4.29289 14.7071C4.48043 14.8946 4.73478 15 5 15H14C14.2652 15 14.5196 14.8946 14.7071 14.7071C14.8946 14.5196 15 14.2652 15 14V5C15 4.73478 14.8946 4.48043 14.7071 4.29289C14.5196 4.10536 14.2652 4 14 4Z"
+														fill="#191918"
+														fill-opacity="0.7"
+													/>
+													<path
+														d="M2 9H1V2C1 1.73478 1.10536 1.48043 1.29289 1.29289C1.48043 1.10536 1.73478 1 2 1H9V2H2V9Z"
+														fill="#191918"
+														fill-opacity="0.7"
+													/>
+												</svg>
 											</div>
 											<div className="cards-type font-semibold text-sm py-1">
-											{reveal ? card?.cvc : "***"}
+												{reveal ? card?.cvc : "***"}
 											</div>
 										</div>
 
