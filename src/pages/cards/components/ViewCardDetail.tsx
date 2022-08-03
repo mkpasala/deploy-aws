@@ -7,7 +7,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getCurrencySymbol } from "../../../data/data";
 import { sessionContext } from "../../../app";
-import eyeOff from '../../../assets/visibility-off.png';
+import eyeOff from "../../../assets/visibility-off.png";
 const ViewCardDetail = () => {
 	//const location = useLocation();
 	const param = useParams();
@@ -26,17 +26,13 @@ const ViewCardDetail = () => {
 		remaining: null,
 	};
 	const session = useContext(sessionContext);
-	const orgIds = session?.organization?.id;
 	const userId = session?.user?.id;
-	// const orgId = session?.organization?.id;
-	// sessionStorage.setItem("account_id", "acct_1LLOc6R80wjEJFG5");
-	const account_id = sessionStorage.getItem("account_id");
+	const orgId = session?.organization?.id;
+	const account_id = session?.organization?.stripeConnectId;
+	const cardholder_id =
+		session?.organization?.stripeCardholderId || sessionStorage.getItem("cardHolder_id");
 
-	// sessionStorage.setItem("orgId", "68167b70-8427-4c91-8ad1-6b8d0dfd861f");
-	const orgId = sessionStorage.getItem("orgId");
-
-	// sessionStorage.setItem("card_id", "ic_1LPncLJhE2tXq2CUO4IS8r4P");
-	// const card_id = sessionStorage.getItem("card_id");
+	
 
 	const queryParams = new URLSearchParams(window.location.search);
 	const card_id = queryParams.get("id");
@@ -49,10 +45,12 @@ const ViewCardDetail = () => {
 	}, []);
 
 	const retrieveCard = async () => {
-		
 		setShowSpinner(true);
 		try {
-			let response: any = await cardsService.retrieveCard({ card_id: card_id ,account_id:account_id});
+			let response: any = await cardsService.retrieveCard({
+				card_id: card_id,
+				account_id: account_id,
+			});
 			setShowSpinner(false);
 			if (
 				response.type === "StripePermissionError" ||
@@ -61,7 +59,6 @@ const ViewCardDetail = () => {
 			} else {
 				setCardData([response]);
 				//setCardData(["response"]);
-				
 			}
 		} catch (ex) {
 			setShowSpinner(false);
@@ -340,44 +337,45 @@ const ViewCardDetail = () => {
 											onClick={() => setReveal(!reveal)}
 											className="reveal-info hover:bg-pink-500 relative border-y border-gray-200 flex justify-center overflow-hidden "
 										>
-											 <span className="absolute top-2 left-12 pl-10">
-                                             {!reveal?
-                                           
-                                                    <img src={eyeOff} alt="hide" style={{width:14,height:17}}/>
-                                            
-                                            
-                                                        :
-												<svg
-													width="15"
-													height="19"
-													viewBox="0 0 19 19"
-													fill="none"
-													xmlns="http://www.w3.org/2000/svg"
-												>
-													<g clip-path="url(#clip0_1106_4822)">
-														<path
-															d="M9.58826 12.0005C10.8661 12.0005 11.902 10.9646 11.902 9.68677C11.902 8.40894 10.8661 7.37305 9.58826 7.37305C8.31043 7.37305 7.27454 8.40894 7.27454 9.68677C7.27454 10.9646 8.31043 12.0005 9.58826 12.0005Z"
-															fill="#191918"
-															fill-opacity="0.7"
-														/>
-														<path
-															d="M18.2297 9.4903C17.5494 7.73051 16.3683 6.20863 14.8325 5.11278C13.2966 4.01692 11.4734 3.39512 9.58797 3.32422C7.70258 3.39512 5.87929 4.01692 4.34345 5.11278C2.8076 6.20863 1.62653 7.73051 0.946203 9.4903C0.900257 9.61738 0.900257 9.75654 0.946203 9.88363C1.62653 11.6434 2.8076 13.1653 4.34345 14.2611C5.87929 15.357 7.70258 15.9788 9.58797 16.0497C11.4734 15.9788 13.2966 15.357 14.8325 14.2611C16.3683 13.1653 17.5494 11.6434 18.2297 9.88363C18.2757 9.75654 18.2757 9.61738 18.2297 9.4903V9.4903ZM9.58797 13.4468C8.84435 13.4468 8.11743 13.2263 7.49913 12.8131C6.88084 12.4 6.39893 11.8128 6.11436 11.1258C5.82979 10.4388 5.75533 9.68279 5.90041 8.95346C6.04548 8.22413 6.40357 7.5542 6.92938 7.02838C7.4552 6.50256 8.12514 6.14448 8.85447 5.9994C9.5838 5.85433 10.3398 5.92879 11.0268 6.21336C11.7138 6.49793 12.301 6.97983 12.7141 7.59813C13.1273 8.21643 13.3478 8.94334 13.3478 9.68696C13.3462 10.6837 12.9496 11.6391 12.2449 12.3439C11.5401 13.0486 10.5847 13.4452 9.58797 13.4468V13.4468Z"
-															fill="#191918"
-															fill-opacity="0.7"
-														/>
-													</g>
-													<defs>
-														<clipPath id="clip0_1106_4822">
-															<rect
-																width="18.5098"
-																height="18.5098"
-																fill="white"
-																transform="translate(0.333496 0.431641)"
+											<span className="absolute top-2 left-12 pl-10">
+												{!reveal ? (
+													<img
+														src={eyeOff}
+														alt="hide"
+														style={{ width: 14, height: 17 }}
+													/>
+												) : (
+													<svg
+														width="15"
+														height="19"
+														viewBox="0 0 19 19"
+														fill="none"
+														xmlns="http://www.w3.org/2000/svg"
+													>
+														<g clip-path="url(#clip0_1106_4822)">
+															<path
+																d="M9.58826 12.0005C10.8661 12.0005 11.902 10.9646 11.902 9.68677C11.902 8.40894 10.8661 7.37305 9.58826 7.37305C8.31043 7.37305 7.27454 8.40894 7.27454 9.68677C7.27454 10.9646 8.31043 12.0005 9.58826 12.0005Z"
+																fill="#191918"
+																fill-opacity="0.7"
 															/>
-														</clipPath>
-													</defs>
-												</svg>
-                                                }
+															<path
+																d="M18.2297 9.4903C17.5494 7.73051 16.3683 6.20863 14.8325 5.11278C13.2966 4.01692 11.4734 3.39512 9.58797 3.32422C7.70258 3.39512 5.87929 4.01692 4.34345 5.11278C2.8076 6.20863 1.62653 7.73051 0.946203 9.4903C0.900257 9.61738 0.900257 9.75654 0.946203 9.88363C1.62653 11.6434 2.8076 13.1653 4.34345 14.2611C5.87929 15.357 7.70258 15.9788 9.58797 16.0497C11.4734 15.9788 13.2966 15.357 14.8325 14.2611C16.3683 13.1653 17.5494 11.6434 18.2297 9.88363C18.2757 9.75654 18.2757 9.61738 18.2297 9.4903V9.4903ZM9.58797 13.4468C8.84435 13.4468 8.11743 13.2263 7.49913 12.8131C6.88084 12.4 6.39893 11.8128 6.11436 11.1258C5.82979 10.4388 5.75533 9.68279 5.90041 8.95346C6.04548 8.22413 6.40357 7.5542 6.92938 7.02838C7.4552 6.50256 8.12514 6.14448 8.85447 5.9994C9.5838 5.85433 10.3398 5.92879 11.0268 6.21336C11.7138 6.49793 12.301 6.97983 12.7141 7.59813C13.1273 8.21643 13.3478 8.94334 13.3478 9.68696C13.3462 10.6837 12.9496 11.6391 12.2449 12.3439C11.5401 13.0486 10.5847 13.4452 9.58797 13.4468V13.4468Z"
+																fill="#191918"
+																fill-opacity="0.7"
+															/>
+														</g>
+														<defs>
+															<clipPath id="clip0_1106_4822">
+																<rect
+																	width="18.5098"
+																	height="18.5098"
+																	fill="white"
+																	transform="translate(0.333496 0.431641)"
+																/>
+															</clipPath>
+														</defs>
+													</svg>
+												)}
 											</span>
 											<input
 												className="search-txt placeholder:text-slate-300 block text-sm bg-white border-0 py-[6px] pl-[48%] focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1"
