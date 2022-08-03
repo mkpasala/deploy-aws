@@ -29,10 +29,10 @@ const ViewCardDetail = () => {
 	const orgIds = session?.organization?.id;
 	const userId = session?.user?.id;
 	// const orgId = session?.organization?.id;
-	sessionStorage.setItem("account_id", "acct_1LLOc6R80wjEJFG5");
+	// sessionStorage.setItem("account_id", "acct_1LLOc6R80wjEJFG5");
 	const account_id = sessionStorage.getItem("account_id");
 
-	sessionStorage.setItem("orgId", "68167b70-8427-4c91-8ad1-6b8d0dfd861f");
+	// sessionStorage.setItem("orgId", "68167b70-8427-4c91-8ad1-6b8d0dfd861f");
 	const orgId = sessionStorage.getItem("orgId");
 
 	// sessionStorage.setItem("card_id", "ic_1LPncLJhE2tXq2CUO4IS8r4P");
@@ -45,14 +45,14 @@ const ViewCardDetail = () => {
 	useEffect(() => {
 		retrieveCard();
 		getTransactionList();
-		getUserData();
+		// getUserData();
 	}, []);
 
 	const retrieveCard = async () => {
 		
 		setShowSpinner(true);
 		try {
-			let response: any = await cardsService.retrieveCard({ card_id: card_id });
+			let response: any = await cardsService.retrieveCard({ card_id: card_id ,account_id:account_id});
 			setShowSpinner(false);
 			if (
 				response.type === "StripePermissionError" ||
@@ -89,12 +89,12 @@ const ViewCardDetail = () => {
 		}
 	};
 
-	const getUserData = async () => {
-		const userCardData = await fetch(
-			`https://h3tqg8ihpg.execute-api.us-east-1.amazonaws.com/staging/organizations/${orgIds}/cards/${card_id}`
-		);
-		console.log("userCardData===>", userCardData);
-	};
+	// const getUserData = async () => {
+	// 	const userCardData = await fetch(
+	// 		`https://h3tqg8ihpg.execute-api.us-east-1.amazonaws.com/staging/organizations/${orgIds}/cards/${card_id}`
+	// 	);
+	// 	console.log("userCardData===>", userCardData);
+	// };
 	// const cardData1 = [{
 	//     "id": "ic_1LPncLJhE2tXq2CUO4IS8r4P",
 	//     "object": "issuing.card",
