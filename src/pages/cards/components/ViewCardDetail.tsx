@@ -18,7 +18,7 @@ const ViewCardDetail = (props:any) => {
 	const [reveal, setReveal] = useState<boolean>(false);
 	const [cardData, setCardData] = useState<any>([]);
 	const [transactionData, setTransactionData] = useState([] as any);
-	const transactionDetails = {
+	const transactionDetails:any = {
 		spendingLimit: null,
 		currency: null,
 		spendAmount: null,
@@ -35,10 +35,10 @@ const ViewCardDetail = (props:any) => {
        
 
 	
-   const {state} = useLocation()
-//   console.log("state===>",state)
+    const {state} = useLocation()
+    console.log("state===>",state)
 	const card_id = state?.id.toString();
-	// console.log("cardID", card_id);
+	//console.log("cardID", card_id);
 
 	useEffect(() => {
 		retrieveCard();
@@ -185,7 +185,7 @@ const ViewCardDetail = (props:any) => {
 	const total = cardData
 		? getTransactionData.reduce((total: any, item: any) => item.amount + total, 0) / 100
 		: "";
-	transactionDetails.spendingLimit = cardData[0]?.spending_controls?.spending_limits[0]?.amount;
+	transactionDetails.spendingLimit = cardData[0]?.spending_controls?.spending_limits[0]?.amount /100;
 	transactionDetails.currency = cardData[0]?.spending_controls?.spending_limits_currency;
 	transactionDetails.spendAmount =
 		getTransactionData.length > 0
@@ -200,13 +200,34 @@ const ViewCardDetail = (props:any) => {
 			? getCurrencySymbol(transactionDetails.currency, transactionDetails.balance)
 			: getCurrencySymbol(transactionDetails.currency, transactionDetails.spendingLimit);
 	const { spendingLimit, currency, balance, spendAmount, remaining } = transactionDetails;
+
+
+    
+   
+
+    // function copyToClipboard(elementId:any) {
+    
+    //   // Create a "hidden" input
+    //   var document:any = document;
+    //   var window:any = window;
+    //   var r:any = document.createRange();
+    //   r.selectNode(document.getElementById(elementId));
+    //   window.getSelection().removeAllRanges();
+    //   window.getSelection().addRange(r);
+    //   document.execCommand('copy');
+    //   window.getSelection().removeAllRanges();
+    
+    //   // Assign it the value of the specified element
+     
+    
+    // }
 	return (
 		<div className="card-section font-sans">
 			<NavBar />
 			<main className="main-content flex flex-col mx-[205px] ">
 				<div className="bl-section flex flex-col pt-[28px] pb-[32px]">
-					<div className="flex flex-row ml-0 w-[955px] overflow-x-hidden">
-						<div className="mt-3">
+					<div className="flex flex-row ml-0 w-[968px] overflow-hidden justify-center items-center">
+						<div className="self-center mb-3 mr-4">
 							<span className="absolute ml-0  ">
 								<Link to="/card-list">
 									<svg
@@ -227,13 +248,12 @@ const ViewCardDetail = (props:any) => {
 								</Link>
 							</span>
 						</div>
-						<div className="screen-title ml-8">Mike Males</div>
-						{cardData &&
-							cardData.map((card: any) => {
+						<div className="screen-title ml-5 text-sm w-1/2.8 self-center justify-center">{state?.name}</div>
+						{cardData &&							cardData.map((card: any) => {
 								const status = card.status;
 								const type = card.type;
 								return (
-									<div className="ml-2 relative mt-2">
+									<div className="ml-2 relative mt-2 w-1/4 self-start">
 										<button
 											type="button"
 											className="bg-green-200 text-green-500 text-xs capitalize font-bold border border-green-300 rounded-full py-1 px-2 w-30"
@@ -249,7 +269,7 @@ const ViewCardDetail = (props:any) => {
 									</div>
 								);
 							})}
-						<div className="ml-[385px] mt-2 relative mx-2">
+						<div className="self-end text-right mt-2 flex-1 relative mr-2">
 							<button
 								//type="button"
 								className="bg-transparent hover:bg-red-500 text-red-600 text-xs font-bold hover:text-white border border-red-500 hover:border-transparent rounded py-1 px-2 w-26"
@@ -276,7 +296,7 @@ const ViewCardDetail = (props:any) => {
 							}/$${card.spending_controls!.spending_limits[0]!.amount}`;
 							const balanceLimit = getCurrencySymbol(
 								card.spending_controls!.spending_limits_currency,
-								card.spending_controls!.spending_limits[0]!.amount
+								card.spending_controls!.spending_limits[0]!.amount/100
 							);
 
 							const billingaddress = `  ${card.cardholder!.billing!.address.line1}, ${
@@ -306,7 +326,7 @@ const ViewCardDetail = (props:any) => {
 													/>
 												</span>
 												<span className="text-white mt-5 mr-5 text-xs font-semibold">
-													{name}
+													{state?.name}
 												</span>
 											</div>
 											<div className="flex justify-end">
@@ -392,15 +412,16 @@ const ViewCardDetail = (props:any) => {
 												Card Nickname
 											</div>
 											<div className="cards-type font-semibold text-sm py-1">
-												{name}
+												{state?.name}
 											</div>
 										</div>
 										<div className="card-number border-b border-gray-200 py-2 px-2">
 											<div className="no-of-cards text-gray-500 text-xs">
 												Card Number
 											</div>
-											<div className="absolute ml-[210px] mt-[-4px]">
-												<a href="">
+
+											<div className="absolute ml-[210px] mt-[-4px]" >
+												
 													<svg
 														width="16"
 														height="16"
@@ -419,10 +440,14 @@ const ViewCardDetail = (props:any) => {
 															fill-opacity="0.7"
 														/>
 													</svg>
-												</a>
+												
 											</div>
-											<div className="cards-type font-semibold text-xs py-1">
-												{`**** **** **** ${last4}`}
+											<div className="cards-type font-semibold text-xs py-1 cardnumber" id="cardNumber">
+                                            {reveal
+														? card?.number
+																.toString()
+																.replace(/\d{4}?(?=...)/g, "$& ")
+														: `**** **** **** ${last4}`}
 											</div>
 										</div>
 										<div className="cvv border-b border-gray-200 py-2 px-2">
@@ -460,7 +485,7 @@ const ViewCardDetail = (props:any) => {
 												</a>
 											</div>
 											<div className="cards-type font-semibold text-sm py-1">
-												****
+											{reveal ? card?.cvc : "***"}
 											</div>
 										</div>
 
@@ -523,7 +548,7 @@ const ViewCardDetail = (props:any) => {
 												Spending Limit
 											</div>
 										</div>
-										<div className="total-issued-cards mt-2 mr-[100px]">
+										{/* <div className="total-issued-cards mt-2 mr-[100px]">
 											<div className="no-of-cards text-xs font-semibold">
 												{spendAmount}
 											</div>
@@ -538,12 +563,12 @@ const ViewCardDetail = (props:any) => {
 											<div className="cards-type text-gray-500 text-[10px] self-center">
 												Remaining
 											</div>
-										</div>
+										</div> */}
 									</>
 								)}
 							</div>
 
-							<div className=" flex flex-row justify-between mt-[80px] mb-4">
+							{/* <div className=" flex flex-row justify-between mt-[80px] mb-4">
 								<div className="total-issued-cards ml-[-687px]">
 									<span>
 										<svg
@@ -564,7 +589,7 @@ const ViewCardDetail = (props:any) => {
 										</svg>
 									</span>
 								</div>
-							</div>
+							</div> */}
 						</div>
 						{getTransactionData.length > 0 ? (
 							<div className="fs-box-shadow ts-section mt-4 ml-4">
