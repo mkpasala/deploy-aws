@@ -7,19 +7,13 @@ const Card = ({ card }: any) => {
 	const exp_date = `${card.exp_month}/${card.exp_year}`;
 	const last4 = card.last4;
 	const balance = `$${card.spending_controls!.spending_limits[0]!.amount / 100}`;
-
 	const active: boolean = card.status === "active";
 	let navigate = useNavigate();
 
 	return (
 		<div
 			onClick={() => {
-				navigate({
-					pathname: "/view-card",
-					search: createSearchParams({
-						id: card.id,
-					}).toString(),
-				});
+				navigate(`/view-card/?id=${card.id}`,{state:card});
 			}}
 			className="h-[143px] w-[255px] mx-3 my-2"
 			style={{ backgroundImage: `url(${CARD_BACKGROUND_LOGO})` }}

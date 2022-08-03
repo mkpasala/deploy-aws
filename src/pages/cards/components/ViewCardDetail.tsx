@@ -4,11 +4,11 @@ import NavBar from "./navbar";
 import Spinner from "./Spinner";
 import cardsAPIService from "../../../services/cardsAPIService";
 import React, { useContext, useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link,useLocation } from "react-router-dom";
 import { getCurrencySymbol } from "../../../data/data";
 import { sessionContext } from "../../../app";
 import eyeOff from "../../../assets/visibility-off.png";
-const ViewCardDetail = () => {
+const ViewCardDetail = (props:any) => {
 	//const location = useLocation();
 	const param = useParams();
 	console.log(param);
@@ -32,11 +32,13 @@ const ViewCardDetail = () => {
 	const cardholder_id =
 		session?.organization?.stripeCardholderId || sessionStorage.getItem("cardHolder_id");
 
-	
+       
 
-	const queryParams = new URLSearchParams(window.location.search);
-	const card_id = queryParams.get("id");
-	console.log("cardID", card_id);
+	
+   const {state} = useLocation()
+//   console.log("state===>",state)
+	const card_id = state?.id.toString();
+	// console.log("cardID", card_id);
 
 	useEffect(() => {
 		retrieveCard();
