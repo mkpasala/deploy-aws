@@ -1,10 +1,12 @@
 import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
 import React, { useState, useEffect, useContext } from "react";
 import AddCardPopup from "./AddCardPopup";
+import {useNavigate} from 'react-router-dom'
 import FLARE_LOGO from "../../../assets/Flare_Logo_Color.png";
 import GROUP_LOGO from "../../../assets/Group.png";
 //import CARD_LOGO from "../../../assets/card-logo.png";
 //import CARD_BACKGROUND_LOGO from "../../../assets/card-background.png";
+import './filterMenu.scss';
 import NavBar from "./navbar";
 import DepositFundsPopup from "./DepositFundsPopup";
 import WithdrawFundsPopup from "./WithdrawFundsPopup";
@@ -28,6 +30,8 @@ const AddCardNoTransaction = () => {
 	const [transactionData, setTransactionData] = useState([] as any);
 	const [newCardInfo, setNewCardInfo] = useState<any>({});
 	const [showSuccess, setShowSuccess] = useState<any>(false);
+	const [filterMenu,setFilterMenu] = useState<any>(false);
+	const navigate = useNavigate()
 
 	const session = useContext(sessionContext);
 	const account_id = session?.organization?.stripeConnectId;
@@ -160,6 +164,13 @@ const AddCardNoTransaction = () => {
 
 	const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const value = event.target.value;
+		let name:any = transactionData.filter((item:any)=> item?.merchant_data?.name.toLowerCase() === value)
+		console.log(name,transactionData)
+		// if(name.length >0){
+		// 	setTransactionData(name)
+		// }else{
+		// 	setTransactionData(transactionData)
+		// }
 		setFilter(value);
 	};
 
@@ -214,14 +225,16 @@ const AddCardNoTransaction = () => {
 								</div>
 							</div>
 							{/* <div class="fs-box-shadow ts-section mt-4"> */}
-							<div className=" px-6 py-2  border-gray-200"></div>
-							<div className="fs-box-shadow flex flex-col border-gray-200 w-[800px] h-[285px] overflow-hidden">
+							<div className=" px-6 py-2  border-gray-200 " ></div>
+							<div className="fs-box-shadow flex flex-col border-gray-200 w-[800px] h-[285px] relative">
 								{transactionData && transactionData.length != 0 ? (
 									<div>
 										<div className="ts-header px-6 py-3 border-b border-gray-200">
 											<span className="flex justify-between font-bold ">
 												Transactions
-												<button className="bg-white hover:bg-gray-200 font-bold p-4 rounded text-sm">
+												<button className="bg-white hover:bg-gray-200 font-bold p-4 rounded text-sm" onClick={()=>{
+													setFilterMenu(!filterMenu)
+												}}>
 													<svg
 														width="18"
 														height="18"
@@ -237,7 +250,83 @@ const AddCardNoTransaction = () => {
 													</svg>
 												</button>
 											</span>
+										</div>{
+											filterMenu &&
+											<div className="filterBoxMenu py-2" >
+												<div className="font-semibold font-inter text-xl leading-4  fs-box-shadow ts-section mb-2 h-10 p-2 pl-3">
+													Filters
+												</div>
+												<div className="px-3">
+												<div className="flex flex-1 justify-between py-3">
+												<div className="font-light font-inter text-xs text-black">
+													0 Selected 
+												</div>
+												<div className="font-extralight font-inter text-xs text-inherit">
+													Clear All
+												</div>
+												</div>
+
+												<div className="relative ">
+															<label
+																className="text-xs bold text-gray-900 dark:text-gray-300"
+																htmlFor="cardName"
+															>
+																CardName
+															</label>
+															
+															<select
+																className={`rounded block  placeholder:text-slate-400 bg-white w-full border py-2 px-3  shadow-md focus:outline-none focus:ring-1`}
+																name="cardName"
+																onChange={()=>console.log("changes")}
+																// onBlur={handleBlur}
+																value={"check"}
+															>
+																<option value="" className="text-slate-400">
+																	choose
+																</option>
+																{/* {states.map((state) => (
+																	<option
+																		value={state.abbreviation}
+																		key={state.abbreviation}
+																	>
+																		{state.name}
+																	</option>
+																))} */}
+															</select>
+														</div>
+														<div className="relative ">
+															<label
+																className="text-xs bold text-gray-900 dark:text-gray-300"
+																htmlFor="cardName"
+															>
+																Transaction Type
+															</label>
+															
+															<select
+																className={`rounded block  placeholder:text-slate-400 mr-2 bg-white w-full border py-2 px-3  shadow-md focus:outline-none focus:ring-1`}
+																name="cardName"
+																onChange={()=>console.log("changes")}
+																// onBlur={handleBlur}
+																value={"check"}
+															>
+																<option value="" className="text-slate-400">
+																	choose
+																</option>
+																{/* {states.map((state) => (
+																	<option
+																		value={state.abbreviation}
+																		key={state.abbreviation}
+																	>
+																		{state.name}
+																	</option>
+																))} */}
+															</select>
+														</div>
+												</div>
+
 										</div>
+										}
+										
 										<div className="ts-search relative ">
 											<span className="absolute top-[14px] left-6">
 												<svg
@@ -261,7 +350,7 @@ const AddCardNoTransaction = () => {
 											/>
 										</div>
 										{transactionData && transactionData ? (
-											<Transaction transaction={transactionData} />
+											<Transaction transaction={transactionData}  value={filter}/>
 										) : null}
 									</div>
 								) : (
@@ -315,8 +404,10 @@ const AddCardNoTransaction = () => {
 									{/* <div className="cards-list overflow-y-auto"> */}
 									<div className="cards-header flex flex-row justify-between mb-2 mx-3 mt-5">
 										<div className="card-title font-bold">Cards</div>
-										<div className="view-cards text-sm">
-											<a href="/view-all-card">View All Cards</a>
+										<div className="view-cards text-sm" onClick={() => {
+											navigate(`/view-all-card`,{state:cardData});
+										}}>
+											View All Cards
 										</div>
 									</div>
 									<div className="cards-details flex flex-row mb-2 mx-3">
@@ -364,21 +455,17 @@ const AddCardNoTransaction = () => {
 											</svg>
 										</span>
 										{/* {!setModalOn && */}
-										<input
+										{/* <input
 											className="search-txt text-xs bg-white border-0 py-3 pl-8 focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 m-2 w-64"
 											placeholder="Search card name"
 											type="text"
 											name="searchcardname"
 											onChange={handleFilterChange}
-										/>
+										/> */}
 										{/* } */}
 									</div>
 									{cardData &&
-										cardData.data
-											.filter((card: any) =>
-												card.cardholder!.name.includes(filter)
-											)
-											.map((card: any) => <Card card={card} key={card.id} />)}
+										cardData.data.map((card: any) => <Card card={card} key={card.id} />)}
 									{/* </div> */}
 								</div>
 							) : (
