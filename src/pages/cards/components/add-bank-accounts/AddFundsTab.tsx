@@ -196,9 +196,7 @@ const AddFundsTab = ({ nextStep, previousStep }: AddFundsTabProps) => {
 										</label>
 										<div className="flex items-center">
 											<input
-												className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-													"memo"
-												)}`}
+												className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 pl-9 shadow-md focus:outline-none focus:ring-1"
 												placeholder="Enter Memo Line For Fund Transfer"
 												type="text"
 												name="memo"
@@ -206,7 +204,7 @@ const AddFundsTab = ({ nextStep, previousStep }: AddFundsTabProps) => {
 												onBlur={handleBlur}
 												value={values.memo}
 											/>
-											<AddFundsErrorMessage name="memo" formik={formik} />
+											{/* <AddFundsErrorMessage name="memo" formik={formik} /> */}
 										</div>
 									</div>
 								</div>

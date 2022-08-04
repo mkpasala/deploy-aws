@@ -511,7 +511,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 												"routingNumber"
 											)}`}
-											placeholder="Enter Routing Number"
+											placeholder="Enter Routing Number here"
 											type="text"
 											name="routingNumber"
 											onChange={handleChange}
@@ -576,23 +576,21 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											className="block text-gray-500 bk-form-label"
 											htmlFor="accountNickName"
 										>
-											Account Nick Name
+											Bank Nick Name
 										</label>
 										<input
-											className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-												"accountNickName"
-											)}`}
-											placeholder="Enter Account Nick Name"
+											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"
+											placeholder="Enter Bank Nickname"
 											type="text"
 											name="accountNickName"
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.accountNickName}
 										/>
-										<BankAccountErrorMessage
+										{/* <BankAccountErrorMessage
 											name="accountNickName"
 											formik={formik}
-										/>
+										/> */}
 									</div>
 									<div className="relative w-64">
 										<label
@@ -602,9 +600,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											Bank Name
 										</label>
 										<input
-											className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-												"bankName"
-											)}`}
+											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"	
 											placeholder="Enter Bank Name"
 											type="text"
 											name="bankName"
@@ -612,7 +608,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onBlur={handleBlur}
 											value={values.bankName}
 										/>
-										<BankAccountErrorMessage name="bankName" formik={formik} />
+										{/* <BankAccountErrorMessage name="bankName" formik={formik} /> */}
 									</div>
 									<div className="w-64"></div>
 								</div>
@@ -628,20 +624,18 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											Address Line 1
 										</label>
 										<input
-											className={`selection:bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-												"addressLine1"
-											)}`}
-											placeholder="Enter Address Line 1"
+											className="selection:bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"
+											placeholder="Enter your address line 1 here"
 											type="text"
 											name="addressLine1"
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.addressLine1}
 										/>
-										<BankAccountErrorMessage
+										{/* <BankAccountErrorMessage
 											name="addressLine1"
 											formik={formik}
-										/>
+										/> */}
 									</div>
 								</div>
 								<div className="bank-info flex flex-row mb-2 px-6">
@@ -653,20 +647,18 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											Address Line 2
 										</label>
 										<input
-											className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-												"addressLine2"
-											)}`}
-											placeholder="Enter Address Line 2"
+											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"	
+											placeholder="Enter your address line 2 here"
 											type="text"
 											name="addressLine2"
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.addressLine2}
 										/>
-										<BankAccountErrorMessage
+										{/* <BankAccountErrorMessage
 											name="addressLine2"
 											formik={formik}
-										/>
+										/> */}
 									</div>
 								</div>
 								<div className="bank-info flex flex-row justify-between mb-2 px-6">
@@ -678,9 +670,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											City
 										</label>
 										<input
-											className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-												"city"
-											)}`}
+											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1"
 											placeholder="Enter City"
 											type="text"
 											name="city"
@@ -688,7 +678,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onBlur={handleBlur}
 											value={values.city}
 										/>
-										<BankAccountErrorMessage name="city" formik={formik} />
+										{/* <BankAccountErrorMessage name="city" formik={formik} /> */}
 									</div>
 									<div className="relative w-64">
 										<label
@@ -698,9 +688,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											State
 										</label>
 										<select
-											className={`bk-form-input block bg-white w-full border rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-												"state"
-											)}`}
+											className="bk-form-input block bg-white w-full border rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1"
 											name="state"
 											onChange={handleChange}
 											onBlur={handleBlur}
@@ -716,11 +704,11 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 												</option>
 											))}
 										</select>
-										<BankAccountErrorMessage
+										{/* <BankAccountErrorMessage
 											name="state"
 											formik={formik}
 											showIcon={false}
-										/>
+										/> */}
 									</div>
 									<div className="relative w-64">
 										<label
@@ -730,17 +718,15 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											Zip Code
 										</label>
 										<input
-											className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-												"zipCode"
-											)}`}
-											placeholder="Enter Zip Code"
+											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"
+											placeholder="Enter Zip Code here"
 											type="text"
 											name="zipCode"
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.zipCode}
 										/>
-										<BankAccountErrorMessage name="zipCode" formik={formik} />
+										{/* <BankAccountErrorMessage name="zipCode" formik={formik} /> */}
 									</div>
 								</div>
 								<div className="btn-bottom-section border-t-[1px] border-gray-200 py-4  flex justify-between items-center mt-10 pr-6">
