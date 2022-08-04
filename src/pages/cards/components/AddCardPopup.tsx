@@ -840,17 +840,15 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																name="name"
 																id="name"
 																placeholder="Enter card nickname here"
-																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-																	"name"
-																)}`}
+																className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"
 																onChange={handleChange}
 																onBlur={handleBlur}
 																value={values.name}
 															/>
-															<AddCardsErrorMessage
+															{/* <AddCardsErrorMessage
 																name="name"
 																formik={formik}
-															/>
+															/> */}
 														</div>
 													</div>
 													<div className="justify-between mt-4 relative">

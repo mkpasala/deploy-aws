@@ -321,7 +321,7 @@ const AddCardNoTransaction = () => {
 									</div>
 									<div className="cards-details flex flex-row mb-2 mx-3">
 										<div className="total-issued-cards mr-2">
-											<div className="no-of-cards font-bold">
+											<div className="no-of-cards font-semi-bold">
 												{cardData && cardData.data!.length > 0
 													? cardData && cardData.data.length
 													: 0}
@@ -331,7 +331,7 @@ const AddCardNoTransaction = () => {
 											</div>
 										</div>
 										<div className="total-blocked-cards mr-2">
-											<div className="no-of-cards font-bold">
+											<div className="no-of-cards font-semi-bold">
 												{getBlockedCardCount()}
 											</div>
 											<div className="cards-type text-[10px] text-gray-500">
