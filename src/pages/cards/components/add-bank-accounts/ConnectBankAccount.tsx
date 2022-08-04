@@ -112,9 +112,9 @@ const ConnectBankAccount = () => {
 
 	const stepNoBackGround = (stepIndex: number): string => {
 		if (stepIndex <= stepCount) {
-			return "bg-green-500";
+			return "bg-green-400";
 		} else {
-			return "bg-gray-500";
+			return "bg-gray-300";
 		}
 	};
 	const stepTitleTextColor = (stepIndex: number): string => {
@@ -131,7 +131,7 @@ const ConnectBankAccount = () => {
 				<NavBar />
 				<main className="main-content flex flex-col mx-[205px]">
 					{tabTitles.length && (
-						<div className="screen-title pt-[28px] pb-[32px] flex items-center">
+						<div className="screen-title pt-[28px] pb-[15px] flex items-center">
 							{newBankAccount && (
 								<a href="/bank-account-list" className="mr-2">
 									<svg
@@ -158,7 +158,7 @@ const ConnectBankAccount = () => {
 								return (
 									<li className="mr-4">
 										<span
-											className={`w-6 h-6 inline-block text-white rounded-full circel-txt text-center justify-center mr-1 ${stepNoBackGround(
+											className={`w-6 h-6 inline-block text-black rounded-full circel-txt text-center justify-center mr-1 ${stepNoBackGround(
 												index
 											)}`}
 										>
@@ -166,12 +166,12 @@ const ConnectBankAccount = () => {
 										</span>
 
 										<a
-											className={`mr-4 hover:cursor-pointer hover:font-bold ${stepTitleTextColor(
+											className={`mr-4 hover:cursor-pointer hover:font-bold font-bold ${stepTitleTextColor(
 												index
 											)}`}
-											onClick={() => {
-												setStepCount(index);
-											}}
+											// onClick={() => {
+											// 	setStepCount(index);
+											// }}
 										>
 											{tabTitle}
 										</a>
