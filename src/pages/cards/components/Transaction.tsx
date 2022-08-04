@@ -1,5 +1,10 @@
-const Transaction = ({ transaction }: any) => {
-	let transactionData = transaction;
+const Transaction = ({ transaction ,value}: any) => {
+	// let transactionData = transaction;
+	// console.log("transactionData===>",transactionData)
+	// console.log("value==>",value)
+	const transactionData = value?transaction.filter((item:any)=>item.merchant_data.name.toLowerCase().startsWith(value.toLowerCase())):transaction;
+	console.log('filteres daasas', transactionData);
+	
 	return (
 		<div>
 			<div className="fs-box-shadow ts-section mt-4 h-[400px]">

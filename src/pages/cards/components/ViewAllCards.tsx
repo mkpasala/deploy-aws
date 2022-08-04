@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import cardsAPIService from "../../../services/cardsAPIService";
+import {useLocation} from "react-router-dom"
 import Spinner from "./Spinner";
 import Card from "./Card";
 import { sessionContext } from "../../../app";
@@ -14,7 +15,8 @@ const ViewAllCards = () => {
 	const orgId = session?.organization?.id;
 	const cardholder_id =
 		session?.organization?.stripeCardholderId || sessionStorage.getItem("cardHolder_id");
-
+		const { state } = useLocation();
+		console.log("state===>", state?.name);
 	useEffect(() => {
 		getCardList();
 	}, []);
@@ -95,7 +97,7 @@ const ViewAllCards = () => {
 						<div className="grid grid-cols-4">
 							{cardList &&
 								cardList.data
-									.filter((card: any) => card.cardholder!.name.includes(filter))
+									.filter((card: any) => card.cardholder!.name.toLowerCase().startsWith(filter.toLowerCase()))
 									.map((card: any) => <Card card={card} />)}
 						</div>
 					</div>

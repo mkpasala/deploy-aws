@@ -661,7 +661,7 @@ const ViewCardDetail = (props: any) => {
 															</td>
 															<td className="py-2 px-5 w-1/5 border-b text-left border-gray-200 bg-white text-xs">
 																<p className="text-gray-500 whitespace-no-wrap capitalize">
-																	{cardData[0]?.cardholder?.name}
+																	{state?.name}
 																</p>
 															</td>
 
