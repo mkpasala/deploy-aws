@@ -350,7 +350,13 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 															Adding Funds From
 														</div>
 														{sources.length > 0 && (
-															<div className="overflow-y-auto h-20 mt-4">
+															<div className="overflow-y-auto h-20 mt-3">
+																{isTouched && error && (
+																	<p className="mt-2 mb-2 text-sm text-red-600 dark:text-red-500">
+																		Select source from source
+																		list
+																	</p>
+																)}
 																{sources.map((source: any) => (
 																	<Bank
 																		bank={source}
@@ -359,18 +365,13 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 																		key={source.id}
 																	/>
 																))}
-																{isTouched && error && (
-																	<p className="mt-2 text-sm text-red-600 dark:text-red-500">
-																		Select source from source
-																		list
-																	</p>
-																)}
+																
 															</div>
 														)}
 														<a
 															className="text-sm text-red-500 mt-3 cursor-pointer hover:font-bold"
 															onClick={() => {
-																navigate("/connect-bank-account");
+																navigate("/add-new-bank-account");
 															}}
 														>
 															+ Add Another Bank Account
