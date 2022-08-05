@@ -16,13 +16,11 @@ const CardsInit = (props: any) => {
 	const [email, setEmail] = useState("");
 	const [accountId, setAccountId] = useState("");
 	const [isResume, setIsResume] = useState(false);
-	//const account_id = 'acct_1LLSk3QvXDA3Gh6f'; //'acct_1LKxZjR52LxNwH3Y'; //acct_1LLOc6R80wjEJFG5
-
 	const session = useContext(sessionContext);
 	const sessionUser = session?.user;
 	const sessionOrganization = session?.organization;
-	const updateSession = session!.updateSession;
 	let navigate = useNavigate();
+
 	useEffect(() => {
 		//callling stripe connect account details;;
 		(async () => {
@@ -48,17 +46,7 @@ const CardsInit = (props: any) => {
 						setIsResume(true);
 					} else if (account.charges_enabled) {
 						//issuing cards can be done
-						const bankAccounts = await getAllBankccounts();
-						if (bankAccounts && bankAccounts.length > 0) {
-							const bankAccount = await verifySourceCompleted(bankAccounts);
-							if (bankAccount) {
-								navigate("/connect-bank-account", { state: bankAccount });
-							} else {
-								navigate("/connect-bank-account");
-							}
-						} else {
-							navigate("/connect-bank-account");
-						}
+						navigate("/connect-bank-account");
 					}
 					// if no external bank account id added to the stripe account payouts won't happen and
 					// account shows error banner in dashboard which indicates account not in complete state
@@ -73,76 +61,30 @@ const CardsInit = (props: any) => {
 	}, [session]);
 
 	const getAccountDetails = async () => {
-		//setShowSpinner(true);
-		//generally we will fetch data from sessionUser like below
-		//console.log("sessionUser:", sessionUser);
-		//console.log("sessionOrganization:", sessionOrganization);
 		if (sessionUser && sessionUser.email) {
 			setEmail(sessionUser!.email);
 		}
-
-		//currently handling the data from localStorage.
-
-		// let storedObject: any = localStorage.getItem("accountObject");
-		// let accountStore = JSON.parse(storedObject);
-		// let connectAccountId, account;
-		// if (accountStore && accountStore.accountId) {
-		// 	connectAccountId = accountStore.accountId;
-		// 	setAccountId(connectAccountId);
-		// }
 		let connectAccountId, account;
 		if (sessionOrganization && sessionOrganization.stripeConnectId) {
 			connectAccountId = sessionOrganization.stripeConnectId;
 			setAccountId(connectAccountId);
-			if (!sessionOrganization.stripeCardholderId) {
-				const cardHolder = await createCardholder(connectAccountId);
-				if (cardHolder) {
-					sessionStorage.setItem("cardHolder_id", cardHolder.id);
-					await updateOrganization(connectAccountId, cardHolder.id);
-				}
-			}
 		} else if (props.accountId) {
 			connectAccountId = props.accountId;
 			setAccountId(connectAccountId);
-			// let _accountObject = {
-			// 	accountId: "",
-			// 	email: "",
-			// 	bankSourceDetails: [
-			// 		{
-			// 			tokenId: "",
-			// 			sourceId: "",
-			// 			bankName: "",
-			// 			swiftCode: "",
-			// 			last4: "",
-			// 		},
-			// 	],
-			// 	accountHolderId: "",
-			// };
-			// _accountObject.accountId = connectAccountId;
 			//REST call to update the StipeConnectId
-			// Put data what ever required into sessionStorage.
-			//localStorage.setItem("accountObject", JSON.stringify(_accountObject));
-			const cardHolder = await createCardholder(connectAccountId);
-			if (cardHolder) {
-				sessionStorage.setItem("cardHolder_id", cardHolder.id);
-				await updateOrganization(connectAccountId, cardHolder.id);
-			}
+			await updateOrganization(connectAccountId);
 		} else {
 			setIsResume(false);
 		}
-
 		if (connectAccountId) {
 			setShowSpinner(true);
 			account = await cardsService.getConnectAccountDetails({ id: connectAccountId });
 			setShowSpinner(false);
 			if (account && account.id) {
-				//setShowSpinner(false);
-
 				return account;
 			}
 		} else {
-			//setShowSpinner(false);
-			return;
+			return null;
 		}
 	};
 
@@ -156,7 +98,11 @@ const CardsInit = (props: any) => {
 		e.preventDefault();
 		try {
 			setShowSpinner(true);
-			let res: any = await cardsService.getAccountURL({ email: email, id: accountId });
+			let res: any = await cardsService.getAccountURL({
+				email: email,
+				id: accountId,
+				app_url: "local",
+			});
 			setShowSpinner(false);
 			if (res && res.goto_url) {
 				window.location.href = res.goto_url;
@@ -167,11 +113,10 @@ const CardsInit = (props: any) => {
 		}
 	};
 
-	const updateOrganization = async (accountId: string, cardholderId: string): Promise<void> => {
+	const updateOrganization = async (accountId: string): Promise<void> => {
 		if (accountId) {
 			const organization = session?.organization;
-			if (organization) {
-				const organizationId = organization.id ? organization.id : "";
+			if (organization && organization.id) {
 				const payload = {
 					id: organization.id,
 					name: organization?.name,
@@ -179,13 +124,13 @@ const CardsInit = (props: any) => {
 					aisSystem: organization?.aisSystem,
 					aisOrganizationId: organization?.aisOrganizationId,
 					stripeConnectId: accountId,
-					stripeCardholderId: cardholderId,
+					stripeCardholderId: null,
 				};
 
 				try {
 					setShowSpinner(true);
 					let response: any = await flareService.updateOrganization(
-						organizationId,
+						organization.id,
 						payload
 					);
 					setShowSpinner(false);
@@ -209,96 +154,6 @@ const CardsInit = (props: any) => {
 		return;
 	};
 
-	const getAllBankccounts = async (): Promise<any> => {
-		const organization = session?.organization;
-		if (organization) {
-			setShowSpinner(true);
-			const organizationId = organization.id ? organization.id : "";
-			try {
-				let response: any = await flareService.getAllBankAccounts(organizationId);
-				setShowSpinner(false);
-				if (
-					response.type === "StripePermissionError" ||
-					response.type === "StripeInvalidRequestError"
-				) {
-					return null;
-				} else {
-					return response;
-				}
-			} catch (ex) {
-				console.log("exception", ex);
-				setShowSpinner(false);
-				return null;
-			}
-		}
-		return null;
-	};
-	const verifySourceCompleted = async (sources: any): Promise<any> => {
-		const account_id = session?.organization?.stripeConnectId;
-		setShowSpinner(true);
-		for (let source of sources) {
-			try {
-				let response: any = await cardsService.getSourceDetails({
-					account_id: account_id,
-					source_id: source.id,
-				});
-				if (
-					response.type === "StripePermissionError" ||
-					response.type === "StripeInvalidRequestError"
-				) {
-					continue;
-				} else {
-					setShowSpinner(false);
-					return response;
-				}
-			} catch (ex) {
-				console.log("exception", ex);
-				setShowSpinner(false);
-				continue;
-			}
-		}
-		setShowSpinner(false);
-		return null;
-	};
-	const createCardholder = async (accountId: string): Promise<any> => {
-		try {
-			setShowSpinner(true);
-			let account: any = await cardsService.getConnectAccountDetails({ id: accountId });
-			setShowSpinner(false);
-			if (
-				account.type === "StripePermissionError" ||
-				account.type === "StripeInvalidRequestError"
-			) {
-				return null;
-			} else {
-				const requestData = {
-					account_id: accountId,
-					name: account.company.name,
-					email: account.email || sessionUser?.email,
-					phone_number: account.company.phone,
-					type: account.business_type,
-					billing: { address: account.company.address },
-				};
-				if (!requestData.billing.address.line2) delete requestData.billing.address.line2;
-
-				setShowSpinner(true);
-				let response: any = await cardsService.createCardholder(requestData);
-				setShowSpinner(false);
-				if (
-					response.type === "StripePermissionError" ||
-					response.type === "StripeInvalidRequestError"
-				) {
-					return null;
-				} else {
-					return response;
-				}
-			}
-		} catch (ex) {
-			setShowSpinner(false);
-			return null;
-		}
-		return null;
-	};
 	return (
 		<>
 			<Spinner show={showSpinner} />

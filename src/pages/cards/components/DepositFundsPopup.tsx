@@ -97,12 +97,24 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 	const styleInputInvalid = "border border-red-500 focus:border-red-500 focus:ring-red-500";
 
 	useEffect(() => {
-		if (isShow) {
-			getAllBankccounts();
-		}
+		(async () => {
+			if (isShow) {
+				const bankAccounts = await getAllBankccounts();
+				if (bankAccounts && bankAccounts.length > 0) {
+					const verifiedBankAccounts = await getVerifiedBankAccounts(bankAccounts);
+					if (verifiedBankAccounts) {
+						setSources(verifiedBankAccounts);
+					} else {
+						setSources([]);
+					}
+				} else {
+					setSources([]);
+				}
+			}
+		})();
 	}, [isShow]);
 
-	const getAllBankccounts = async (): Promise<void> => {
+	const getAllBankccounts = async (): Promise<any> => {
 		const organization = session?.organization;
 		if (organization) {
 			setShowSpinner(true);
@@ -115,15 +127,64 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 					response.type === "StripeInvalidRequestError"
 				) {
 					setMessage(response.raw.message);
+					return null;
 				} else {
 					setMessage("");
-					setSources(response);
+					return response;
 				}
 			} catch (ex) {
 				console.log("exception", ex);
 				setShowSpinner(false);
+				return null;
 			}
 		}
+	};
+
+	const getSourceDetails = async (sourceId: string) => {
+		try {
+			let response: any = await cardsService.getSourceDetails({
+				account_id: account_id,
+				source_id: sourceId,
+			});
+			if (
+				response.type === "StripePermissionError" ||
+				response.type === "StripeInvalidRequestError"
+			) {
+				return null;
+			} else {
+				return response;
+			}
+		} catch (ex) {
+			console.log("exception", ex);
+			return null;
+		}
+	};
+
+	const getVerifiedBankAccounts = async (bankAccounts: any): Promise<any> => {
+		const account_id = session?.organization?.stripeConnectId;
+		setShowSpinner(true);
+		const chargeableSources = [];
+		if (bankAccounts && bankAccounts.length > 0) {
+			for (let bankAccount of bankAccounts) {
+				const source = await getSourceDetails(bankAccount.id);
+				if (source) {
+					const chargeable = source.status === "chargeable";
+					const code_verification = source.code_verification.status === "succeeded";
+					if (chargeable && code_verification) {
+						const verifiedBank = { ...source, ...bankAccount };
+						chargeableSources.push(verifiedBank);
+					} else {
+						continue;
+					}
+				} else {
+					continue;
+				}
+			}
+			setShowSpinner(false);
+			return chargeableSources;
+		}
+		setShowSpinner(false);
+		return null;
 	};
 
 	const onSubmit = (values: DepositData) => {
@@ -233,7 +294,7 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 													<div className="header-desc text-gray-600 text-base">
 														to your FlareFS account
 													</div>
-													<div className="bank-info flex flex-row mb-2 mt-5">
+													<div className="bank-info flex flex-row mb-2 mt-4">
 														<div className="w-full relative">
 															<label
 																className="block text-gray-500 bk-form-label"
@@ -279,6 +340,7 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 																	onBlur={handleBlur}
 																	value={values.memo}
 																	maxLength={50}
+																	
 																/>
 															</div>
 														</div>

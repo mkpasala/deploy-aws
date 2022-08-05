@@ -364,8 +364,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 		let errors: FormikErrors<BankAccountData> = {};
 		if (!values.routingNumber) {
 			errors.routingNumber = "Routing Number required";
-		}
-		else {
+		} else {
 			let reg = new RegExp("^[0-9]*$");
 			if (!reg.test(values.routingNumber)) {
 				errors.routingNumber = "Routing Number required integer value";
@@ -373,8 +372,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 		}
 		if (!values.accountNumber) {
 			errors.accountNumber = "Account Number required";
-		}
-		else {
+		} else {
 			let reg = new RegExp("^[0-9]*$");
 			if (!reg.test(values.accountNumber)) {
 				errors.accountNumber = "Account required integer value";
@@ -383,7 +381,6 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 		if (!values.accountHolderName) {
 			errors.accountHolderName = "Account Holder Name required";
 		}
-		
 		// 	let reg = new RegExp("^[0-9]*$");
 		// 	if (!reg.test(values.firstAmount)) {
 		// 		errors.firstAmount = "First Amount required integer value";
@@ -441,11 +438,38 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 		}
 	};
 
+	const getAccountDetails = async (accountId: string) => {
+		try {
+			setShowSpinner(true);
+			let account: any = await cardsService.getConnectAccountDetails({ id: accountId });
+			setShowSpinner(false);
+			if (
+				account.type === "StripePermissionError" ||
+				account.type === "StripeInvalidRequestError"
+			) {
+				return null;
+			} else {
+				return account;
+			}
+		} catch (ex) {
+			console.log(ex);
+			setShowSpinner(false);
+			return null;
+		}
+	};
+
 	const generateToken = async (values: BankAccountData) => {
 		setShowSpinner(true);
 		if (!stripe) {
 			// Stripe.js has not yet loaded.
 			// Make sure to disable form submission until Stripe.js has loaded.
+			return;
+		}
+		let account = null;
+		if (account_id) {
+			account = await getAccountDetails(account_id);
+		}
+		if (!account) {
 			return;
 		}
 		const { routingNumber, accountNumber, accountHolderName } = values;
@@ -456,16 +480,14 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 				routing_number: routingNumber,
 				account_number: accountNumber,
 				account_holder_name: accountHolderName,
-				account_holder_type: "individual",
+				account_holder_type: account.business_type,
 			};
 			const { token, error } = await stripe.createToken("bank_account", body);
 			setShowSpinner(false);
 			if (token && token.id) {
 				values.token_id = token.id;
 				connectBackAccount(values);
-			}
-			console.log("error::", error);
-			if (error) {
+			} else if (error) {
 				setMessage(error.message ? error.message : "");
 			}
 		} catch (e) {
@@ -524,7 +546,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 												"routingNumber"
 											)}`}
-											placeholder="Enter Routing Number here"
+											placeholder="Enter Routing Number"
 											type="text"
 											name="routingNumber"
 											onChange={handleChange}
@@ -592,21 +614,19 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											className="block text-gray-500 bk-form-label"
 											htmlFor="accountNickName"
 										>
-											Bank Nickname
+											Account Nick Name
 										</label>
 										<input
-											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"
-											placeholder="Enter Bank Nickname"
+											className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
+												"accountNickName"
+											)}`}
+											placeholder="Enter Account Nick Name"
 											type="text"
 											name="accountNickName"
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.accountNickName}
 										/>
-										{/* <BankAccountErrorMessage
-											name="accountNickName"
-											formik={formik}
-										/> */}
 									</div>
 									<div className="relative w-64">
 										<label
@@ -616,7 +636,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											Bank Name
 										</label>
 										<input
-											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"	
+											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"
 											placeholder="Enter Bank Name"
 											type="text"
 											name="bankName"
@@ -624,7 +644,6 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onBlur={handleBlur}
 											value={values.bankName}
 										/>
-										{/* <BankAccountErrorMessage name="bankName" formik={formik} /> */}
 									</div>
 									<div className="w-64"></div>
 								</div>
@@ -648,10 +667,6 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onBlur={handleBlur}
 											value={values.addressLine1}
 										/>
-										{/* <BankAccountErrorMessage
-											name="addressLine1"
-											formik={formik}
-										/> */}
 									</div>
 								</div>
 								<div className="bank-info flex flex-row mb-2 px-6">
@@ -663,18 +678,15 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											Address Line 2
 										</label>
 										<input
-											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"	
+											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"
 											placeholder="Enter your address line 2 here"
+											type="text"
 											type="text"
 											name="addressLine2"
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.addressLine2}
 										/>
-										{/* <BankAccountErrorMessage
-											name="addressLine2"
-											formik={formik}
-										/> */}
 									</div>
 								</div>
 								<div className="bank-info flex flex-row justify-between mb-2 px-6">
@@ -688,13 +700,13 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 										<input
 											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1"
 											placeholder="Enter City"
+											placeholder="Enter City"
 											type="text"
 											name="city"
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.city}
 										/>
-										{/* <BankAccountErrorMessage name="city" formik={formik} /> */}
 									</div>
 									<div className="relative w-64">
 										<label
@@ -720,11 +732,6 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 												</option>
 											))}
 										</select>
-										{/* <BankAccountErrorMessage
-											name="state"
-											formik={formik}
-											showIcon={false}
-										/> */}
 									</div>
 									<div className="relative w-64">
 										<label
@@ -743,7 +750,6 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											value={values.zipCode}
 											maxLength={5}
 										/>
-										{/* <BankAccountErrorMessage name="zipCode" formik={formik} /> */}
 									</div>
 								</div>
 								<div className="btn-bottom-section border-t-[1px] border-gray-200 py-4  flex justify-between items-center mt-10 pr-6">

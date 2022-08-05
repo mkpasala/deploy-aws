@@ -1,5 +1,4 @@
 import Rect, { useState, useContext, useEffect } from "react";
-import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
 import ConnectBankAccountTab from "./ConnectBankAccountTab";
 import VerifyDepositAmountsTab from "./VerifyDepositAmountsTab";
 import AddFundsTab from "./AddFundsTab";
@@ -9,10 +8,13 @@ import { Elements } from "@stripe/react-stripe-js";
 import { sessionContext } from "../../../../app";
 import { useLocation, useNavigate } from "react-router-dom";
 import cardsAPIService from "../../../../services/cardsAPIService";
+import flareDBService from "../../../../services/flareDBService";
 import Spinner from "../Spinner";
 
 const ConnectBankAccount = () => {
 	const cardsService = new cardsAPIService();
+	const flareService = new flareDBService();
+
 	const [showSpinner, setShowSpinner] = useState(false);
 	const session = useContext(sessionContext);
 	const account_id = session?.organization?.stripeConnectId;
@@ -20,7 +22,7 @@ const ConnectBankAccount = () => {
 		stripeAccount: account_id,
 	});
 	const [stepCount, setStepCount] = useState(0);
-	const { state, pathname } = useLocation();
+	const { pathname } = useLocation();
 	const [tabTitles, setTabTitles] = useState<string[]>([]);
 	const navigate = useNavigate();
 	const [newBankAccount, setNewBankAccount] = useState(false);
@@ -28,15 +30,60 @@ const ConnectBankAccount = () => {
 	useEffect(() => {
 		(async () => {
 			setTabTitles([]);
-			if (!state) {
-				sessionStorage.removeItem("source_id");
-				if (pathname && pathname.includes("/add-new-bank-account")) {
-					setNewBankAccount(true);
-					setTabTitles((prev) => {
-						return [...prev, "Connect your Bank Account", "Verify Deposit Amounts"];
-					});
+			sessionStorage.removeItem("source_id");
+			if (pathname && pathname.includes("/add-new-bank-account")) {
+				setNewBankAccount(true);
+				setTabTitles((prev) => {
+					return [...prev, "Connect your Bank Account", "Verify Deposit Amounts"];
+				});
+			} else {
+				setNewBankAccount(false);
+				const bankAccounts = await getAllBankAccounts();
+				if (bankAccounts && bankAccounts.length > 0) {
+					const bankAccount = await getVerifiedBankAccount(bankAccounts);
+					if (bankAccount) {
+						const pending = bankAccount.status === "pending";
+						if (pending) {
+							const source_id = bankAccount.id;
+							sessionStorage.setItem("source_id", source_id);
+							setTabTitles((prev) => {
+								return [...prev, "Verify Deposit Amounts", "Add Funds"];
+							});
+						} else {
+							const code_verification =
+								bankAccount.code_verification.status === "succeeded";
+							const chargeable = bankAccount.status === "chargeable";
+							if (chargeable && code_verification) {
+								const balance = await retrieveBalance();
+								const amount = balance!.issuing!.available[0]!.amount / 100;
+								if (amount > 0) {
+									navigate("/card-list");
+								} else {
+									const source_id = bankAccount.id;
+									sessionStorage.setItem("source_id", source_id);
+									setTabTitles((prev) => {
+										return [...prev, "Add Funds"];
+									});
+								}
+							} else {
+								const source_id = bankAccount.id;
+								sessionStorage.setItem("source_id", source_id);
+								setTabTitles((prev) => {
+									return [...prev, "Verify Deposit Amounts", "Add Funds"];
+								});
+							}
+						}
+					} else {
+						setTabTitles((prev) => {
+							return [
+								...prev,
+								"Connect your Bank Account",
+								"Verify Deposit Amounts",
+								"Add Funds",
+							];
+						});
+					}
 				} else {
-					setNewBankAccount(false);
 					setTabTitles((prev) => {
 						return [
 							...prev,
@@ -46,31 +93,9 @@ const ConnectBankAccount = () => {
 						];
 					});
 				}
-			} else if (state) {
-				const pending = state.status === "pending";
-				const source_id = state.id;
-				sessionStorage.setItem("source_id", source_id);
-				if (pending) {
-					setTabTitles((prev) => {
-						return [...prev, "Verify Deposit Amounts", "Add Funds"];
-					});
-				} else {
-					const chargeable = state.status === "chargeable";
-					if (chargeable) {
-						const balance = await retrieveBalance();
-						const amount = balance!.issuing!.available[0]!.amount / 100;
-						if (amount > 0) {
-							navigate("/card-list");
-						} else {
-							setTabTitles((prev) => {
-								return [...prev, "Add Funds"];
-							});
-						}
-					}
-				}
 			}
 		})();
-	}, [state]);
+	}, []);
 
 	const retrieveBalance = async (): Promise<any> => {
 		setShowSpinner(true);
@@ -93,6 +118,79 @@ const ConnectBankAccount = () => {
 		return null;
 	};
 
+	const getAllBankAccounts = async (): Promise<any> => {
+		const organization = session?.organization;
+		if (organization && organization.id) {
+			setShowSpinner(true);
+			try {
+				let response: any = await flareService.getAllBankAccounts(organization.id);
+				setShowSpinner(false);
+				if (
+					response.type === "StripePermissionError" ||
+					response.type === "StripeInvalidRequestError"
+				) {
+					return null;
+				} else {
+					return response;
+				}
+			} catch (ex) {
+				console.log("exception", ex);
+				setShowSpinner(false);
+				return null;
+			}
+		}
+		return null;
+	};
+	const getSourceDetails = async (sourceId: string) => {
+		try {
+			let response: any = await cardsService.getSourceDetails({
+				account_id: account_id,
+				source_id: sourceId,
+			});
+			if (
+				response.type === "StripePermissionError" ||
+				response.type === "StripeInvalidRequestError"
+			) {
+				return null;
+			} else {
+				return response;
+			}
+		} catch (ex) {
+			console.log("exception", ex);
+			return null;
+		}
+	};
+	const getVerifiedBankAccount = async (bankAccounts: any): Promise<any> => {
+		const account_id = session?.organization?.stripeConnectId;
+		setShowSpinner(true);
+		const chargeableSources = [];
+		if (bankAccounts && bankAccounts.length > 0) {
+			for (let bankAccount of bankAccounts) {
+				const source = await getSourceDetails(bankAccount.id);
+				console.log(source);
+				if (source) {
+					const chargeable = source.status === "chargeable";
+					const code_verification = source.code_verification.status === "succeeded";
+					if (chargeable) chargeableSources.push(source);
+					if (chargeable && code_verification) {
+						setShowSpinner(false);
+						return source;
+					} else {
+						continue;
+					}
+				} else {
+					continue;
+				}
+			}
+			if (chargeableSources.length > 0) {
+				setShowSpinner(false);
+				return chargeableSources[0];
+			}
+		}
+		setShowSpinner(false);
+		return null;
+	};
+
 	const nextStep = (): void => {
 		setStepCount(stepCount + 1);
 	};
@@ -112,7 +210,7 @@ const ConnectBankAccount = () => {
 
 	const stepNoBackGround = (stepIndex: number): string => {
 		if (stepIndex <= stepCount) {
-			return "bg-green-400";
+			return "bg-green-300";
 		} else {
 			return "bg-gray-300";
 		}
@@ -130,7 +228,7 @@ const ConnectBankAccount = () => {
 			<div className="card-section font-sans">
 				<NavBar />
 				<main className="main-content flex flex-col mx-[205px]">
-					{tabTitles.length && (
+					{tabTitles.length > 0 && (
 						<div className="screen-title pt-[28px] pb-[15px] flex items-center">
 							{newBankAccount && (
 								<a href="/bank-account-list" className="mr-2">
@@ -158,21 +256,14 @@ const ConnectBankAccount = () => {
 								return (
 									<li className="mr-4">
 										<span
-											className={`w-6 h-6 inline-block text-black rounded-full circel-txt text-center justify-center mr-1 ${stepNoBackGround(
+											className={`w-6 h-6 inline-block text-white rounded-full circel-txt text-center justify-center mr-1 ${stepNoBackGround(
 												index
 											)}`}
 										>
 											{index + 1}
 										</span>
 
-										<a
-											className={`mr-4 font-bold ${stepTitleTextColor(
-												index
-											)}`}
-											// onClick={() => {
-											// 	setStepCount(index);
-											// }}
-										>
+										<a className={`mr-4 ${stepTitleTextColor(index)}`}>
 											{tabTitle}
 										</a>
 
@@ -182,68 +273,6 @@ const ConnectBankAccount = () => {
 									</li>
 								);
 							})}
-							{/* <li className="mr-4">
-								<span
-									className={`w-6 h-6 inline-block text-white rounded-full circel-txt text-center justify-center mr-1 ${stepNoBackGround(
-										0
-									)}`}
-								>
-									1
-								</span>
-
-								<a
-									className={`mr-4 hover:cursor-pointer hover:font-bold ${stepTitleTextColor(
-										0
-									)}`}
-									onClick={() => {
-										setStepCount(0);
-									}}
-								>
-									Connect your Bank Account
-								</a>
-								<span className="w-10 h-0 border rounded-[1px] m-[2px] inline-block border-gray-500"></span>
-							</li>
-							<li className="mr-4">
-								<span
-									className={`w-6 h-6 inline-block text-white rounded-full circel-txt text-center justify-center mr-1 ${stepNoBackGround(
-										1
-									)}`}
-								>
-									2
-								</span>
-
-								<a
-									className={`mr-4 cursor-pointer hover:font-bold ${stepTitleTextColor(
-										1
-									)}`}
-									onClick={() => {
-										setStepCount(1);
-									}}
-								>
-									Verify Deposit Amounts
-								</a>
-								<span className="w-10 h-0 border rounded-[1px] m-[2px] inline-block border-gray-500"></span>
-							</li>
-							<li>
-								<span
-									className={`w-6 h-6 inline-block text-white rounded-full circel-txt text-center justify-center mr-1 ${stepNoBackGround(
-										2
-									)}`}
-								>
-									3
-								</span>
-
-								<a
-									className={`cursor-pointer hover:font-bold ${stepTitleTextColor(
-										2
-									)}`}
-									onClick={() => {
-										setStepCount(2);
-									}}
-								>
-									Add Funds
-								</a>
-							</li> */}
 						</ul>
 					</div>
 					{loadComponent(tabTitles[stepCount])}
