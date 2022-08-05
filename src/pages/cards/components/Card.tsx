@@ -13,11 +13,11 @@ const Card = ({ card }: any) => {
 	let navigate = useNavigate();
 
 	return (
-		<div
+		<div 
 			onClick={() => {
 				navigate(`/view-card/?id=${card.id}`,{state:card});
 			}}
-			className="h-[143px] w-[255px] mx-3 my-2"
+			className="h-[143px] w-[255px] mx-3 my-2 hover:cursor-pointer"
 			style={{ backgroundImage: `url(${CARD_BACKGROUND_LOGO})` }}
 		>
 			<div className="flex justify-between items-center">

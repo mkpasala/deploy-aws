@@ -166,7 +166,7 @@ const ConnectBankAccount = () => {
 										</span>
 
 										<a
-											className={`mr-4 hover:cursor-pointer hover:font-bold font-bold ${stepTitleTextColor(
+											className={`mr-4 font-bold ${stepTitleTextColor(
 												index
 											)}`}
 											// onClick={() => {

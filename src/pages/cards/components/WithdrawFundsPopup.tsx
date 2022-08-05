@@ -292,19 +292,14 @@ const WithdrawFundsPopup = ({ isShow, onSuccess, onHide }: WithdrawFundsPopupPro
 															</label>
 															<div className="flex items-center">
 																<input
-																	className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-																		"memo"
-																	)}`}
+																	className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 pl-9 shadow-md focus:outline-none focus:ring-1"
 																	placeholder="Enter Memo Line For Fund Transfer"
 																	type="text"
 																	name="memo"
 																	onChange={handleChange}
 																	onBlur={handleBlur}
 																	value={values.memo}
-																/>
-																<WithdrawFundsErrorMessage
-																	name="memo"
-																	formik={formik}
+																	maxLength={50}
 																/>
 															</div>
 														</div>

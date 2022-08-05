@@ -203,8 +203,8 @@ const AddFundsTab = ({ nextStep, previousStep }: AddFundsTabProps) => {
 												onChange={handleChange}
 												onBlur={handleBlur}
 												value={values.memo}
+												maxLength={50}
 											/>
-											{/* <AddFundsErrorMessage name="memo" formik={formik} /> */}
 										</div>
 									</div>
 								</div>
