@@ -180,7 +180,7 @@ const ViewCardDetail = (props: any) => {
 									</div>
 								);
 							})}
-						<div className="self-end text-right mt-2 flex-1 relative mr-2">
+						<div className="self-end text-right mt-2 flex-1 mr-2">
 							<button
 								//type="button"
 								className="bg-transparent hover:bg-red-500 text-red-600 text-xs font-bold hover:text-white border border-red-500 hover:border-transparent rounded py-1 px-2 w-26"
