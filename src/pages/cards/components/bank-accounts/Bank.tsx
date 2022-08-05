@@ -13,7 +13,7 @@ const Bank = ({ bank, handleChange, handleBlur }: any) => {
 				/>
 				{`${bank.accountNickname} | ${bank.bankName}`}
 			</div>
-			<div className=" text-gray-600 text-sm">
+			<div className=" text-gray-600 text-sm ml-5">
 				************
 				{bank.lastFourDigits}
 			</div>

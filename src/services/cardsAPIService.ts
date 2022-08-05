@@ -1,8 +1,7 @@
 import { API } from "aws-amplify";
 
 class cardsAPIService {
-	getAccountURL = async (payload: any) =>
-		await API.post("flareapi", "/cards", { body: { payload } });
+	getAccountURL = async (payload: any) => await API.post("flareapi", "/cards", { body: payload });
 
 	createBankAccount = async (payload: any) =>
 		await API.post("flareapi", "/cards/createBankAccount", { body: payload });
@@ -51,8 +50,6 @@ class cardsAPIService {
 
 	getCardTransaction = async (payload:any) =>
 	await API.post("flareapi","/cards/getCardTransactionList",{body:payload});
-
-	
 }
 
 export default cardsAPIService;

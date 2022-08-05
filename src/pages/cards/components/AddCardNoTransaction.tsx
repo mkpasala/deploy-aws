@@ -1,17 +1,17 @@
-import CARDS_LANDING_LOGO from "../../../assets/card-landing-page-logo.png";
 import React, { useState, useEffect, useContext } from "react";
 import AddCardPopup from "./AddCardPopup";
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 import FLARE_LOGO from "../../../assets/Flare_Logo_Color.png";
 import GROUP_LOGO from "../../../assets/Group.png";
-//import CARD_LOGO from "../../../assets/card-logo.png";
-//import CARD_BACKGROUND_LOGO from "../../../assets/card-background.png";
-import './filterMenu.scss';
+import "./filterMenu.scss";
 import NavBar from "./navbar";
 import DepositFundsPopup from "./DepositFundsPopup";
 import WithdrawFundsPopup from "./WithdrawFundsPopup";
 import Spinner from "./Spinner";
+
 import cardsAPIService from "../../../services/cardsAPIService";
+import flareDBService from "../../../services/flareDBService";
+
 import Card from "./Card";
 import Transaction from "./Transaction";
 import { sessionContext } from "../../../app";
@@ -19,6 +19,8 @@ import SuccessPopupMessage from "./SuccessPopupMessage";
 
 const AddCardNoTransaction = () => {
 	const cardsService = new cardsAPIService();
+	const flareService = new flareDBService();
+
 	const [modalOn, setModalOn] = useState<any>(false);
 	const [showDepositFunds, setShowDepositFunds] = useState<boolean>(false);
 	const [showWithdrawFunds, setShowWithdrawFunds] = useState<boolean>(false);
@@ -30,14 +32,14 @@ const AddCardNoTransaction = () => {
 	const [transactionData, setTransactionData] = useState([] as any);
 	const [newCardInfo, setNewCardInfo] = useState<any>({});
 	const [showSuccess, setShowSuccess] = useState<any>(false);
-	const [filterMenu,setFilterMenu] = useState<any>(false);
-	const navigate = useNavigate()
-
+	const [filterMenu, setFilterMenu] = useState<any>(false);
+	const navigate = useNavigate();
 	const session = useContext(sessionContext);
+	const sessionUser = session?.user;
 	const account_id = session?.organization?.stripeConnectId;
 	const orgId = session?.organization?.id;
-	const cardholder_id =
-		session?.organization?.stripeCardholderId || sessionStorage.getItem("cardHolder_id");
+	const cardholder_id = session?.organization?.stripeCardholderId;
+	const [filter, setFilter] = useState<string>("");
 
 	const getBlockedCardCount = () => {
 		if (cardData) {
@@ -46,9 +48,23 @@ const AddCardNoTransaction = () => {
 		}
 		return 0;
 	};
+
 	useEffect(() => {
-		retrieveBalance();
+		(async () => {
+			if (!cardholder_id) {
+				if (account_id) {
+					const cardholder = await createCardholder(account_id);
+					if (cardholder && cardholder.id) {
+						await updateOrganization(account_id, cardholder.id);
+					}
+				}
+			}
+			updateCardList();
+			retrieveBalance();
+			getTransactionList();
+		})();
 	}, []);
+
 	const retrieveBalance = async () => {
 		setShowSpinner(true);
 		try {
@@ -71,7 +87,8 @@ const AddCardNoTransaction = () => {
 	const updateCardList = async () => {
 		setShowSpinnerGetCard(true);
 		const cardList = await getCardList();
-		const cardListWithName = await getCardListNew(orgId);
+		let cardListWithName: any = [];
+		if (orgId) cardListWithName = await getAllCardsForOrganization();
 		if (cardList && cardListWithName) {
 			const cardDataWithName = cardList.data.map((card: any) => {
 				const cardWithName = cardListWithName.filter(
@@ -94,9 +111,6 @@ const AddCardNoTransaction = () => {
 		setShowSpinnerGetCard(false);
 	};
 
-	useEffect(() => {
-		updateCardList();
-	}, []);
 	const getCardList = async () => {
 		try {
 			let response: any = await cardsService.getCardList({
@@ -120,29 +134,34 @@ const AddCardNoTransaction = () => {
 		return null;
 	};
 
-	const getCardListNew = async (orgId: any) => {
-		const response = await fetch(
-			`https://h3tqg8ihpg.execute-api.us-east-1.amazonaws.com/staging/organizations/${orgId}/cards`,
-			{
-				method: "GET",
-				headers: { "Content-Type": "application/json" },
+	const getAllCardsForOrganization = async (): Promise<any> => {
+		const organization = session?.organization;
+		if (organization && organization.id) {
+			setShowSpinner(true);
+			try {
+				let response: any = await flareService.getAllCards(organization.id);
+				setShowSpinner(false);
+				if (
+					response.type === "StripePermissionError" ||
+					response.type === "StripeInvalidRequestError"
+				) {
+					return null;
+				} else {
+					return response;
+				}
+			} catch (ex) {
+				console.log("exception", ex);
+				setShowSpinner(false);
+				return null;
 			}
-		);
-		if (!response.ok) {
-			return null;
 		}
-
-		const data = await response.json();
-		return data;
+		return null;
 	};
 
 	const getNewCardData = (data: any) => {
 		setNewCardInfo(data);
 	};
 
-	useEffect(() => {
-		getTransactionList();
-	}, []);
 	const getTransactionList = async () => {
 		setShowSpinnerTransaction(true);
 		try {
@@ -161,17 +180,116 @@ const AddCardNoTransaction = () => {
 		}
 	};
 
-	const [filter, setFilter] = useState<string>("");
+	const getAccountDetails = async (accountId: string) => {
+		try {
+			setShowSpinner(true);
+			let account: any = await cardsService.getConnectAccountDetails({ id: accountId });
+			setShowSpinner(false);
+			if (
+				account.type === "StripePermissionError" ||
+				account.type === "StripeInvalidRequestError"
+			) {
+				return null;
+			} else {
+				return account;
+			}
+		} catch (ex) {
+			console.log(ex);
+			setShowSpinner(false);
+			return null;
+		}
+	};
+
+	const createCardholder = async (accountId: string): Promise<any> => {
+		try {
+			let account: any = await getAccountDetails(accountId);
+			if (!account) {
+				return null;
+			} else {
+				const requestData: any = {
+					account_id: accountId,
+					email: account.email || sessionUser?.email,
+					type: account.business_type,
+				};
+				if (account.business_type === "company") {
+					requestData.name = account.company.name;
+					requestData.phone_number = account.company.phone;
+					requestData.billing = { address: account.company.address };
+				} else if (account.business_type === "individual") {
+					const name = `${account.individual.first_name} ${account.individual.last_name}`;
+					requestData.name = name;
+					requestData.phone_number = account.individual.phone;
+					requestData.billing = { address: account.individual.address };
+				}
+				console.log(requestData);
+				if (!requestData.billing.address.line2) delete requestData.billing.address.line2;
+				setShowSpinner(true);
+				let response: any = await cardsService.createCardholder(requestData);
+				setShowSpinner(false);
+				if (
+					response.type === "StripePermissionError" ||
+					response.type === "StripeInvalidRequestError"
+				) {
+					return null;
+				} else {
+					return response;
+				}
+			}
+		} catch (ex) {
+			console.log(ex);
+			setShowSpinner(false);
+			return null;
+		}
+		return null;
+	};
+
+	const updateOrganization = async (accountId: string, cardHolderId: string): Promise<void> => {
+		if (accountId) {
+			const organization = session?.organization;
+			if (organization && organization.id) {
+				const payload = {
+					id: organization.id,
+					name: organization?.name,
+					entityType: organization?.entityType,
+					aisSystem: organization?.aisSystem,
+					aisOrganizationId: organization?.aisOrganizationId,
+					stripeConnectId: accountId,
+					stripeCardholderId: cardHolderId,
+				};
+
+				try {
+					setShowSpinner(true);
+					let response: any = await flareService.updateOrganization(
+						organization.id,
+						payload
+					);
+					setShowSpinner(false);
+					if (
+						response.type === "StripePermissionError" ||
+						response.type === "StripeInvalidRequestError"
+					) {
+						return;
+					} else {
+						setShowSpinner(true);
+						await session?.updateSession();
+						setShowSpinner(false);
+						return;
+					}
+				} catch (ex) {
+					console.log("exception", ex);
+					setShowSpinner(false);
+				}
+			}
+		}
+		return;
+	};
 
 	const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const value = event.target.value;
-		let name:any = transactionData.filter((item:any)=> item?.merchant_data?.name.toLowerCase() === value)
-		console.log(name,transactionData)
-		// if(name.length >0){
-		// 	setTransactionData(name)
-		// }else{
-		// 	setTransactionData(transactionData)
-		// }
+		let name: any = transactionData.filter(
+			(item: any) => item?.merchant_data?.name.toLowerCase() === value
+		);
+		console.log(name, transactionData);
 		setFilter(value);
 	};
 
@@ -226,7 +344,7 @@ const AddCardNoTransaction = () => {
 								</div>
 							</div>
 							{/* <div class="fs-box-shadow ts-section mt-4"> */}
-							<div className=" px-6 py-2  border-gray-200 " ></div>
+							<div className=" px-6 py-2  border-gray-200"></div>
 							<div className="fs-box-shadow flex flex-col border-gray-200 w-[800px] h-[285px] relative">
 								{transactionData && transactionData.length != 0 ? (
 									<div>
@@ -251,41 +369,44 @@ const AddCardNoTransaction = () => {
 													</svg>
 												</button>
 											</span>
-										</div>{
-											filterMenu &&
-											<div className="filterBoxMenu py-2" >
+										</div>
+										{filterMenu && (
+											<div className="filterBoxMenu py-2">
 												<div className="font-semibold font-inter text-xl leading-4  fs-box-shadow ts-section mb-2 h-10 p-2 pl-3">
 													Filters
 												</div>
 												<div className="px-3">
-												<div className="flex flex-1 justify-between py-3">
-												<div className="font-light font-inter text-xs text-black">
-													0 Selected 
-												</div>
-												<div className="font-extralight font-inter text-xs text-inherit">
-													Clear All
-												</div>
-												</div>
+													<div className="flex flex-1 justify-between py-3">
+														<div className="font-light font-inter text-xs text-black">
+															0 Selected
+														</div>
+														<div className="font-extralight font-inter text-xs text-inherit">
+															Clear All
+														</div>
+													</div>
 
-												<div className="relative ">
-															<label
-																className="text-xs bold text-gray-900 dark:text-gray-300"
-																htmlFor="cardName"
+													<div className="relative ">
+														<label
+															className="text-xs bold text-gray-900 dark:text-gray-300"
+															htmlFor="cardName"
+														>
+															CardName
+														</label>
+
+														<select
+															className={`rounded block  placeholder:text-slate-400 bg-white w-full border py-2 px-3  shadow-md focus:outline-none focus:ring-1`}
+															name="cardName"
+															onChange={() => console.log("changes")}
+															// onBlur={handleBlur}
+															value={"check"}
+														>
+															<option
+																value=""
+																className="text-slate-400"
 															>
-																CardName
-															</label>
-															
-															<select
-																className={`rounded block  placeholder:text-slate-400 bg-white w-full border py-2 px-3  shadow-md focus:outline-none focus:ring-1`}
-																name="cardName"
-																onChange={()=>console.log("changes")}
-																// onBlur={handleBlur}
-																value={"check"}
-															>
-																<option value="" className="text-slate-400">
-																	choose
-																</option>
-																{/* {states.map((state) => (
+																choose
+															</option>
+															{/* {states.map((state) => (
 																	<option
 																		value={state.abbreviation}
 																		key={state.abbreviation}
@@ -293,27 +414,30 @@ const AddCardNoTransaction = () => {
 																		{state.name}
 																	</option>
 																))} */}
-															</select>
-														</div>
-														<div className="relative ">
-															<label
-																className="text-xs bold text-gray-900 dark:text-gray-300"
-																htmlFor="cardName"
+														</select>
+													</div>
+													<div className="relative ">
+														<label
+															className="text-xs bold text-gray-900 dark:text-gray-300"
+															htmlFor="cardName"
+														>
+															Transaction Type
+														</label>
+
+														<select
+															className={`rounded block  placeholder:text-slate-400 mr-2 bg-white w-full border py-2 px-3  shadow-md focus:outline-none focus:ring-1`}
+															name="cardName"
+															onChange={() => console.log("changes")}
+															// onBlur={handleBlur}
+															value={"check"}
+														>
+															<option
+																value=""
+																className="text-slate-400"
 															>
-																Transaction Type
-															</label>
-															
-															<select
-																className={`rounded block  placeholder:text-slate-400 mr-2 bg-white w-full border py-2 px-3  shadow-md focus:outline-none focus:ring-1`}
-																name="cardName"
-																onChange={()=>console.log("changes")}
-																// onBlur={handleBlur}
-																value={"check"}
-															>
-																<option value="" className="text-slate-400">
-																	choose
-																</option>
-																{/* {states.map((state) => (
+																choose
+															</option>
+															{/* {states.map((state) => (
 																	<option
 																		value={state.abbreviation}
 																		key={state.abbreviation}
@@ -321,13 +445,11 @@ const AddCardNoTransaction = () => {
 																		{state.name}
 																	</option>
 																))} */}
-															</select>
-														</div>
+														</select>
+													</div>
 												</div>
-
-										</div>
-										}
-										
+											</div>
+										)}
 										<div className="ts-search relative ">
 											<span className="absolute top-[14px] left-6">
 												<svg
@@ -351,7 +473,10 @@ const AddCardNoTransaction = () => {
 											/>
 										</div>
 										{transactionData && transactionData ? (
-											<Transaction transaction={transactionData}  value={filter}/>
+											<Transaction
+												transaction={transactionData}
+												value={filter}
+											/>
 										) : null}
 									</div>
 								) : (
@@ -405,9 +530,12 @@ const AddCardNoTransaction = () => {
 									{/* <div className="cards-list overflow-y-auto"> */}
 									<div className="cards-header flex flex-row justify-between mb-2 mx-3 mt-5">
 										<div className="card-title font-bold">Cards</div>
-										<div className="view-cards text-sm hover:cursor-pointer" onClick={() => {
-											navigate(`/view-all-card`,{state:cardData});
-										}}>
+										<div
+											className="view-cards text-sm hover:cursor-pointer"
+											onClick={() => {
+												navigate(`/view-all-card`, { state: cardData });
+											}}
+										>
 											View All Cards
 										</div>
 									</div>
