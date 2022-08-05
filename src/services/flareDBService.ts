@@ -6,12 +6,12 @@ class flareDBService {
 			body: payload,
 		});
 
-	deleteBankAccount = async (organizationId: string, bankAccountId: string) =>
-		await API.delete(
-			"flareapi",
-			`/organizations/${organizationId}/bank-accounts${bankAccountId}`,
-			{}
-		);
+	// deleteBankAccount = async (organizationId: string, bankAccountId: string) =>
+	// 	await API.delete(
+	// 		"flareapi",
+	// 		`/organizations/${organizationId}/bank-accounts${bankAccountId}`,
+	// 		{}
+	// 	);
 
 	getAllBankAccounts = async (organizationId: string) =>
 		await API.get("flareapi", `/organizations/${organizationId}/bank-accounts`, {});
@@ -25,6 +25,9 @@ class flareDBService {
 
 	updateOrganization = async (organizationId: string, payload: any) =>
 		await API.put("flareapi", `/organizations/${organizationId}`, { body: payload });
+
+	getAllCards = async (organizationId: string) =>
+		await API.get("flareapi", `/organizations/${organizationId}/cards`, {});
 }
 
 export default flareDBService;
