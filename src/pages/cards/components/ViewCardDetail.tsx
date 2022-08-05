@@ -3,10 +3,10 @@ import CARD_LOGO from "../../../assets/card-logo.png";
 import NavBar from "./navbar";
 import Spinner from "./Spinner";
 import cardsAPIService from "../../../services/cardsAPIService";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState ,useLayoutEffect} from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { getCurrencySymbol } from "../../../data/data";
-import { sessionContext } from "../../../app";
+import { customerList, sessionContext } from "../../../app";
 import eyeOff from "../../../assets/visibility-off.png";
 const ViewCardDetail = (props: any) => {
 	//const location = useLocation();
@@ -17,6 +17,7 @@ const ViewCardDetail = (props: any) => {
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [reveal, setReveal] = useState<boolean>(false);
 	const [cardData, setCardData] = useState<any>([]);
+	const [cardTransactionDetails,setCardTransactiondetails] = useState<any>([])
 	const [transactionData, setTransactionData] = useState([] as any);
 	const transactionDetails: any = {
 		spendingLimit: null,
@@ -26,6 +27,7 @@ const ViewCardDetail = (props: any) => {
 		remaining: null,
 	};
 	const session = useContext(sessionContext);
+	const customerData = useContext(customerList);
 	const userId = session?.user?.id;
 	const orgId = session?.organization?.id;
 	const account_id = session?.organization?.stripeConnectId;
@@ -33,17 +35,22 @@ const ViewCardDetail = (props: any) => {
 		session?.organization?.stripeCardholderId || sessionStorage.getItem("cardHolder_id");
 
 	const { state } = useLocation();
+	const nameCheck = state?.name ? state?.name : state?.cardholder?.name
 	console.log("state===>", state);
 	const card_id = state?.id.toString();
 	//console.log("cardID", card_id);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		retrieveCard();
-		getTransactionList();
+		getCardTransaction();
+		// getTransactionList();
 		// getUserData();
 	}, []);
 
 	const retrieveCard = async () => {
+		console.log(account_id)
+
+		console.log("card_id===>", card_id)
 		setShowSpinner(true);
 		try {
 			let response: any = await cardsService.retrieveCard({
@@ -57,163 +64,71 @@ const ViewCardDetail = (props: any) => {
 			) {
 			} else {
 				setCardData([response]);
-				//setCardData(["response"]);
 			}
 		} catch (ex) {
 			setShowSpinner(false);
 		}
 	};
 
-	// useEffect(() => {
-	//     getTransactionList();
-	// }, []);
-	const getTransactionList = async () => {
+
+
+
+	const getCardTransaction = async () => {
 		setShowSpinner(true);
 		try {
-			let response: any = await cardsService.getTransactionList({ id: account_id });
+			let response: any =  await cardsService.getCardTransaction({body:{ card_id: card_id,limit:100}})			
+			const {body} = response
 			setShowSpinner(false);
 			if (
 				response.type === "StripePermissionError" ||
 				response.type === "StripeInvalidRequestError"
 			) {
 			} else {
-				setTransactionData(response["data"]);
+			let localdata= [...body.data]
+			let checkHasmore = response.body.has_more
+			let lastId =body.data.at(-1).id
+			let count =0
+			while(checkHasmore){
+				let data: any =  await cardsService.getCardTransaction({body:{ card_id: card_id,limit:100,starting_after: lastId}})	
+				localdata = [...localdata,...data.body.data]
+				lastId= data.body.data.at(-1).id
+				console.log(count++)
+				checkHasmore = data.body.has_more
+			 }	
+
+			 setCardTransactiondetails(localdata)
+			 console.log(localdata)
 			}
-			//console.log("Response", response["data"]);
+		
 		} catch (ex) {
 			setShowSpinner(false);
 		}
 	};
 
-	// const getUserData = async () => {
-	// 	const userCardData = await fetch(
-	// 		`https://h3tqg8ihpg.execute-api.us-east-1.amazonaws.com/staging/organizations/${orgIds}/cards/${card_id}`
-	// 	);
-	// 	console.log("userCardData===>", userCardData);
-	// };
-	// const cardData1 = [{
-	//     "id": "ic_1LPncLJhE2tXq2CUO4IS8r4P",
-	//     "object": "issuing.card",
-	//     "brand": "Visa",
-	//     "cancellation_reason": null,
-	//     "cardholder": {
-	//         "id": "ich_1LKNsJJhE2tXq2CU1Ygf7E1a",
-	//         "object": "issuing.cardholder",
-	//         "billing": {
-	//             "address": {
-	//                 "city": "San Francisco",
-	//                 "country": "US",
-	//                 "line1": "123 Main Street",
-	//                 "line2": null,
-	//                 "postal_code": "94111",
-	//                 "state": "CA"
-	//             }
-	//         },
-	//         "company": null,
-	//         "created": 1657550775,
-	//         "email": "jenny.rosen@example.com",
-	//         "individual": null,
-	//         "livemode": false,
-	//         "metadata": {},
-	//         "name": "neti",
-	//         "phone_number": "+18008675309",
-	//         "requirements": {
-	//             "disabled_reason": null,
-	//             "past_due": []
-	//         },
-	//         "spending_controls": {
-	//             "allowed_categories": [],
-	//             "blocked_categories": [],
-	//             "spending_limits": [],
-	//             "spending_limits_currency": null
-	//         },
-	//         "status": "active",
-	//         "type": "individual"
-	//     },
-	//     "created": 1658841369,
-	//     "currency": "usd",
-	//     "exp_month": 6,
-	//     "exp_year": 2025,
-	//     "financial_account": null,
-	//     "last4": "1292",
-	//     "livemode": false,
-	//     "metadata": {},
-	//     "replaced_by": null,
-	//     "replacement_for": null,
-	//     "replacement_reason": null,
-	//     "shipping": null,
-	//     "spending_controls": {
-	//         "allowed_categories": null,
-	//         "blocked_categories": null,
-	//         "spending_limits": [
-	//             {
-	//                 "amount": 50000,
-	//                 "categories": [],
-	//                 "interval": "daily"
-	//             }
-	//         ],
-	//         "spending_limits_currency": "usd"
-	//     },
-	//     "status": "inactive",
-	//     "type": "virtual",
-	//     "wallets": {
-	//         "apple_pay": {
-	//             "eligible": true,
-	//             "ineligible_reason": null
-	//         },
-	//         "google_pay": {
-	//             "eligible": true,
-	//             "ineligible_reason": null
-	//         },
-	//         "primary_account_identifier": null
-	//     }
-	// }]
-	// console.log("CardData", cardData1)
-
-	// console.log("transactionData==>", transactionData);
-
-	// console.log("cardData===>",cardData)
-	// console.log("cardData===>",cardData[0]?.spending_controls?.spending_limits_currency)
-	const getTransactionData = transactionData?.filter((item: any) => item.card === card_id);
-	// console.log("getTransactionData===>", getTransactionData, getTransactionData?.length);
-
-	// console.log(,getTransactionData[0]?.amount/100)
 
 	const total = cardData
-		? getTransactionData.reduce((total: any, item: any) => item.amount + total, 0) / 100
+		? cardTransactionDetails?.reduce((total: any, item: any) => item.amount + total, 0) / 100
 		: "";
+		console.log("total==>",total)
 	transactionDetails.spendingLimit =
 		cardData[0]?.spending_controls?.spending_limits[0]?.amount / 100;
 	transactionDetails.currency = cardData[0]?.spending_controls?.spending_limits_currency;
 	transactionDetails.spendAmount =
-		getTransactionData.length > 0
-			? getCurrencySymbol(getTransactionData[0]?.merchant_currency, total)
+		cardTransactionDetails?.length > 0
+			? getCurrencySymbol(cardTransactionDetails[0]?.merchant_currency, total)
 			: "";
 	transactionDetails.balance =
-		getTransactionData.length > 0
+		cardTransactionDetails?.length > 0
 			? cardData[0]?.spending_controls?.spending_limits[0]?.amount + total
 			: transactionDetails.spendingLimit;
 	transactionDetails.remaining =
-		getTransactionData.length > 0
+		cardTransactionDetails?.length > 0
 			? getCurrencySymbol(transactionDetails.currency, transactionDetails.balance)
 			: getCurrencySymbol(transactionDetails.currency, transactionDetails.spendingLimit);
 	const { spendingLimit, currency, balance, spendAmount, remaining } = transactionDetails;
 
-	// function copyToClipboard(elementId:any) {
 
-	//   // Create a "hidden" input
-	//   var document:any = document;
-	//   var window:any = window;
-	//   var r:any = document.createRange();
-	//   r.selectNode(document.getElementById(elementId));
-	//   window.getSelection().removeAllRanges();
-	//   window.getSelection().addRange(r);
-	//   document.execCommand('copy');
-	//   window.getSelection().removeAllRanges();
 
-	//   // Assign it the value of the specified element
-
-	// }
 	return (
 		<div className="card-section font-sans">
 			<NavBar />
@@ -242,7 +157,7 @@ const ViewCardDetail = (props: any) => {
 							</span>
 						</div>
 						<div className="screen-title ml-5 text-sm w-1/2.8 self-center justify-center">
-							{state?.name}
+							{nameCheck}
 						</div>
 						{cardData &&
 							cardData.map((card: any) => {
@@ -287,20 +202,17 @@ const ViewCardDetail = (props: any) => {
 							const name = card.cardholder!.name;
 							const exp_date = `${card.exp_month}/${card.exp_year}`;
 							const last4 = card.last4;
-							const balance = `$${
-								card.spending_controls!.spending_limits[0]!.amount
-							}/$${card.spending_controls!.spending_limits[0]!.amount}`;
+							const balance = `$${card.spending_controls!.spending_limits[0]!.amount
+								}/$${card.spending_controls!.spending_limits[0]!.amount}`;
 							const balanceLimit = getCurrencySymbol(
 								card.spending_controls!.spending_limits_currency,
 								card.spending_controls!.spending_limits[0]!.amount / 100
 							);
 
-							const billingaddress = `  ${card.cardholder!.billing!.address.line1}, ${
-								card.cardholder!.billing!.address.city
-							}, 
-                                                ${card.cardholder!.billing!.address.state} (${
-								card.cardholder!.billing!.address.country
-							}), ${card.cardholder!.billing!.address.postal_code}`;
+							const billingaddress = `  ${card.cardholder!.billing!.address.line1}, ${card.cardholder!.billing!.address.city
+								}, 
+                                                ${card.cardholder!.billing!.address.state} (${card.cardholder!.billing!.address.country
+								}), ${card.cardholder!.billing!.address.postal_code}`;
 
 							const copyFunction = (event: any, text: any) => {
 								var cardDigit = reveal ? text : `**** **** **** ${last4}`;
@@ -330,7 +242,7 @@ const ViewCardDetail = (props: any) => {
 													/>
 												</span>
 												<span className="text-white mt-5 mr-5 text-xs font-semibold">
-													{state?.name}
+													{nameCheck}
 												</span>
 											</div>
 											<div className="flex justify-end">
@@ -342,8 +254,8 @@ const ViewCardDetail = (props: any) => {
 												<div className="text-white ml-5 mt-8 text-sm font-bold">
 													{reveal
 														? card?.number
-																.toString()
-																.replace(/\d{4}?(?=...)/g, "$& ")
+															.toString()
+															.replace(/\d{4}?(?=...)/g, "$& ")
 														: `**** **** **** ${last4}`}
 												</div>
 												<div className="text-white ml-5 mx-5 mt-8 text-sm font-bold">
@@ -416,7 +328,7 @@ const ViewCardDetail = (props: any) => {
 												Card Nickname
 											</div>
 											<div className="cards-type font-semibold text-sm py-1">
-												{state?.name}
+												{nameCheck}
 											</div>
 										</div>
 										<div className="card-number border-b border-gray-200 py-2 px-2">
@@ -455,8 +367,8 @@ const ViewCardDetail = (props: any) => {
 											>
 												{reveal
 													? card?.number
-															.toString()
-															.replace(/\d{4}?(?=...)/g, "$& ")
+														.toString()
+														.replace(/\d{4}?(?=...)/g, "$& ")
 													: `**** **** **** ${last4}`}
 											</div>
 										</div>
@@ -528,7 +440,7 @@ const ViewCardDetail = (props: any) => {
 									Resets on: July1, 2022
 								</div>
 								<div className="view-cards text-sm flex ml-[40px]">
-									<a href="">Edit Limit</a>
+									Edit Limit
 									<span className="absolute right ml-[-22px]">
 										<svg
 											width="14"
@@ -559,7 +471,7 @@ const ViewCardDetail = (props: any) => {
 												Spending Limit
 											</div>
 										</div>
-										{/* <div className="total-issued-cards mt-2 mr-[100px]">
+										 <div className="total-issued-cards mt-2 mr-[100px]">
 											<div className="no-of-cards text-xs font-semibold">
 												{spendAmount}
 											</div>
@@ -574,7 +486,7 @@ const ViewCardDetail = (props: any) => {
 											<div className="cards-type text-gray-500 text-[10px] self-center">
 												Remaining
 											</div>
-										</div> */}
+										</div>
 									</>
 								)}
 							</div>
@@ -602,7 +514,7 @@ const ViewCardDetail = (props: any) => {
 								</div>
 							</div> */}
 						</div>
-						{getTransactionData.length > 0 ? (
+						{cardTransactionDetails.length > 0 ? (
 							<div className="fs-box-shadow ts-section mt-4 ml-4">
 								<div className="ts-header px-3 py-3 border-b border-gray-200">
 									<span className="flex justify-between font-bold">
@@ -648,8 +560,8 @@ const ViewCardDetail = (props: any) => {
                                         const type = transaction!.type;
                                         const amount = transaction!.amount < 0 ? `-$${transaction!.amount * -1}` : `$${transaction!.amount}`;
                                         return( */}
-											{getTransactionData &&
-												getTransactionData.map((item: any) => {
+											{cardTransactionDetails &&
+												cardTransactionDetails.map((item: any) => {
 													return (
 														<tr>
 															<td className="px-4 w-1/6 pr-5 py-2 border-b border-gray-200 bg-white text-xs">
@@ -661,7 +573,7 @@ const ViewCardDetail = (props: any) => {
 															</td>
 															<td className="py-2 px-5 w-1/5 border-b text-left border-gray-200 bg-white text-xs">
 																<p className="text-gray-500 whitespace-no-wrap capitalize">
-																	{state?.name}
+																	{nameCheck}
 																</p>
 															</td>
 
