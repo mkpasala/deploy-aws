@@ -35,7 +35,7 @@ const ViewCardDetail = (props: any) => {
 		session?.organization?.stripeCardholderId || sessionStorage.getItem("cardHolder_id");
 
 	const { state } = useLocation();
-	const nameCheck = state?.name ? state?.name : state?.cardholder?.name
+	const nameCheck = state?.name && state?.name 
 	console.log("state===>", state);
 	const card_id = state?.id.toString();
 	//console.log("cardID", card_id);

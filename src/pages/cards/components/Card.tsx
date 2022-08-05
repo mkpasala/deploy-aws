@@ -4,7 +4,8 @@ import { createSearchParams, useNavigate } from "react-router-dom";
 
 const Card = ({ card }: any) => {
 	console.log(card)
-	const name = card!.name || card.cardholder!.name;
+	// const name = card!.name || card.cardholder!.name;
+	const name = card!.name ;
 	const exp_date = `${card.exp_month}/${card.exp_year}`;
 	const last4 = card.last4;
 	const balance = `$${card.spending_controls!.spending_limits[0]!.amount / 100}`;
