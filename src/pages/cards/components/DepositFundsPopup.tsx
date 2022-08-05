@@ -233,7 +233,7 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 													<div className="header-desc text-gray-600 text-base">
 														to your FlareFS account
 													</div>
-													<div className="bank-info flex flex-row mb-2 mt-4">
+													<div className="bank-info flex flex-row mb-2 mt-5">
 														<div className="w-full relative">
 															<label
 																className="block text-gray-500 bk-form-label"
@@ -271,19 +271,14 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 															</label>
 															<div className="flex items-center">
 																<input
-																	className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
-																		"memo"
-																	)}`}
-																	placeholder="Enter Memo Line For Fund Transfer"
+																	className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 pl-9 shadow-md focus:outline-none focus:ring-1"
+																	placeholder="Enter Memo Line For Funds Transfer"
 																	type="text"
 																	name="memo"
 																	onChange={handleChange}
 																	onBlur={handleBlur}
 																	value={values.memo}
-																/>
-																<DepositFundsErrorMessage
-																	name="memo"
-																	formik={formik}
+																	maxLength={50}
 																/>
 															</div>
 														</div>
@@ -293,7 +288,7 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 															Adding Funds From
 														</div>
 														{sources.length > 0 && (
-															<div className="overflow-y-auto h-20">
+															<div className="overflow-y-auto h-20 mt-4">
 																{sources.map((source: any) => (
 																	<Bank
 																		bank={source}
