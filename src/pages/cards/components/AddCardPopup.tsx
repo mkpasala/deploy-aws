@@ -372,13 +372,17 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 					errors.postalcode = "Zip Code required integer value";
 				}
 
-				if (values.postalcode.length != 5) {
-					errors.postalcode = "Zip Code should be of 5 digits";
-				}
+				// if (values.postalcode.length != 5) {
+				// 	errors.postalcode = "Zip Code should be of 5 digits";
+				// }
 			}
 		}
 		if (!values.spending_limits) {
 			errors.spending_limits = "Spending Limit Amount is required";
+		}
+
+		if (!values.cardnickname) {
+			errors.cardnickname = "Card Nickname is required";
 		}
 		return errors;
 	};
@@ -673,10 +677,18 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															name="cardnickname"
 															id="cardnickname"
 															placeholder="Enter card nickname here"
-															className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
+															//className="bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border border-slate-200 rounded-sm py-2 px-3 shadow-md focus:outline-none focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
+															className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
+																"cardnickname"
+															)}`}
 															onChange={handleChange}
 															onBlur={handleBlur}
 															value={values.cardnickname}
+															maxLength={50}
+														/>
+														<AddCardsErrorMessage
+															name="cardnickname"
+															formik={formik}
 														/>
 													</div>
 
@@ -830,25 +842,28 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 													<div className="bank-info flex flex-row justify-between mt-4">
 														<div className="relative w-full">
 															<label
-																htmlFor="name"
+																htmlFor="cardnickname"
 																className="mb-2 mt-2 text-xs bold text-gray-900 dark:text-gray-300 "
 															>
 																Card Nickname
 															</label>
 															<input
 																type="text"
-																name="name"
-																id="name"
+																name="cardnickname"
+																id="cardnickname"
 																placeholder="Enter card nickname here"
-																className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"
+																className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
+																	"cardnickname"
+																)}`}
 																onChange={handleChange}
 																onBlur={handleBlur}
-																value={values.name}
+																value={values.cardnickname}
+																maxLength={50}
 															/>
-															{/* <AddCardsErrorMessage
-																name="name"
+															<AddCardsErrorMessage
+																name="cardnickname"
 																formik={formik}
-															/> */}
+															/>
 														</div>
 													</div>
 													<div className="justify-between mt-4 relative">
@@ -1015,6 +1030,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																onChange={handleChange}
 																onBlur={handleBlur}
 																value={values.line1}
+																maxLength={50}
 															/>
 															<AddCardsErrorMessage
 																name="line1"
@@ -1039,6 +1055,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																onChange={handleChange}
 																onBlur={handleBlur}
 																value={values.line2}
+																maxLength={50}
 															/>
 														</div>
 													</div>
@@ -1121,6 +1138,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 																onChange={handleChange}
 																onBlur={handleBlur}
 																value={values.postalcode}
+																maxLength={5}
 															/>
 															<AddCardsErrorMessage
 																name="postalcode"

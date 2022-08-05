@@ -404,7 +404,7 @@ const AddCardNoTransaction = () => {
 									{/* <div className="cards-list overflow-y-auto"> */}
 									<div className="cards-header flex flex-row justify-between mb-2 mx-3 mt-5">
 										<div className="card-title font-bold">Cards</div>
-										<div className="view-cards text-sm" onClick={() => {
+										<div className="view-cards text-sm hover:cursor-pointer" onClick={() => {
 											navigate(`/view-all-card`,{state:cardData});
 										}}>
 											View All Cards
@@ -434,7 +434,7 @@ const AddCardNoTransaction = () => {
 											<button
 												type="button"
 												onClick={() => setModalOn(true)}
-												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white border border-red-500 hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
+												className="bg-transparent hover:bg-red-500 text-red-600 hover:text-white hover:border-transparent rounded text-xs font-bold h-8 w-20 mt-1"
 											>
 												Add New
 											</button>

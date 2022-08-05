@@ -365,12 +365,25 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 		if (!values.routingNumber) {
 			errors.routingNumber = "Routing Number required";
 		}
+		else {
+			let reg = new RegExp("^[0-9]*$");
+			if (!reg.test(values.routingNumber)) {
+				errors.routingNumber = "Routing Number required integer value";
+			}
+		}
 		if (!values.accountNumber) {
 			errors.accountNumber = "Account Number required";
+		}
+		else {
+			let reg = new RegExp("^[0-9]*$");
+			if (!reg.test(values.accountNumber)) {
+				errors.accountNumber = "Account required integer value";
+			}
 		}
 		if (!values.accountHolderName) {
 			errors.accountHolderName = "Account Holder Name required";
 		}
+		
 		// 	let reg = new RegExp("^[0-9]*$");
 		// 	if (!reg.test(values.firstAmount)) {
 		// 		errors.firstAmount = "First Amount required integer value";
@@ -517,6 +530,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.routingNumber}
+											maxLength={9}
 										/>
 										<BankAccountErrorMessage
 											name="routingNumber"
@@ -540,6 +554,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.accountNumber}
+											maxLength={17}
 										/>
 										<BankAccountErrorMessage
 											name="accountNumber"
@@ -563,6 +578,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.accountHolderName}
+											maxLength={50}
 										/>
 										<BankAccountErrorMessage
 											name="accountHolderName"
@@ -576,7 +592,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											className="block text-gray-500 bk-form-label"
 											htmlFor="accountNickName"
 										>
-											Bank Nick Name
+											Bank Nickname
 										</label>
 										<input
 											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"
@@ -725,6 +741,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.zipCode}
+											maxLength={5}
 										/>
 										{/* <BankAccountErrorMessage name="zipCode" formik={formik} /> */}
 									</div>

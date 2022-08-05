@@ -195,14 +195,14 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 											className="block text-gray-500 bk-form-label"
 											htmlFor="firstAmount"
 										>
-											First amount
+											First Amount
 										</label>
 										<span className="absolute top-8 left-4">&#36;</span>
 										<input
 											className={`bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 												"firstAmount"
 											)}`}
-											placeholder="Enter First amount"
+											placeholder="Enter first amount here"
 											type="number"
 											name="firstAmount"
 											onChange={handleChange}
@@ -222,14 +222,14 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 											className="block text-gray-500 bk-form-label"
 											htmlFor="secondAmount"
 										>
-											Second amount
+											Second Amount
 										</label>
 										<span className="absolute top-8 left-4">&#36;</span>
 										<input
 											className={`bk-form-input dp-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
 												"secondAmount"
 											)}`}
-											placeholder="Enter Second amount"
+											placeholder="Enter Second amount here"
 											type="number"
 											name="secondAmount"
 											onChange={handleChange}
