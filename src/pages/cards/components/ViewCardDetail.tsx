@@ -6,7 +6,7 @@ import cardsAPIService from "../../../services/cardsAPIService";
 import React, { useContext, useEffect, useState ,useLayoutEffect} from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { getCurrencySymbol } from "../../../data/data";
-import { customerList, sessionContext } from "../../../app";
+import {  sessionContext } from "../../../app";
 import eyeOff from "../../../assets/visibility-off.png";
 const ViewCardDetail = (props: any) => {
 	//const location = useLocation();
@@ -27,7 +27,7 @@ const ViewCardDetail = (props: any) => {
 		remaining: null,
 	};
 	const session = useContext(sessionContext);
-	const customerData = useContext(customerList);
+	// const customerData = useContext(customerList);
 	const userId = session?.user?.id;
 	const orgId = session?.organization?.id;
 	const account_id = session?.organization?.stripeConnectId;
