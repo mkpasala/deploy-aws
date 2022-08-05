@@ -94,6 +94,7 @@ const AddCardNoTransaction = () => {
 				const cardWithName = cardListWithName.filter(
 					(cardWithName: any) => cardWithName.stripeCardId === card.id
 				);
+				console.log("cardDataWithName====>",cardWithName)
 				let mergedCard = [];
 				if (cardWithName && cardWithName.length > 0) {
 					const obj = cardWithName[0];
@@ -114,7 +115,7 @@ const AddCardNoTransaction = () => {
 		try {
 			let response: any = await cardsService.getCardList({
 				account_id: account_id,
-				limit: 3,
+				// limit: 3,
 				cardholder: cardholder_id,
 			});
 
@@ -593,9 +594,7 @@ const AddCardNoTransaction = () => {
 										{/* } */}
 									</div>
 									{cardData &&
-										cardData.data.map((card: any) => (
-											<Card card={card} key={card.id} />
-										))}
+										cardData.data.slice(0,3).map((card: any) => <Card card={card} key={card.id} />)}
 									{/* </div> */}
 								</div>
 							) : (

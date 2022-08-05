@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import cardsAPIService from "../../../services/cardsAPIService";
-import {useLocation} from "react-router-dom"
+import { useLocation } from "react-router-dom"
 import Spinner from "./Spinner";
 import Card from "./Card";
 import { sessionContext } from "../../../app";
@@ -15,36 +15,33 @@ const ViewAllCards = () => {
 	const orgId = session?.organization?.id;
 	const cardholder_id =
 		session?.organization?.stripeCardholderId || sessionStorage.getItem("cardHolder_id");
-		const { state } = useLocation();
-		console.log("state===>", state?.name);
-	useEffect(() => {
-		getCardList();
-	}, []);
-
+	const { state } = useLocation();
+	console.log("state===>", state?.name);
+	
 	const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const value = event.target.value;
 		setFilter(value);
 	};
 
-	const getCardList = async () => {
-		setShowSpinner(true);
-		try {
-			let response: any = await cardsService.getCardList({
-				account_id: account_id,
-				cardholder: cardholder_id,
-			});
-			setShowSpinner(false);
-			if (
-				response.type === "StripePermissionError" ||
-				response.type === "StripeInvalidRequestError"
-			) {
-			} else {
-				setCardList(response);
-			}
-		} catch (ex) {
-			setShowSpinner(false);
-		}
-	};
+	// const getCardList = async () => {
+	// 	setShowSpinner(true);
+	// 	try {
+	// 		let response: any = await cardsService.getCardList({
+	// 			account_id: account_id,
+	// 			cardholder: cardholder_id,
+	// 		});
+	// 		setShowSpinner(false);
+	// 		if (
+	// 			response.type === "StripePermissionError" ||
+	// 			response.type === "StripeInvalidRequestError"
+	// 		) {
+	// 		} else {
+	// 			setCardList(response);
+	// 		}
+	// 	} catch (ex) {
+	// 		setShowSpinner(false);
+	// 	}
+	// };
 
 	return (
 		<>
@@ -95,9 +92,9 @@ const ViewAllCards = () => {
 							/>
 						</div>
 						<div className="grid grid-cols-4">
-							{cardList &&
-								cardList.data
-									.filter((card: any) => card.cardholder!.name.toLowerCase().startsWith(filter.toLowerCase()))
+							{state &&
+								state.data
+									.filter((card: any) => card.name.toLowerCase().startsWith(filter.toLowerCase()))
 									.map((card: any) => <Card card={card} />)}
 						</div>
 					</div>
