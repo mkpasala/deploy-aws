@@ -243,20 +243,21 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 									</div>
 								</div>
 								<div className="btn-bottom-section border-t-[1px] border-gray-200 py-4 flex justify-between items-center mt-10 pr-6">
-									<a
+									{/* <a
 										className="mx-9 cursor-pointer hover:font-bold"
 										onClick={() => {
 											previousStep();
 										}}
 									>
 										Back
-									</a>
-									<div className="text-sm font-bold ml-4 h-auto w-72">
+									</a> */}
+									<div className="text-sm font-bold ml-4 h-auto w-auto">
 										{message && message.length > 0 && <p>{message}</p>}
 									</div>
 									<button
 										type="submit"
 										className="bg-red-500  hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
+										disabled={!(formik.dirty && formik.isValid)}
 									>
 										Verify
 									</button>
