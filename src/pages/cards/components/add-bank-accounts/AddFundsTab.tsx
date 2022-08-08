@@ -223,6 +223,7 @@ const AddFundsTab = ({ nextStep, previousStep }: AddFundsTabProps) => {
 									<button
 										type="submit"
 										className="bg-red-500  hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
+										disabled={!(formik.dirty && formik.isValid)}
 									>
 										Finish
 									</button>

@@ -367,7 +367,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 		} else {
 			let reg = new RegExp("^[0-9]*$");
 			if (!reg.test(values.routingNumber)) {
-				errors.routingNumber = "Routing Number required integer value";
+				errors.routingNumber = "Please Enter Numbers only";
 			}
 		}
 		if (!values.accountNumber) {
@@ -375,11 +375,17 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 		} else {
 			let reg = new RegExp("^[0-9]*$");
 			if (!reg.test(values.accountNumber)) {
-				errors.accountNumber = "Account required integer value";
+				errors.accountNumber = "Please Enter Numbers only";
 			}
 		}
 		if (!values.accountHolderName) {
 			errors.accountHolderName = "Account Holder Name required";
+		}
+		else {
+			let reg = new RegExp("^[a-z A-Z]*$");
+			if (!reg.test(values.accountHolderName)) {
+				errors.accountHolderName = "Please Enter Valid value";
+			}
 		}
 		// 	let reg = new RegExp("^[0-9]*$");
 		// 	if (!reg.test(values.firstAmount)) {
@@ -626,6 +632,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.accountNickName}
+											maxLength={50}
 										/>
 									</div>
 									<div className="relative w-64">
@@ -643,6 +650,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.bankName}
+											maxLength={50}
 										/>
 									</div>
 									<div className="w-64"></div>
@@ -666,6 +674,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.addressLine1}
+											maxLength={50}
 										/>
 									</div>
 								</div>
@@ -681,11 +690,11 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"
 											placeholder="Enter your address line 2 here"
 											type="text"
-											type="text"
 											name="addressLine2"
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.addressLine2}
+											maxLength={50}
 										/>
 									</div>
 								</div>
@@ -699,7 +708,6 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 										</label>
 										<input
 											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 pr-3 pl-9 shadow-md focus:outline-none focus:ring-1"
-											placeholder="Enter City"
 											placeholder="Enter City"
 											type="text"
 											name="city"
