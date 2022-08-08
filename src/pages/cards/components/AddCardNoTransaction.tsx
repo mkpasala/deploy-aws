@@ -94,7 +94,7 @@ const AddCardNoTransaction = () => {
 				const cardWithName = cardListWithName.filter(
 					(cardWithName: any) => cardWithName.stripeCardId === card.id
 				);
-				console.log("cardDataWithName====>",cardWithName)
+				console.log("cardDataWithName====>", cardWithName);
 				let mergedCard = [];
 				if (cardWithName && cardWithName.length > 0) {
 					const obj = cardWithName[0];
@@ -209,9 +209,10 @@ const AddCardNoTransaction = () => {
 				const requestData: any = {
 					account_id: accountId,
 					email: account.email || sessionUser?.email,
-					type: account.business_type,
+					type:
+						account.business_type === "non_profit" ? "company" : account.business_type,
 				};
-				if (account.business_type === "company") {
+				if (account.business_type === "company" || account.business_type === "non_profit") {
 					requestData.name = account.company.name;
 					requestData.phone_number = account.company.phone;
 					requestData.billing = { address: account.company.address };
@@ -351,9 +352,12 @@ const AddCardNoTransaction = () => {
 										<div className="ts-header px-6 py-3 border-b border-gray-200">
 											<span className="flex justify-between font-bold ">
 												Transactions
-												<button className="bg-white hover:bg-gray-200 font-bold p-4 rounded text-sm" onClick={()=>{
-													setFilterMenu(!filterMenu)
-												}}>
+												<button
+													className="bg-white hover:bg-gray-200 font-bold p-4 rounded text-sm"
+													onClick={() => {
+														setFilterMenu(!filterMenu);
+													}}
+												>
 													<svg
 														width="18"
 														height="18"
@@ -594,7 +598,9 @@ const AddCardNoTransaction = () => {
 										{/* } */}
 									</div>
 									{cardData &&
-										cardData.data.slice(0,3).map((card: any) => <Card card={card} key={card.id} />)}
+										cardData.data
+											.slice(0, 3)
+											.map((card: any) => <Card card={card} key={card.id} />)}
 									{/* </div> */}
 								</div>
 							) : (
