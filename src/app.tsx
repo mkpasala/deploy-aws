@@ -1,7 +1,7 @@
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-
+import 'react-toastify/dist/ReactToastify.css';
 import "@aws-amplify/ui-react/styles.css";
 
 import awsExports from "./aws-exports";
