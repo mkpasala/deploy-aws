@@ -8,12 +8,15 @@ import { useParams, Link, useLocation } from "react-router-dom";
 import { getCurrencySymbol } from "../../../data/data";
 import {  sessionContext } from "../../../app";
 import eyeOff from "../../../assets/visibility-off.png";
+import { Toast,toastFunction } from "./ToastComponent";
+
+
 const ViewCardDetail = (props: any) => {
 	//const location = useLocation();
 	const param = useParams();
 	console.log(param);
 	const cardsService = new cardsAPIService();
-
+	const customId = "custom-id-yes";
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [reveal, setReveal] = useState<boolean>(false);
 	const [cardData, setCardData] = useState<any>([]);
@@ -119,7 +122,7 @@ const ViewCardDetail = (props: any) => {
 			: "";
 	transactionDetails.balance =
 		cardTransactionDetails?.length > 0
-			? cardData[0]?.spending_controls?.spending_limits[0]?.amount + total
+			? transactionDetails.spendingLimit + total
 			: transactionDetails.spendingLimit;
 	transactionDetails.remaining =
 		cardTransactionDetails?.length > 0
@@ -128,11 +131,14 @@ const ViewCardDetail = (props: any) => {
 	const { spendingLimit, currency, balance, spendAmount, remaining } = transactionDetails;
 
 
+	console.log("trasactiondetails====>",transactionDetails.balance,transactionDetails.remaining)
+
 
 	return (
 		<div className="card-section font-sans">
 			<NavBar />
 			<main className="main-content flex flex-col mx-[205px] ">
+				<Toast/>
 				<div className="bl-section flex flex-col pt-[28px] pb-[32px]">
 					<div className="flex flex-row ml-0 w-[968px] overflow-hidden justify-center items-center">
 						<div className="self-center mb-3 mr-4">
@@ -220,6 +226,7 @@ const ViewCardDetail = (props: any) => {
 								var copyData = text?.length < 4 ? cvv : cardDigit;
 
 								navigator.clipboard.writeText(copyData);
+								toastFunction(true,"Text Copied","copyText")
 							};
 
 							return (

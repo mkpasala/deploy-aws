@@ -355,8 +355,8 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 	const validate = (values: AddCardsData) => {
 		let errors: FormikErrors<AddCardsData> = {};
 		if (values.type === "physical") {
-			if (!values.name) {
-				errors.name = "Name is required";
+			if (!values.cardnickname) {
+				errors.name = "CardName is required";
 			}
 			if (!values.line1) {
 				errors.line1 = "Address Line1 is required";
@@ -462,7 +462,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 					],
 				},
 				shipping: {
-					name: values.name,
+					name: values.cardnickname,
 					address: {
 						line1: values.line1,
 						line2: values.line2,
@@ -506,7 +506,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 			};
 		} else {
 			reqdata = {
-				name: values.name,
+				name: values.cardnickname,
 				userId: userId,
 				stripeCardId: cardID,
 			};
@@ -538,14 +538,14 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 			<Formik
 				initialValues={initialValues}
 				validate={validate}
-				onSubmit={(values, actions) => {
+				onSubmit={(values:any, actions:any) => {
 					onSubmit(values);
 					actions.setSubmitting(false);
 					//setModalOn(false);
 					//alert("Card Created Successfully");
 				}}
 			>
-				{(formik) => {
+				{(formik:any) => {
 					const { handleSubmit, handleChange, touched, errors, handleBlur, values } =
 						formik;
 					const getInputStyle = (name: string): string => {
