@@ -380,8 +380,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 		}
 		if (!values.accountHolderName) {
 			errors.accountHolderName = "Account Holder Name required";
-		}
-		else {
+		} else {
 			let reg = new RegExp("^[a-z A-Z]*$");
 			if (!reg.test(values.accountHolderName)) {
 				errors.accountHolderName = "Please Enter Valid value";
@@ -486,7 +485,8 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 				routing_number: routingNumber,
 				account_number: accountNumber,
 				account_holder_name: accountHolderName,
-				account_holder_type: account.business_type,
+				account_holder_type:
+					account.business_type === "non_profit" ? "company" : account.business_type,
 			};
 			const { token, error } = await stripe.createToken("bank_account", body);
 			setShowSpinner(false);
