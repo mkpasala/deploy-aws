@@ -1,7 +1,13 @@
-const Bank = ({ bank, handleChange, handleBlur }: any) => {
+import { useEffect, useState } from "react";
+
+const Bank = ({ bank, handleChange, handleBlur, values }: any) => {
+	const [checked, setChecked] = useState(false);
+	useEffect(() => {
+		setChecked(bank.id === values.source_id);
+		console.log(values);
+	}, [values]);
 	return (
 		<>
-			{" "}
 			<div className=" text-black-500 text-sm">
 				<input
 					type="radio"
@@ -10,6 +16,7 @@ const Bank = ({ bank, handleChange, handleBlur }: any) => {
 					onChange={handleChange}
 					onBlur={handleBlur}
 					value={bank.id}
+					checked={checked}
 				/>
 				{`${bank.accountNickname} | ${bank.bankName}`}
 			</div>

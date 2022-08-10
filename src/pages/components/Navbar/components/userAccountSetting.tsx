@@ -16,12 +16,12 @@ export const UserAccountSetting = () => {
 	};
 	const [open, setOpen] = useState(false);
 	const settings = [
-		{
-			name: "Bank Accounts",
-			onClick: () => {
-				navigate("/bank-account-list");
-			},
-		},
+		// {
+		// 	name: "Bank Accounts",
+		// 	onClick: () => {
+		// 		navigate("/bank-account-list");
+		// 	},
+		// },
 		{
 			icon: <LogoutIcon className="w-4" />,
 			name: "Logout",
