@@ -272,6 +272,7 @@ const WithdrawFundsPopup = ({ isShow, onSuccess, onHide }: WithdrawFundsPopupPro
 																onChange={handleChange}
 																onBlur={handleBlur}
 																value={values.amount}
+																onKeyDown={(evt) => evt.key === 'e' && evt.preventDefault()}
 															/>
 															<p className="text-xs mt-1">
 																out of ${balance}
@@ -354,7 +355,7 @@ const WithdrawFundsPopup = ({ isShow, onSuccess, onHide }: WithdrawFundsPopupPro
 															</button>
 															<button
 																type="submit"
-																className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
+																className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32 disabled:bg-gray-200"
 																disabled={!(formik.dirty && formik.isValid)}
 															>
 																Withdraw
