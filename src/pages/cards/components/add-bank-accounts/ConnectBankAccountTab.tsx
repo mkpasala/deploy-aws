@@ -5,6 +5,7 @@ import Spinner from "../Spinner";
 import cardsAPIService from "../../../../services/cardsAPIService";
 import { sessionContext } from "../../../../app";
 import flareDBService from "../../../../services/flareDBService";
+import { Toast, toastFunction } from "../ToastComponent";
 
 interface ConnectBankAccountTabProps {
 	nextStep: () => void;
@@ -410,7 +411,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 				response.type === "StripePermissionError" ||
 				response.type === "StripeInvalidRequestError"
 			) {
-				setMessage(response.raw.message);
+				toastFunction(false, response.raw.message, "error");
 			} else {
 				sessionStorage.setItem("source_id", response.source_id);
 				await createBankccount(response.source_id, values);
@@ -494,7 +495,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 				values.token_id = token.id;
 				connectBackAccount(values);
 			} else if (error) {
-				setMessage(error.message ? error.message : "");
+				toastFunction(false, error.message, "error");
 			}
 		} catch (e) {
 			console.log("exception::", e);
@@ -503,6 +504,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 
 	return (
 		<>
+			<Toast />
 			<Spinner show={showSpinner} />
 			<div className="bk-form-section shadow-md w-full border-[1px] flex flex-col mb-2">
 				<div className="bk-form-header px-6 pt-6 mb-5 font-sans">

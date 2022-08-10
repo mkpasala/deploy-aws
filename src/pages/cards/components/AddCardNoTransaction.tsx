@@ -41,6 +41,18 @@ const AddCardNoTransaction = () => {
 	const cardholder_id = session?.organization?.stripeCardholderId;
 	const [filter, setFilter] = useState<string>("");
 
+	if (account_id) {
+		console.log("Stripe account id found");
+	} else {
+		console.log("Stripe account id not found");
+	}
+
+	if (cardholder_id) {
+		console.log("cardholder id found");
+	} else {
+		console.log("cardholder id not found");
+	}
+
 	const getBlockedCardCount = () => {
 		if (cardData) {
 			const filterData = cardData.data.filter((card: any) => card.status !== "active");
@@ -324,7 +336,7 @@ const AddCardNoTransaction = () => {
 										>
 											Deposit funds
 										</button>
-										<button
+										{/* <button
 											type="button"
 											className="bg-transparent hover:bg-red-500 text-red-600 font-semibold hover:text-white border border-red-500 hover:border-transparent rounded  py-2 px-2 w-34"
 											onClick={(event) => {
@@ -332,17 +344,17 @@ const AddCardNoTransaction = () => {
 											}}
 										>
 											Withdraw funds
-										</button>
+										</button> */}
 									</div>
 								</div>
-								<div className="bl-details-right ml-20 border-l-[1px] border-gray-300 py-6 pr-6">
+								{/* <div className="bl-details-right ml-20 border-l-[1px] border-gray-300 py-6 pr-6">
 									<div className="bl pl-4">
 										<div className="bl-amount font-bold text-lg">$0</div>
 										<div className="bl-type text-sm text-gray-500">
 											Deposited Balance
 										</div>
 									</div>
-								</div>
+								</div> */}
 							</div>
 							{/* <div class="fs-box-shadow ts-section mt-4"> */}
 							<div className=" px-6 py-2  border-gray-200"></div>

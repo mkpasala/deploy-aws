@@ -4,6 +4,7 @@ import Spinner from "../Spinner";
 import { Form, Formik, FormikErrors, FormikProps } from "formik";
 import cardsAPIService from "../../../../services/cardsAPIService";
 import { sessionContext } from "../../../../app";
+import { Toast, toastFunction } from "../ToastComponent";
 
 interface AddFundsTabProps {
 	nextStep: () => void;
@@ -119,7 +120,7 @@ const AddFundsTab = ({ nextStep, previousStep }: AddFundsTabProps) => {
 				response.type === "StripePermissionError" ||
 				response.type === "StripeInvalidRequestError"
 			) {
-				setMessage(response.raw.message);
+				toastFunction(false, response.raw.message, "error");
 			} else {
 				sessionStorage.removeItem("source_id");
 				navigate("/card-list");
@@ -131,6 +132,7 @@ const AddFundsTab = ({ nextStep, previousStep }: AddFundsTabProps) => {
 	};
 	return (
 		<>
+			<Toast />
 			<Spinner show={showSpinner} />
 			<div className="bk-form-section shadow-md w-full border-[1px] flex flex-col mb-2">
 				<div className="bk-form-header px-6 pt-6 mb-5 font-sans">
@@ -209,14 +211,14 @@ const AddFundsTab = ({ nextStep, previousStep }: AddFundsTabProps) => {
 									</div>
 								</div>
 								<div className="btn-bottom-section border-t-[1px] border-gray-200 py-4 flex justify-between mt-10 pr-6 items-center">
-									<a
+									{/* <a
 										className="mx-9 cursor-pointer hover:font-bold"
 										onClick={() => {
 											previousStep();
 										}}
 									>
 										Back
-									</a>
+									</a> */}
 									<div className="text-sm font-bold ml-4 h-auto w-72">
 										{message && message.length > 0 && <p>{message}</p>}
 									</div>
