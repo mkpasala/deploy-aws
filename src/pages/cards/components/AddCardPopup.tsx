@@ -713,6 +713,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															onChange={handleChange}
 															onBlur={handleBlur}
 															value={values.spending_limits}
+															onKeyDown={(evt) => evt.key === 'e' && evt.preventDefault()}
 														/>
 														<AddCardsErrorMessage
 															name="spending_limits"
@@ -887,6 +888,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 															onChange={handleChange}
 															onBlur={handleBlur}
 															value={values.spending_limits}
+															onKeyDown={(evt) => evt.key === 'e' && evt.preventDefault()}
 														/>
 														<AddCardsErrorMessage
 															name="spending_limits"
@@ -1159,7 +1161,7 @@ const AddCardPopup = ({ setModalOn, onSuccess }: any) => {
 												</button>
 												<button
 													type="submit"
-													className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
+													className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32 disabled:bg-gray-200"
 													disabled={!(formik.dirty && formik.isValid)}
 												>
 													Add

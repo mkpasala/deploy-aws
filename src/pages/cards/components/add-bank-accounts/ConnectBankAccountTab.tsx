@@ -714,6 +714,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.city}
+											maxLength={50}
 										/>
 									</div>
 									<div className="relative w-64">
@@ -766,7 +767,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 									</div>
 									<button
 										type="submit"
-										className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32 disabled:bg-gray-400"
+										className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32 disabled:bg-gray-200"
 									>
 										Next
 									</button>
