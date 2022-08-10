@@ -101,7 +101,7 @@ const CardsInit = (props: any) => {
 			let res: any = await cardsService.getAccountURL({
 				email: email,
 				id: accountId,
-				app_url: "local",
+				//app_url: "local",
 			});
 			setShowSpinner(false);
 			if (res && res.goto_url) {
