@@ -9,7 +9,7 @@ import { getCurrencySymbol } from "../../../data/data";
 import {  sessionContext } from "../../../app";
 import eyeOff from "../../../assets/visibility-off.png";
 import { Toast,toastFunction } from "./ToastComponent";
-
+import './copyText.scss'
 
 const ViewCardDetail = (props: any) => {
 	//const location = useLocation();
@@ -21,7 +21,6 @@ const ViewCardDetail = (props: any) => {
 	const [reveal, setReveal] = useState<boolean>(false);
 	const [cardData, setCardData] = useState<any>([]);
 	const [cardTransactionDetails,setCardTransactiondetails] = useState<any>([])
-	const [transactionData, setTransactionData] = useState([] as any);
 	const transactionDetails: any = {
 		spendingLimit: null,
 		currency: null,
@@ -100,7 +99,7 @@ const ViewCardDetail = (props: any) => {
 			 }	
 
 			 setCardTransactiondetails(localdata)
-			 console.log(localdata)
+			 console.log("localdata===>",localdata)
 			}
 		
 		} catch (ex) {
@@ -226,7 +225,14 @@ const ViewCardDetail = (props: any) => {
 								var copyData = text?.length < 4 ? cvv : cardDigit;
 
 								navigator.clipboard.writeText(copyData);
-								toastFunction(true,"Text Copied","copyText")
+
+								const copyClass = text?.length < 4 ? document.querySelector('.cvvNumber'): document.querySelector('.cardNumber')
+
+								text?.length < 4 ? copyClass?.classList.add('active') : copyClass?.classList.add('active') 
+								setTimeout(() => {
+									text?.length < 4 ? copyClass?.classList.remove('active') : copyClass?.classList.remove('active') 
+								}, 2500);
+								// toastFunction(true,"Text Copied","copyText")
 							};
 
 							return (
@@ -344,11 +350,13 @@ const ViewCardDetail = (props: any) => {
 											</div>
 
 											<div
-												className="absolute ml-[210px] mt-[-4px]"
+												className="absolute ml-[210px] mt-[-4px] "
 												onClick={(event) =>
 													copyFunction(event, card?.number)
 												}
-											>
+											>{
+												reveal &&
+												<div className="copytext cardNumber">
 												<svg
 													width="16"
 													height="16"
@@ -367,6 +375,7 @@ const ViewCardDetail = (props: any) => {
 														fill-opacity="0.7"
 													/>
 												</svg>
+												</div>}
 											</div>
 											<div
 												className="cards-type font-semibold text-xs py-1 cardnumber"
@@ -395,6 +404,9 @@ const ViewCardDetail = (props: any) => {
 												className="absolute ml-[210px] mt-[-4px]"
 												onClick={(event) => copyFunction(event, card?.cvc)}
 											>
+												{
+													reveal &&
+												<div className="copytext cvvNumber">
 												<svg
 													width="16"
 													height="16"
@@ -413,6 +425,8 @@ const ViewCardDetail = (props: any) => {
 														fill-opacity="0.7"
 													/>
 												</svg>
+												</div>
+												}
 											</div>
 											<div className="cards-type font-semibold text-sm py-1">
 												{reveal ? card?.cvc : "***"}
