@@ -4,10 +4,12 @@ import { Form, Formik, FormikErrors, FormikProps } from "formik";
 import cardsAPIService from "../../../../services/cardsAPIService";
 import { sessionContext } from "../../../../app";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Toast, toastFunction } from "../ToastComponent";
 
 interface VerifyDepositAmountsTabProps {
 	nextStep: () => void;
 	previousStep: () => void;
+	updateTabs: (tabs: string[], tabIndex: number) => void;
 }
 
 interface VerifyDepositData {
@@ -74,7 +76,11 @@ const VerifyDepositErrorMessage = ({ name, formik }: VerifyDepositErrorMessagePr
 	);
 };
 
-const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmountsTabProps) => {
+const VerifyDepositAmountsTab = ({
+	nextStep,
+	previousStep,
+	updateTabs,
+}: VerifyDepositAmountsTabProps) => {
 	const cardsService = new cardsAPIService();
 	const [message, setMessage] = useState("");
 	const [response, setResponse] = useState("");
@@ -94,6 +100,8 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 	const { pathname } = useLocation();
 	const [newBankAccount, setNewBankAccount] = useState(false);
 	const navigate = useNavigate();
+	const [showBackButton, setShowBackButton] = useState(false);
+	const [source, setSource] = useState<any>(null);
 
 	useEffect(() => {
 		if (pathname && pathname.includes("/add-new-bank-account")) {
@@ -101,7 +109,11 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 		} else {
 			setNewBankAccount(false);
 		}
-	}, [pathname]);
+		if (source_id) {
+			getSourceDetails(source_id);
+		}
+	}, []);
+
 	const onSubmit = (values: VerifyDepositData) => {
 		verifyDeposit(values);
 	};
@@ -110,16 +122,22 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 		setResponse("");
 		let errors: FormikErrors<VerifyDepositData> = {};
 		if (!values.firstAmount) {
-			errors.firstAmount = "First Amount must be greater zero";
+			errors.firstAmount = "First Amount must be between 0 to 1";
 		} else {
+			if (Number(values.firstAmount) <= 0 || Number(values.firstAmount) >= 1) {
+				errors.firstAmount = "First Amount must be between 0 to 1";
+			}
 			// let reg = new RegExp("^[0-9]*$");
 			// if (!reg.test(values.firstAmount)) {
 			// 	errors.firstAmount = "First Amount required integer value";
 			// }
 		}
 		if (!values.secondAmount) {
-			errors.secondAmount = "Second Amount must be greater than zero";
+			errors.secondAmount = "Second Amount must be between 0 to 1";
 		} else {
+			if (Number(values.secondAmount) <= 0 || Number(values.secondAmount) >= 1) {
+				errors.secondAmount = "Second Amount must be between 0 to 1";
+			}
 			// let reg = new RegExp("^[0-9]*$");
 			// if (!reg.test(values.secondAmount)) {
 			// 	errors.secondAmount = "Second Amount required integer value";
@@ -131,14 +149,25 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 		setShowSpinner(true);
 		setMessage("");
 		setResponse("");
+
+		const request: VerifyDepositData = { ...values };
+		request.firstAmount = String(Number(request.firstAmount) * 100);
+		request.secondAmount = String(Number(request.secondAmount) * 100);
+
 		try {
-			let response: any = await cardsService.verifyDepositAmounts(values);
+			let response: any = await cardsService.verifyDepositAmounts(request);
+			console.log(response);
 			setShowSpinner(false);
 			if (response.type === "StripePermissionError") {
-				setMessage(response.raw.message);
+				toastFunction(false, response.raw.message, "error");
+				if (source_id) {
+					getSourceDetails(source_id);
+				}
 			} else if (response.type === "StripeInvalidRequestError") {
-				setResponse(response.raw.message);
-				setMessage(response.raw.message);
+				toastFunction(false, response.raw.message, "error");
+				if (source_id) {
+					getSourceDetails(source_id);
+				}
 			} else {
 				if (newBankAccount) {
 					navigate("/bank-account-list");
@@ -153,8 +182,38 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 		}
 	};
 
+	const getSourceDetails = async (sourceId: string) => {
+		try {
+			let response: any = await cardsService.getSourceDetails({
+				account_id: account_id,
+				source_id: sourceId,
+			});
+			if (
+				response.type === "StripePermissionError" ||
+				response.type === "StripeInvalidRequestError"
+			) {
+				setSource(null);
+			} else {
+				setSource(response);
+				if (response) {
+					setShowBackButton(response.code_verification.attempts_remaining === 0);
+					setMessage(getAttemptsRemaining(response));
+				}
+			}
+		} catch (ex) {
+			console.log("exception", ex);
+			setSource(null);
+		}
+	};
+	const getAttemptsRemaining = (source: any): string => {
+		if (source) {
+			return `Verification attempts remaining ${source.code_verification.attempts_remaining}`;
+		}
+		return "";
+	};
 	return (
 		<>
+			<Toast />
 			<Spinner show={showSpinner} />
 			<div className="bk-form-section shadow-md w-full border-[1px] flex flex-col mb-2">
 				<div className="bk-form-header px-6 pt-6 mb-5 font-sans">
@@ -243,14 +302,23 @@ const VerifyDepositAmountsTab = ({ nextStep, previousStep }: VerifyDepositAmount
 									</div>
 								</div>
 								<div className="btn-bottom-section border-t-[1px] border-gray-200 py-4 flex justify-between items-center mt-10 pr-6">
-									{/* <a
-										className="mx-9 cursor-pointer hover:font-bold"
-										onClick={() => {
-											previousStep();
-										}}
-									>
-										Back
-									</a> */}
+									{true && (
+										<a
+											className="mx-9 cursor-pointer hover:font-bold"
+											onClick={() => {
+												updateTabs(
+													[
+														"Connect your Bank Account",
+														"Verify Deposit Amounts",
+														"Add Funds",
+													],
+													0
+												);
+											}}
+										>
+											Back
+										</a>
+									)}
 									<div className="text-sm font-bold ml-4 h-auto w-auto">
 										{message && message.length > 0 && <p>{message}</p>}
 									</div>

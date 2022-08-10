@@ -84,12 +84,12 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 	const [message, setMessage] = useState("");
 	const session = useContext(sessionContext);
 	const account_id = session?.organization?.stripeConnectId;
-	const initialValues: DepositData = {
+	const [initialValues, setInitialValues] = useState<DepositData>({
 		account_id: account_id || "",
 		source_id: "",
 		amount: "",
 		memo: "",
-	};
+	});
 	const [sources, setSources] = useState<any>([]);
 
 	const styleInputNormal = "border border-slate-200 focus:border-sky-500 focus:ring-sky-500";
@@ -104,6 +104,11 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 					const verifiedBankAccounts = await getVerifiedBankAccounts(bankAccounts);
 					if (verifiedBankAccounts) {
 						setSources(verifiedBankAccounts);
+						if (verifiedBankAccounts && verifiedBankAccounts.length > 0) {
+							setInitialValues((prev) => {
+								return { ...prev, source_id: verifiedBankAccounts[0].id };
+							});
+						}
 					} else {
 						setSources([]);
 					}
@@ -239,6 +244,7 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 						onSubmit(values);
 						actions.setSubmitting(false);
 					}}
+					enableReinitialize
 				>
 					{(formik: FormikProps<DepositData>) => {
 						const { handleSubmit, handleChange, touched, errors, handleBlur, values } =
@@ -340,7 +346,6 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 																	onBlur={handleBlur}
 																	value={values.memo}
 																	maxLength={50}
-																	
 																/>
 															</div>
 														</div>
@@ -363,19 +368,19 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 																		handleChange={handleChange}
 																		handleBlur={handleBlur}
 																		key={source.id}
+																		values={values}
 																	/>
 																))}
-																
 															</div>
 														)}
-														<a
+														{/* <a
 															className="text-sm text-red-500 mt-3 cursor-pointer hover:font-bold"
 															onClick={() => {
 																navigate("/add-new-bank-account");
 															}}
 														>
 															+ Add Another Bank Account
-														</a>
+														</a> */}
 													</div>
 													<div className="flex justify-between space-x-4 mb-0 mt-6 border-t-2 pt-6">
 														<div className="text-sm font-bold ml-4 h-auto w-72">
@@ -397,7 +402,12 @@ const DepositFundsPopup = ({ isShow, onSuccess, onHide }: DepositFundsPopupProps
 															<button
 																type="submit"
 																className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32"
-																disabled={!(formik.dirty && formik.isValid)}
+																disabled={
+																	!(
+																		formik.dirty &&
+																		formik.isValid
+																	)
+																}
 															>
 																Deposit
 															</button>

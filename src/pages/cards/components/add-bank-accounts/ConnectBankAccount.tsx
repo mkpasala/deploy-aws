@@ -18,10 +18,22 @@ const ConnectBankAccount = () => {
 	const [showSpinner, setShowSpinner] = useState(false);
 	const session = useContext(sessionContext);
 	const account_id = session?.organization?.stripeConnectId;
+
+	if (process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY) {
+		console.log("Stripe publishable key found");
+	} else {
+		console.log("Stripe publishable key not found");
+	}
+	if (account_id) {
+		console.log("Stripe account id found");
+	} else {
+		console.log("Stripe account id not found");
+	}
+
 	const promise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY, {
 		stripeAccount: account_id,
 	});
-	const [stepCount, setStepCount] = useState(0);
+	const [stepCount, setStepCount] = useState<number>(0);
 	const { pathname } = useLocation();
 	const [tabTitles, setTabTitles] = useState<string[]>([]);
 	const navigate = useNavigate();
@@ -29,69 +41,59 @@ const ConnectBankAccount = () => {
 
 	useEffect(() => {
 		(async () => {
-			setTabTitles([]);
+			//setTabTitles([]);
 			sessionStorage.removeItem("source_id");
 			if (pathname && pathname.includes("/add-new-bank-account")) {
 				setNewBankAccount(true);
-				setTabTitles((prev) => {
-					return [...prev, "Connect your Bank Account", "Verify Deposit Amounts"];
-				});
+				setTabTitles(["Connect your Bank Account", "Verify Deposit Amounts"]);
 			} else {
 				setNewBankAccount(false);
 				const bankAccounts = await getAllBankAccounts();
 				if (bankAccounts && bankAccounts.length > 0) {
 					const bankAccount = await getVerifiedBankAccount(bankAccounts);
 					if (bankAccount) {
-						const pending = bankAccount.status === "pending";
-						if (pending) {
-							const source_id = bankAccount.id;
-							sessionStorage.setItem("source_id", source_id);
-							setTabTitles((prev) => {
-								return [...prev, "Verify Deposit Amounts", "Add Funds"];
-							});
-						} else {
-							const code_verification =
-								bankAccount.code_verification.status === "succeeded";
-							const chargeable = bankAccount.status === "chargeable";
-							if (chargeable && code_verification) {
-								const balance = await retrieveBalance();
-								const amount = balance!.issuing!.available[0]!.amount / 100;
-								if (amount > 0) {
-									navigate("/card-list");
-								} else {
-									const source_id = bankAccount.id;
-									sessionStorage.setItem("source_id", source_id);
-									setTabTitles((prev) => {
-										return [...prev, "Add Funds"];
-									});
-								}
+						const code_verification =
+							bankAccount.code_verification.status === "succeeded";
+						const chargeable = bankAccount.status === "chargeable";
+						if (chargeable && code_verification) {
+							const balance = await retrieveBalance();
+							const amount = balance!.issuing!.available[0]!.amount / 100;
+							if (amount > 0) {
+								navigate("/card-list");
 							} else {
 								const source_id = bankAccount.id;
 								sessionStorage.setItem("source_id", source_id);
-								setTabTitles((prev) => {
-									return [...prev, "Verify Deposit Amounts", "Add Funds"];
-								});
+								setTabTitles(["Add Funds"]);
+							}
+						} else {
+							const source_id = bankAccount.id;
+							sessionStorage.setItem("source_id", source_id);
+							const attempts_remaining =
+								bankAccount.code_verification.attempts_remaining;
+							if (attempts_remaining > 0) {
+								setTabTitles(["Verify Deposit Amounts", "Add Funds"]);
+							} else {
+								setTabTitles([
+									"Connect your Bank Account",
+									"Verify Deposit Amounts",
+									"Add Funds",
+								]);
+								setStepCount(1);
 							}
 						}
 					} else {
-						setTabTitles((prev) => {
-							return [
-								...prev,
-								"Connect your Bank Account",
-								"Verify Deposit Amounts",
-								"Add Funds",
-							];
-						});
-					}
-				} else {
-					setTabTitles((prev) => {
-						return [
-							...prev,
+						setTabTitles([
 							"Connect your Bank Account",
 							"Verify Deposit Amounts",
 							"Add Funds",
-						];
-					});
+						]);
+					}
+				} else {
+					setTabTitles([
+						"Connect your Bank Account",
+						"Verify Deposit Amounts",
+						"Add Funds",
+					]);
 				}
 			}
 		})();
@@ -164,6 +166,7 @@ const ConnectBankAccount = () => {
 		const account_id = session?.organization?.stripeConnectId;
 		setShowSpinner(true);
 		const chargeableSources = [];
+		const pendingSources = [];
 		if (bankAccounts && bankAccounts.length > 0) {
 			for (let bankAccount of bankAccounts) {
 				const source = await getSourceDetails(bankAccount.id);
@@ -171,12 +174,16 @@ const ConnectBankAccount = () => {
 				if (source) {
 					const chargeable = source.status === "chargeable";
 					const code_verification = source.code_verification.status === "succeeded";
-					if (chargeable) chargeableSources.push(source);
-					if (chargeable && code_verification) {
-						setShowSpinner(false);
-						return source;
+					if (chargeable) {
+						chargeableSources.push(source);
+						if (code_verification) {
+							setShowSpinner(false);
+							return source;
+						} else {
+							continue;
+						}
 					} else {
-						continue;
+						pendingSources.push(source);
 					}
 				} else {
 					continue;
@@ -185,6 +192,10 @@ const ConnectBankAccount = () => {
 			if (chargeableSources.length > 0) {
 				setShowSpinner(false);
 				return chargeableSources[0];
+			}
+			if (pendingSources.length > 0) {
+				setShowSpinner(false);
+				return pendingSources[0];
 			}
 		}
 		setShowSpinner(false);
@@ -197,12 +208,29 @@ const ConnectBankAccount = () => {
 	const previousStep = (): void => {
 		setStepCount(stepCount - 1);
 	};
+	const updateTabs = (tabs: string[], tabIndex: number): void => {
+		//setTabTitles([]);
+		setTabTitles((prev) => {
+			return [...tabs];
+		});
+		setStepCount(tabIndex);
+	};
 	const loadComponent = (title: string) => {
+		console.log(tabTitles);
+		console.log(title);
+		console.log(stepCount);
+
 		switch (title) {
 			case "Connect your Bank Account":
 				return <ConnectBankAccountTab nextStep={nextStep} previousStep={previousStep} />;
 			case "Verify Deposit Amounts":
-				return <VerifyDepositAmountsTab nextStep={nextStep} previousStep={previousStep} />;
+				return (
+					<VerifyDepositAmountsTab
+						nextStep={nextStep}
+						previousStep={previousStep}
+						updateTabs={updateTabs}
+					/>
+				);
 			case "Add Funds":
 				return <AddFundsTab nextStep={nextStep} previousStep={previousStep} />;
 		}
