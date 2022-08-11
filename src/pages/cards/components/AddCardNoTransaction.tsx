@@ -305,7 +305,19 @@ const AddCardNoTransaction = () => {
 		console.log(name, transactionData);
 		setFilter(value);
 	};
-
+	var check:any = []
+	const method = ()=>{
+		 if(transactionData &&cardData){
+			transactionData?.map((item:any)=>{
+			cardData?.data.map((dta:any)=>{
+				if(dta.id=== item.card) check.push({...item,cardName:dta.name})
+		})
+		})
+	}
+	check.flat(1)
+	}
+	method()
+	
 	return (
 		<>
 			{/* {modalOn && <AddCardPopup setModalOn={setModalOn} />} */}
@@ -492,6 +504,7 @@ const AddCardNoTransaction = () => {
 											<Transaction
 												transaction={transactionData}
 												value={filter}
+												cardData={check}
 											/>
 										) : null}
 									</div>
