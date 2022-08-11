@@ -259,7 +259,7 @@ const ConnectBankAccount = () => {
 					{tabTitles.length > 0 && (
 						<div className="screen-title pt-[28px] pb-[15px] flex items-center">
 							{newBankAccount && (
-								<a href="/bank-account-list" className="mr-2">
+								<a href="/bank-account-list" className="mr-4">
 									<svg
 										width="16"
 										height="16"
