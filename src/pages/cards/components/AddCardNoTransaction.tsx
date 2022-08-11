@@ -324,7 +324,7 @@ const AddCardNoTransaction = () => {
 			<Spinner show={showSpinner || showSpinnerGetCard || showSpinnerTransaction} />
 			<div className="card-section font-sans">
 				<NavBar />
-				<main className="main-content flex flex-col mx-[75px] my-[25px] min-w-fit min-h-fit justify-center items-center">
+				<main className="main-content flex flex-col mx-[75px] my-[25px] min-w-fit min-h-fit">
 					<div className="screen-title pt-[28px] pb-[2px]">Cards</div>
 					<div className="cards-management flex flex-row text-gray-700 font-sans">
 						<div className="bl-section flex flex-col w-auto">
