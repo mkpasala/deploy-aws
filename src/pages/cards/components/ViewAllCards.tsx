@@ -48,7 +48,7 @@ const ViewAllCards = () => {
 			<Spinner show={showSpinner} />
 			<main className="main-content flex flex-col mx-[105px] w-screen">
 				<div className="screen-title pt-[28px] pb-[32px[143px]] flex items-center">
-					<a href="/card-list">
+					<a href="/card-list" className="mr-4">
 						<svg
 							width="27"
 							height="21"
@@ -65,7 +65,7 @@ const ViewAllCards = () => {
 							/>
 						</svg>
 					</a>
-					All Cards
+						All Cards
 				</div>
 				<div className="cards-management flex flex-row text-gray-700 font-sans">
 					<div className="fs-box-shadow ts-section">

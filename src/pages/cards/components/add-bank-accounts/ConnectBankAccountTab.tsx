@@ -387,6 +387,12 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 				errors.accountHolderName = "Please Enter Valid value";
 			}
 		}
+		if (values.zipCode) {
+			let reg = new RegExp("^[0-9]*$");
+			if (!reg.test(values.zipCode)) {
+				errors.zipCode = "Please Enter Numbers only";
+	}
+}
 		// 	let reg = new RegExp("^[0-9]*$");
 		// 	if (!reg.test(values.firstAmount)) {
 		// 		errors.firstAmount = "First Amount required integer value";
@@ -752,7 +758,9 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											Zip Code
 										</label>
 										<input
-											className="bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1"
+											className={`bk-form-input bk-input-placeholder placeholder:text-slate-400 block bg-white w-full border rounded-sm py-2 px-3 shadow-md focus:outline-none focus:ring-1 ${getInputStyle(
+												"zipCode"
+											)}`}
 											placeholder="Enter Zip Code here"
 											type="text"
 											name="zipCode"
@@ -760,6 +768,10 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 											onBlur={handleBlur}
 											value={values.zipCode}
 											maxLength={5}
+										/>
+										<BankAccountErrorMessage
+											name="zipCode"
+											formik={formik}
 										/>
 									</div>
 								</div>
@@ -770,6 +782,7 @@ const ConnectBankAccountTab = ({ nextStep, previousStep }: ConnectBankAccountTab
 									<button
 										type="submit"
 										className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded w-32 disabled:bg-gray-200"
+										disabled={!(formik.dirty && formik.isValid)}
 									>
 										Next
 									</button>

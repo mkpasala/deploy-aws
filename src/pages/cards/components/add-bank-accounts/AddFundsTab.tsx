@@ -184,6 +184,7 @@ const AddFundsTab = ({ nextStep, previousStep }: AddFundsTabProps) => {
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values.amount}
+											onKeyDown={(evt) => evt.key === 'e' && evt.preventDefault()}
 										/>
 										<AddFundsErrorMessage name="amount" formik={formik} />
 									</div>
