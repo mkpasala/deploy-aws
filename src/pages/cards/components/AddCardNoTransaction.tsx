@@ -305,14 +305,26 @@ const AddCardNoTransaction = () => {
 		console.log(name, transactionData);
 		setFilter(value);
 	};
-
+	var check:any = []
+	const method = ()=>{
+		 if(transactionData &&cardData){
+			transactionData?.map((item:any)=>{
+			cardData?.data.map((dta:any)=>{
+				if(dta.id=== item.card) check.push({...item,cardName:dta.name})
+		})
+		})
+	}
+	check.flat(1)
+	}
+	method()
+	
 	return (
 		<>
 			{/* {modalOn && <AddCardPopup setModalOn={setModalOn} />} */}
 			<Spinner show={showSpinner || showSpinnerGetCard || showSpinnerTransaction} />
 			<div className="card-section font-sans">
 				<NavBar />
-				<main className="main-content flex flex-col mx-[75px] my-[25px] min-w-fit min-h-fit">
+				<main className="main-content flex flex-col mx-[75px] my-[25px] min-w-fit min-h-fit justify-center items-center">
 					<div className="screen-title pt-[28px] pb-[2px]">Cards</div>
 					<div className="cards-management flex flex-row text-gray-700 font-sans">
 						<div className="bl-section flex flex-col w-auto">
@@ -492,6 +504,7 @@ const AddCardNoTransaction = () => {
 											<Transaction
 												transaction={transactionData}
 												value={filter}
+												cardData={check}
 											/>
 										) : null}
 									</div>

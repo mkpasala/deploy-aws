@@ -1,10 +1,10 @@
-const Transaction = ({ transaction ,value}: any) => {
+const Transaction = ({ transaction ,value,cardData}: any) => {
 	// let transactionData = transaction;
 	// console.log("transactionData===>",transactionData)
 	// console.log("value==>",value)
-	const transactionData = value?transaction.filter((item:any)=>item.merchant_data.name.toLowerCase().startsWith(value.toLowerCase())):transaction;
+	const transactionData = value?cardData.filter((item:any)=>item.merchant_data.name.toLowerCase().startsWith(value.toLowerCase()) ||item.cardName.toLowerCase().startsWith(value.toLowerCase())):cardData;
 	console.log('filteres daasas', transactionData);
-	
+	console.log('card daasas', cardData);
 	return (
 		<div>
 			<div className="fs-box-shadow ts-section mt-4 h-[400px]">
@@ -49,7 +49,8 @@ const Transaction = ({ transaction ,value}: any) => {
 								transactionData.map((transaction: any) => {
 									const date = new Date(transaction!.created * 1000).toLocaleDateString();
 									const created_by = transaction!.merchant_data!.name;
-									const cardname = transaction!.merchant_data!.name;
+									// const cardname = transaction!.merchant_data!.name;
+									const cardname = transaction!.cardName;
 									const type = transaction!.type;
 									const amount =
 										transaction!.amount < 0
